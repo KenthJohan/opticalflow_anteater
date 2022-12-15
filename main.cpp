@@ -9,6 +9,7 @@
 using namespace cv;
 
 
+
 void go_with_the_flow(Mat frame2, Mat next, Mat prvs)
 {
     Mat flow(prvs.size(), CV_32FC2);
@@ -62,6 +63,10 @@ void go_with_the_flow(Mat frame2, Mat next, Mat prvs)
 }
 
 
+
+
+
+
 int main(int argc, char const* argv[])
 {
     printf("Hello! Openging %s\n", argv[1]);
@@ -80,26 +85,26 @@ int main(int argc, char const* argv[])
         printf("Resolution %i %i\n", w, h);
     }
 
-    Mat raw; // Raw video frame
-    Mat frame[2]; // Two consecutive frames, video with two frames.
-    Mat frame0; // Two consecutive frames, video with two frames.
-    Mat frame1; // Two consecutive frames, video with two frames.
-
+    Mat raw;
+    Mat prvs;
     capture >> raw;
     if (raw.empty()) {return 0;}
-    cvtColor(raw, frame0, COLOR_BGR2GRAY);
+    cvtColor(raw, prvs, COLOR_BGR2GRAY);
 
     while(true)
     {
+        Mat next;
         capture >> raw;
-        if (raw.empty()){break;}
-        cvtColor(raw, frame1, COLOR_BGR2GRAY);
+        if (raw.empty())break;
+        cvtColor(raw, next, COLOR_BGR2GRAY);
 
-        go_with_the_flow(raw, frame1, frame0);
+        go_with_the_flow(raw, next, prvs);
 
+		
         int keyboard = waitKey(30);
-        if (keyboard == 'q' || keyboard == 27) {break;}
-
-        frame0 = frame1;
+        if (keyboard == 'q' || keyboard == 27)
+            break;
+            
+        prvs = next;
     }
 }
