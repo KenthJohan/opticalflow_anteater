@@ -72,7 +72,8 @@ void go_with_the_flow(Mat frame2, Mat next, Mat prvs, float alpha)
 
 int main(int argc, char const* argv[])
 {
-    printf("Hello! Openging %s\n", argv[1]);
+    setbuf(stdout, NULL);
+    printf("Hello this is the Anteater! Opening file '%s' for videocapture!\n", argv[1]);
     if(argv[1] == NULL) {return 0;}
 
     VideoCapture capture(samples::findFile(argv[1]));
@@ -81,17 +82,15 @@ int main(int argc, char const* argv[])
         printf("Unable to open file! %s\n", argv[1]);
         return 0;
     }
-    
 
     int w = capture.get(CAP_PROP_FRAME_WIDTH);
     int h = capture.get(CAP_PROP_FRAME_HEIGHT);
     printf("Resolution %i %i\n", w, h);
-
-
+    
     Mat raw;
     Mat prvs;
     capture >> raw;
-    if (raw.empty()) {return 0;}
+    if (raw.empty()){goto capture_is_empty;}
     cvtColor(raw, prvs, COLOR_BGR2GRAY);
 
     while(true)
@@ -101,7 +100,7 @@ int main(int argc, char const* argv[])
 
         Mat next;
         capture >> raw;
-        if (raw.empty())break;
+        if (raw.empty()){goto capture_is_empty;}
         cvtColor(raw, next, COLOR_BGR2GRAY);
 
         {
@@ -112,16 +111,19 @@ int main(int argc, char const* argv[])
                 Rect (0  , h/2, w/2, h/2),
                 Rect (w/2, h/2, w/2, h/2),
             };
-
             for (int i = 0; i < 4; ++i)
             {
                 go_with_the_flow(raw(r[i]), next(r[i]), prvs(r[i]), 0.1f);   
             }
-
-
-            imshow("cam2", raw);
+            imshow(argv[1], raw);
         }
-
         prvs = next;
     }
+    printf("Anteater exited successfully!\n");
+    return 0;
+
+capture_is_empty:
+    printf("Unable to open file! %s\n", argv[1]);
+    return 0;
+
 }
