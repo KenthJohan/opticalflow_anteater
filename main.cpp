@@ -10,7 +10,7 @@ using namespace cv;
 
 
 
-void go_with_the_flow(Mat frame2, Mat next, Mat prvs)
+void go_with_the_flow(Mat frame2, Mat next, Mat prvs, float alpha)
 {
     Mat flow(prvs.size(), CV_32FC2);
     calcOpticalFlowFarneback(prvs, next, flow, 0.5, 3, 15, 3, 5, 1.2, 0);
@@ -32,9 +32,10 @@ void go_with_the_flow(Mat frame2, Mat next, Mat prvs)
     
     
     
-    Mat overlay;
-    addWeighted(bgr, 0.5, frame2, 0.5, 0.0, overlay);
+    //Mat overlay;
+    addWeighted(bgr, 0.5, frame2, 0.5, 0.0, frame2);
     {
+        // Direction average calculation:
         Point2f da = Point2f(0,0);
         for(int j = 0;j < flow.cols;j++){
             for(int i = 0;i < flow.rows;i++){
@@ -44,22 +45,24 @@ void go_with_the_flow(Mat frame2, Mat next, Mat prvs)
         }
         da.x *= (1.0f/(flow.cols*flow.rows));
         da.y *= (1.0f/(flow.cols*flow.rows));
-        static Point2f d = Point2f(0,0);
-        for(int j = 0;j < flow.cols;j++){
-            for(int i = 0;i < flow.rows;i++){
-                float a = 0.0001f;
-                d.x = d.x *(1.0f-a) + da.x * (a);// FIR filter N=1
-                d.y = d.y *(1.0f-a) + da.y * (a);// FIR filter N=1
-            }
-        }
+
         
-        Point2f c = Point2f((float)overlay.cols / 2.0f, (float)overlay.rows / 2.0f);
-        Point2f cd = c + d*-60.0f;
-        arrowedLine(overlay, c, cd, Scalar(255, 255, 255), 2, LINE_4, 0, 0.5);
+        // Direction average FIR calculation, FIR filter N=1
+        static Point2f da_fir = Point2f(0,0);
+        da_fir.x = da_fir.x *(1.0f-alpha) + da.x * (alpha);
+        da_fir.y = da_fir.y *(1.0f-alpha) + da.y * (alpha);
+
+        {
+            //Draw line from (c) to (cd)
+            Point2f c = Point2f((float)frame2.cols / 2.0f, (float)frame2.rows / 2.0f);
+            Point2f cd = c + da_fir*-60.0f;
+            arrowedLine(frame2, c, cd, Scalar(255, 255, 255), 2, LINE_4, 0, 0.5);
+        }
+
         //circle(overlay,cf,10, Scalar( 255, 255, 255 ),FILLED,LINE_8 );
     }
     //cv::putText(overlay,std::to_string(_mean[0]) + ", " + std::to_string(_mean[1]),cv::Point(10, overlay.rows / 2),cv::FONT_HERSHEY_DUPLEX,1.0,CV_RGB(118, 185, 0),2);
-    imshow("frame2", overlay);
+    
 }
 
 
@@ -79,11 +82,11 @@ int main(int argc, char const* argv[])
         return 0;
     }
     
-    {
-        int w = capture.get(CAP_PROP_FRAME_WIDTH);
-        int h = capture.get(CAP_PROP_FRAME_HEIGHT);
-        printf("Resolution %i %i\n", w, h);
-    }
+
+    int w = capture.get(CAP_PROP_FRAME_WIDTH);
+    int h = capture.get(CAP_PROP_FRAME_HEIGHT);
+    printf("Resolution %i %i\n", w, h);
+
 
     Mat raw;
     Mat prvs;
@@ -93,18 +96,32 @@ int main(int argc, char const* argv[])
 
     while(true)
     {
+        int keyboard = waitKey(30);
+        if (keyboard == 'q' || keyboard == 27) {break;}
+
         Mat next;
         capture >> raw;
         if (raw.empty())break;
         cvtColor(raw, next, COLOR_BGR2GRAY);
 
-        go_with_the_flow(raw, next, prvs);
+        {
+            Rect r[4] = 
+            {
+                Rect (0  , 0  , w/2, h/2),
+                Rect (w/2, 0  , w/2, h/2),
+                Rect (0  , h/2, w/2, h/2),
+                Rect (w/2, h/2, w/2, h/2),
+            };
 
-		
-        int keyboard = waitKey(30);
-        if (keyboard == 'q' || keyboard == 27)
-            break;
-            
+            for (int i = 0; i < 4; ++i)
+            {
+                go_with_the_flow(raw(r[i]), next(r[i]), prvs(r[i]), 0.1f);   
+            }
+
+
+            imshow("cam2", raw);
+        }
+
         prvs = next;
     }
 }
