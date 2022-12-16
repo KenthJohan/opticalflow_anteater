@@ -10,7 +10,7 @@ using namespace cv;
 
 
 
-void go_with_the_flow(Mat frame2, Mat next, Mat prvs, float alpha)
+void go_with_the_flow(Mat frame2, Mat next, Mat prvs, float alpha, Point2f& direction_fir)
 {
     Mat flow(prvs.size(), CV_32FC2);
     calcOpticalFlowFarneback(prvs, next, flow, 0.5, 3, 15, 3, 5, 1.2, 0);
@@ -36,52 +36,48 @@ void go_with_the_flow(Mat frame2, Mat next, Mat prvs, float alpha)
     addWeighted(bgr, 0.5, frame2, 0.5, 0.0, frame2);
     {
         // Direction average calculation:
-        Point2f da = Point2f(0,0);
+        Point2f direction = Point2f(0,0);
         for(int j = 0;j < flow.cols;j++){
             for(int i = 0;i < flow.rows;i++){
-                da.x += flowp[0].at<float>(i,j);
-                da.y += flowp[1].at<float>(i,j);
+                direction.x += flowp[0].at<float>(i,j);
+                direction.y += flowp[1].at<float>(i,j);
             }
         }
-        da.x *= (1.0f/(flow.cols*flow.rows));
-        da.y *= (1.0f/(flow.cols*flow.rows));
+        direction.x *= (1.0f/(flow.cols*flow.rows));
+        direction.y *= (1.0f/(flow.cols*flow.rows));
         
         // Direction average FIR calculation, FIR filter N=1
-        static Point2f da_fir = Point2f(0,0);
-        da_fir.x = da_fir.x *(1.0f-alpha) + da.x * (alpha);
-        da_fir.y = da_fir.y *(1.0f-alpha) + da.y * (alpha);
-    
-
+        direction_fir.x = direction_fir.x *(1.0f-alpha) + direction.x * (alpha);
+        direction_fir.y = direction_fir.y *(1.0f-alpha) + direction.y * (alpha);
 
         {
-            //Draw line from (c) to (cd)
+            // Draw line from (c) to (cd):
             Point2f c = Point2f((float)frame2.cols / 2.0f, (float)frame2.rows / 2.0f);
-            Point2f cd = c + da_fir*-60.0f;
+            Point2f cd = c + direction_fir*-60.0f;
             arrowedLine(frame2, c, cd, Scalar(255, 255, 255), 2, LINE_4, 0, 0.5);
             char buf[100];
+
+            // Print angle:
+            float angle = atan2(direction_fir.y, direction_fir.x);
             //snprintf(buf, 100, "%f %f    ", da_fir.x, da_fir.y);
             //snprintf(buf, 100, "%10.10f    ", sqrtf(da_fir.x*da_fir.x + da_fir.y*da_fir.y));
-            float angle = atan2(da_fir.y, da_fir.x);
             snprintf(buf, 100, "%+5.0f    ", (angle / M_PI) * 180.0f);
             cv::putText(frame2, buf,c,cv::FONT_HERSHEY_DUPLEX,1,cv::Scalar(0,255,0),2,false);
             printf(buf);
-            //putText( frame2, buf, c, rng.uniform(0,8), rng.uniform(0,100)*0.05+0.1, randomColor(rng), rng.uniform(1, 10), LINE_8);
         }
-
-        //circle(overlay,cf,10, Scalar( 255, 255, 255 ),FILLED,LINE_8 );
     }
-    //cv::putText(overlay,std::to_string(_mean[0]) + ", " + std::to_string(_mean[1]),cv::Point(10, overlay.rows / 2),cv::FONT_HERSHEY_DUPLEX,1.0,CV_RGB(118, 185, 0),2);
-    
+
 }
 
 
 
 
-void subimage(Mat raw, Mat next, Mat prvs, float alpha)
+void subimage(Mat raw, Mat next, Mat prvs, float alpha, Point2f directions[3])
 {
     int w = raw.cols;
     int h = raw.rows;
 #if 0
+    // Four quadrants 
     #define NUM_OF_RECTS 4
     Rect r[NUM_OF_RECTS] = 
     {
@@ -92,17 +88,18 @@ void subimage(Mat raw, Mat next, Mat prvs, float alpha)
     };
 #endif
 #if 1
+    // Three quadrants across x axis
     #define NUM_OF_RECTS 3
     Rect r[NUM_OF_RECTS] = 
     {
-        Rect (0      , 0  , w/3, h),
-        Rect (w/3    , 0  , w/3, h),
-        Rect ((2*w)/3, 0  , w/3, h),
+        Rect ((0*w)/3, 0, w/3, h),
+        Rect ((1*w)/3, 0, w/3, h),
+        Rect ((2*w)/3, 0, w/3, h),
     };
 #endif
     for (int i = 0; i < NUM_OF_RECTS; ++i)
     {
-        go_with_the_flow(raw(r[i]), next(r[i]), prvs(r[i]), 0.1f);   
+        go_with_the_flow(raw(r[i]), next(r[i]), prvs(r[i]), 0.1f, directions[i]);   
     }
     printf("\n");
 }
@@ -129,7 +126,7 @@ int main(int argc, char const* argv[])
         printf("Resolution %i %i\n", w, h);
     }
 
-    
+    Point2f directions[3];
     Mat raw;
     Mat prvs;
     capture >> raw;
@@ -145,7 +142,7 @@ int main(int argc, char const* argv[])
         if (raw.empty()){goto capture_is_empty;}
         cvtColor(raw, next, COLOR_BGR2GRAY);
 
-        subimage(raw, next, prvs, 0.1f);
+        subimage(raw, next, prvs, 0.1f, directions);
         imshow(argv[1], raw);
 
         prvs = next;
