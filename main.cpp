@@ -77,9 +77,10 @@ void subimage(Mat raw, Mat next, Mat prvs, float alpha, Rect r[], Point2f direct
     for (int i = 0; i < n; ++i)
     {
         go_with_the_flow(raw(r[i]), next(r[i]), prvs(r[i]), 0.1f, directions[i]);
-        rectangle(raw(r[i]), r[i], Scalar(255, 255, 0), 40, LINE_4);
-        rectangle(raw(r[i]), r[i], Scalar(255, 0, 0), 20, LINE_4);
+        rectangle(raw, r[i], Scalar(255, 255, 255), 6, LINE_4);
     }
+
+
     printf("\n");
 }
 
@@ -87,9 +88,9 @@ void subimage(Mat raw, Mat next, Mat prvs, float alpha, Rect r[], Point2f direct
 
 void rect_init_three_way(Rect r[3], int w, int h)
 {
-    r[0] = Rect ((0*w)/3, 0, w/3, h-10);
-    r[1] = Rect ((1*w)/3, 0, w/3, h-20);
-    r[2] = Rect ((2*w)/3, 0, w/3, h-30);
+    r[0] = Rect ((0*w)/3, 0, w/3, h);
+    r[1] = Rect ((1*w)/3, 0, w/3, h);
+    r[2] = Rect ((2*w)/3, 0, w/3, h);
 }
 void rect_init_four_way(Rect r[4], int w, int h)
 {
