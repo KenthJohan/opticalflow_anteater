@@ -45,18 +45,27 @@ void go_with_the_flow(Mat frame2, Mat next, Mat prvs, float alpha)
         }
         da.x *= (1.0f/(flow.cols*flow.rows));
         da.y *= (1.0f/(flow.cols*flow.rows));
-
         
         // Direction average FIR calculation, FIR filter N=1
         static Point2f da_fir = Point2f(0,0);
         da_fir.x = da_fir.x *(1.0f-alpha) + da.x * (alpha);
         da_fir.y = da_fir.y *(1.0f-alpha) + da.y * (alpha);
+    
+
 
         {
             //Draw line from (c) to (cd)
             Point2f c = Point2f((float)frame2.cols / 2.0f, (float)frame2.rows / 2.0f);
             Point2f cd = c + da_fir*-60.0f;
             arrowedLine(frame2, c, cd, Scalar(255, 255, 255), 2, LINE_4, 0, 0.5);
+            char buf[100];
+            //snprintf(buf, 100, "%f %f    ", da_fir.x, da_fir.y);
+            //snprintf(buf, 100, "%10.10f    ", sqrtf(da_fir.x*da_fir.x + da_fir.y*da_fir.y));
+            float angle = atan2(da_fir.y, da_fir.x);
+            snprintf(buf, 100, "%+5.0f    ", (angle / M_PI) * 180.0f);
+            cv::putText(frame2, buf,c,cv::FONT_HERSHEY_DUPLEX,1,cv::Scalar(0,255,0),2,false);
+            printf(buf);
+            //putText( frame2, buf, c, rng.uniform(0,8), rng.uniform(0,100)*0.05+0.1, randomColor(rng), rng.uniform(1, 10), LINE_8);
         }
 
         //circle(overlay,cf,10, Scalar( 255, 255, 255 ),FILLED,LINE_8 );
@@ -66,6 +75,37 @@ void go_with_the_flow(Mat frame2, Mat next, Mat prvs, float alpha)
 }
 
 
+
+
+void subimage(Mat raw, Mat next, Mat prvs, float alpha)
+{
+    int w = raw.cols;
+    int h = raw.rows;
+#if 0
+    #define NUM_OF_RECTS 4
+    Rect r[NUM_OF_RECTS] = 
+    {
+        Rect (0  , 0  , w/2, h/2),
+        Rect (w/2, 0  , w/2, h/2),
+        Rect (0  , h/2, w/2, h/2),
+        Rect (w/2, h/2, w/2, h/2),
+    };
+#endif
+#if 1
+    #define NUM_OF_RECTS 3
+    Rect r[NUM_OF_RECTS] = 
+    {
+        Rect (0      , 0  , w/3, h),
+        Rect (w/3    , 0  , w/3, h),
+        Rect ((2*w)/3, 0  , w/3, h),
+    };
+#endif
+    for (int i = 0; i < NUM_OF_RECTS; ++i)
+    {
+        go_with_the_flow(raw(r[i]), next(r[i]), prvs(r[i]), 0.1f);   
+    }
+    printf("\n");
+}
 
 
 
@@ -83,9 +123,12 @@ int main(int argc, char const* argv[])
         return 0;
     }
 
-    int w = capture.get(CAP_PROP_FRAME_WIDTH);
-    int h = capture.get(CAP_PROP_FRAME_HEIGHT);
-    printf("Resolution %i %i\n", w, h);
+    {
+        int w = capture.get(CAP_PROP_FRAME_WIDTH);
+        int h = capture.get(CAP_PROP_FRAME_HEIGHT);
+        printf("Resolution %i %i\n", w, h);
+    }
+
     
     Mat raw;
     Mat prvs;
@@ -97,26 +140,14 @@ int main(int argc, char const* argv[])
     {
         int keyboard = waitKey(30);
         if (keyboard == 'q' || keyboard == 27) {break;}
-
         Mat next;
         capture >> raw;
         if (raw.empty()){goto capture_is_empty;}
         cvtColor(raw, next, COLOR_BGR2GRAY);
 
-        {
-            Rect r[4] = 
-            {
-                Rect (0  , 0  , w/2, h/2),
-                Rect (w/2, 0  , w/2, h/2),
-                Rect (0  , h/2, w/2, h/2),
-                Rect (w/2, h/2, w/2, h/2),
-            };
-            for (int i = 0; i < 4; ++i)
-            {
-                go_with_the_flow(raw(r[i]), next(r[i]), prvs(r[i]), 0.1f);   
-            }
-            imshow(argv[1], raw);
-        }
+        subimage(raw, next, prvs, 0.1f);
+        imshow(argv[1], raw);
+
         prvs = next;
     }
     printf("Anteater exited successfully!\n");
