@@ -72,32 +72,9 @@ void go_with_the_flow(Mat frame2, Mat next, Mat prvs, float alpha, Point2f& dire
 
 
 
-void subimage(Mat raw, Mat next, Mat prvs, float alpha, Point2f directions[3])
+void subimage(Mat raw, Mat next, Mat prvs, float alpha, Rect r[], Point2f directions[], int n)
 {
-    int w = raw.cols;
-    int h = raw.rows;
-#if 0
-    // Four quadrants 
-    #define NUM_OF_RECTS 4
-    Rect r[NUM_OF_RECTS] = 
-    {
-        Rect (0  , 0  , w/2, h/2),
-        Rect (w/2, 0  , w/2, h/2),
-        Rect (0  , h/2, w/2, h/2),
-        Rect (w/2, h/2, w/2, h/2),
-    };
-#endif
-#if 1
-    // Three quadrants across x axis
-    #define NUM_OF_RECTS 3
-    Rect r[NUM_OF_RECTS] = 
-    {
-        Rect ((0*w)/3, 0, w/3, h),
-        Rect ((1*w)/3, 0, w/3, h),
-        Rect ((2*w)/3, 0, w/3, h),
-    };
-#endif
-    for (int i = 0; i < NUM_OF_RECTS; ++i)
+    for (int i = 0; i < n; ++i)
     {
         go_with_the_flow(raw(r[i]), next(r[i]), prvs(r[i]), 0.1f, directions[i]);   
     }
@@ -120,11 +97,32 @@ int main(int argc, char const* argv[])
         return 0;
     }
 
+    
+    int w = capture.get(CAP_PROP_FRAME_WIDTH);
+    int h = capture.get(CAP_PROP_FRAME_HEIGHT);
+    printf("Resolution %i %i\n", w, h);
+#if 0
+    // Four quadrants 
+    #define NUM_OF_RECTS 4
+    Rect r[NUM_OF_RECTS] = 
     {
-        int w = capture.get(CAP_PROP_FRAME_WIDTH);
-        int h = capture.get(CAP_PROP_FRAME_HEIGHT);
-        printf("Resolution %i %i\n", w, h);
-    }
+        Rect (0  , 0  , w/2, h/2),
+        Rect (w/2, 0  , w/2, h/2),
+        Rect (0  , h/2, w/2, h/2),
+        Rect (w/2, h/2, w/2, h/2),
+    };
+#endif
+#if 1
+    // Three quadrants across x axis
+    #define NUM_OF_RECTS 3
+    Rect r[NUM_OF_RECTS] = 
+    {
+        Rect ((0*w)/3, 0, w/3, h),
+        Rect ((1*w)/3, 0, w/3, h),
+        Rect ((2*w)/3, 0, w/3, h),
+    };
+#endif
+
 
     Point2f directions[3];
     Mat raw;
@@ -142,7 +140,7 @@ int main(int argc, char const* argv[])
         if (raw.empty()){goto capture_is_empty;}
         cvtColor(raw, next, COLOR_BGR2GRAY);
 
-        subimage(raw, next, prvs, 0.1f, directions);
+        subimage(raw, next, prvs, 0.1f, r, directions, NUM_OF_RECTS);
         imshow(argv[1], raw);
 
         prvs = next;
