@@ -129,7 +129,7 @@ int main(int argc, char const* argv[])
     rect_init_three_way(r, w, h);
 
 
-    Point2f directions[3];
+    Point2f directions[NUM_OF_VIEWS];
     Mat raw;
     Mat prvs;
     capture >> raw;
