@@ -15,7 +15,14 @@ using namespace cv;
 void go_with_the_flow(Mat frame2, Mat next, Mat prvs, float alpha, Point2f& direction_fir)
 {
     Mat flow(prvs.size(), CV_32FC2);
-    calcOpticalFlowFarneback(prvs, next, flow, 0.5, 3, 15, 3, 5, 1.2, 0);
+    double pyr_scale = 0.5;
+    int levels = 3;
+    int winsize = 5;
+    int iterations = 3;
+    int poly_n = 7;
+    double poly_sigma = 1.2;
+    int flags = 0;
+    calcOpticalFlowFarneback(prvs, next, flow, pyr_scale, levels, winsize, iterations, poly_n, poly_sigma, flags);
     // visualization
     Mat flowp[2];
     split(flow, flowp);
@@ -66,7 +73,7 @@ void go_with_the_flow(Mat frame2, Mat next, Mat prvs, float alpha, Point2f& dire
             //snprintf(buf, 100, "%f %f    ", da_fir.x, da_fir.y);
             snprintf(buf, 100, "%5.2f", speed);
             //snprintf(buf, 100, "%+5.0f    ", (angle / M_PI) * 180.0f);
-            cv::putText(frame2, buf,c,cv::FONT_HERSHEY_DUPLEX,1,cv::Scalar(0,255,0),2,false);
+            cv::putText(frame2, buf, cd, cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,255,0),2,false);
             printf(buf);
         }
     }
@@ -146,7 +153,7 @@ int main(int argc, char const* argv[])
 
     #define NUM_OF_VIEWS 3
     Rect r[NUM_OF_VIEWS];
-    float alpha[NUM_OF_VIEWS] = {0.01f, 0.01f, 0.01f};
+    float alpha[NUM_OF_VIEWS] = {0.1f, 0.1f, 0.1f};
     rect_init_three_way(r, w, h);
 
 
