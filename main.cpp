@@ -4,11 +4,13 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/video.hpp>
+#include <opencv2/core/utils/filesystem.hpp>
 #include <opencv2/core/types_c.h>
 #include <stdio.h>
 using namespace cv;
 
-
+#define HYPOT_F64(x,y) (sqrt((x)*(x) + (y)*(y)))
+#define HYPOT_F32(x,y) (sqrtf((x)*(x) + (y)*(y)))
 
 void go_with_the_flow(Mat frame2, Mat next, Mat prvs, float alpha, Point2f& direction_fir)
 {
@@ -58,10 +60,12 @@ void go_with_the_flow(Mat frame2, Mat next, Mat prvs, float alpha, Point2f& dire
             char buf[100];
 
             // Print angle:
-            float angle = atan2(direction_fir.y, direction_fir.x);
+            //float angle = atan2(direction_fir.y, direction_fir.x);
+            direction_fir;
+            float speed = HYPOT_F32(direction_fir.x, direction_fir.y);
             //snprintf(buf, 100, "%f %f    ", da_fir.x, da_fir.y);
-            //snprintf(buf, 100, "%10.10f    ", sqrtf(da_fir.x*da_fir.x + da_fir.y*da_fir.y));
-            snprintf(buf, 100, "%+5.0f    ", (angle / M_PI) * 180.0f);
+            snprintf(buf, 100, "%5.2f", speed);
+            //snprintf(buf, 100, "%+5.0f    ", (angle / M_PI) * 180.0f);
             cv::putText(frame2, buf,c,cv::FONT_HERSHEY_DUPLEX,1,cv::Scalar(0,255,0),2,false);
             printf(buf);
         }
@@ -72,15 +76,13 @@ void go_with_the_flow(Mat frame2, Mat next, Mat prvs, float alpha, Point2f& dire
 
 
 
-void subimage(Mat raw, Mat next, Mat prvs, float alpha, Rect r[], Point2f directions[], int n)
+void subimage(Mat raw, Mat next, Mat prvs, float alpha[], Rect r[], Point2f directions[], int n)
 {
     for (int i = 0; i < n; ++i)
     {
-        go_with_the_flow(raw(r[i]), next(r[i]), prvs(r[i]), 0.1f, directions[i]);
+        go_with_the_flow(raw(r[i]), next(r[i]), prvs(r[i]), alpha[i], directions[i]);
         rectangle(raw, r[i], Scalar(255, 255, 255), 6, LINE_4);
     }
-
-
     printf("\n");
 }
 
@@ -102,21 +104,39 @@ void rect_init_four_way(Rect r[4], int w, int h)
 
 int main(int argc, char const* argv[])
 {
-    setbuf(stdout, NULL);
-    printf("Hello this is the Anteater! Opening file '%s' for videocapture!\n", argv[1]);
-    if(argv[1] == NULL) {return 0;}
+    VideoCapture capture;
 
-    VideoCapture capture(samples::findFile(argv[1]));
-    if (!capture.isOpened())
+    setbuf(stdout, NULL);
+    printf("Hello this is the Anteater!\n");
+    printf("cwd: '%s'\n", cv::utils::fs::getcwd().c_str());
+    if(argv[1] == NULL)
     {
-        printf("Unable to open file! %s\n", argv[1]);
+        printf("Missing input file!\n");
         return 0;
     }
 
     
+    {
+        cv::String path = samples::findFile(argv[1], false, true);
+        if(path.empty())
+        {
+            printf("Cannot find file '%s'!\n", argv[1]);
+            return 0;
+        }
+        printf("Opening file '%s'  for videocapture!\n", path.c_str());
+        capture.open(path);
+        if (!capture.isOpened())
+        {
+            printf("Unable to open file! %s\n", path.c_str());
+            return 0;
+        }
+    }
+
+
+    
     int w = capture.get(CAP_PROP_FRAME_WIDTH);
     int h = capture.get(CAP_PROP_FRAME_HEIGHT);
-    printf("Resolution %i %i\n", w, h);
+    printf("Resolution of videocapture is %ix%i!\n", w, h);
 
     /*
     #define NUM_OF_VIEWS 4
@@ -126,6 +146,7 @@ int main(int argc, char const* argv[])
 
     #define NUM_OF_VIEWS 3
     Rect r[NUM_OF_VIEWS];
+    float alpha[NUM_OF_VIEWS] = {0.01f, 0.01f, 0.01f};
     rect_init_three_way(r, w, h);
 
 
@@ -145,7 +166,7 @@ int main(int argc, char const* argv[])
         if (raw.empty()){goto capture_is_empty;}
         cvtColor(raw, next, COLOR_BGR2GRAY);
 
-        subimage(raw, next, prvs, 0.1f, r, directions, NUM_OF_VIEWS);
+        subimage(raw, next, prvs, alpha, r, directions, NUM_OF_VIEWS);
         imshow(argv[1], raw);
 
         prvs = next;
@@ -154,7 +175,7 @@ int main(int argc, char const* argv[])
     return 0;
 
 capture_is_empty:
-    printf("Unable to open file! %s\n", argv[1]);
+    printf("Capture is empty! %s\n", argv[1]);
     return 0;
 
 }

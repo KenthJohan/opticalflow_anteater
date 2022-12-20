@@ -6,9 +6,9 @@
         "type": "cppdbg", // Is this also for C debugging?
         "request": "launch",
         "program": "${workspaceFolder}/build/demo1.exe",
-        "args": [],
+        "args": ["2022-12-15_14-56-29.mp4"],
         "stopAtEntry": false,
-        "cwd": "${workspaceFolder}/build",
+        "cwd": "${workspaceFolder}",
         "environment": [],
         "externalConsole": false, //set to true to see output in cmd instead
         "MIMode": "gdb",
