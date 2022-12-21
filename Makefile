@@ -21,6 +21,7 @@ endif
 #SRCS := main.cpp oflow_lucaskanade.cpp
 SRCS := main.cpp oflow_phasecorr.cpp
 
+
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 #INC_DIRS := $(shell find $(SRC_DIRS) -type d)

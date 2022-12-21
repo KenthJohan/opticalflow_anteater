@@ -12,43 +12,52 @@
 
 using namespace cv;
 
-#define NUM_OF_VIEWS 3
+// How many camera views and how its placed, like horizontally or verticly.
+#define WELDVISI_VIEWS 3
+#define WELDVISI_ROWS 1
+#define WELDVISI_COLS 3
 
 #define ASSETS_ABOUT \
-"This sample demonstrates Lucas-Kanade Optical Flow calculation.\n" \
-"The example file can be downloaded from:\n" \
-"  https://www.bogotobogo.com/python/OpenCV_Python/images/mean_shift_tracking/slow_traffic_small.mp4"
+"This sample demonstrates Optical Flow calculation.\n"
 
 #define ASSETS_ARG_KEYS \
-"{ h help |      | print this help message }" \
-"{ @image | vtest.avi | path to image file }"
+"{ h help |           | print this help message }" \
+"{ @image | vtest.avi | path to image file }" \
+"{ o      |           | Output file }"
 
 
 
-void rect_init_three_way(Rect r[3], int w, int h)
+
+
+
+// Sets multiple rectangles as a grid:
+void rect_grid(Rect r[], int n, int rows, int cols, int w, int h)
 {
-    r[0] = Rect ((0*w)/3, 0, w/3, h);
-    r[1] = Rect ((1*w)/3, 0, w/3, h);
-    r[2] = Rect ((2*w)/3, 0, w/3, h);
+    for(int y = 0; y < rows; ++y)
+    {
+        for(int x = 0; x < cols; ++x)
+        {
+            if (n == 0) {return;}
+            n--;
+            r[y*w + x].x = (x*w)/cols;
+            r[y*w + x].y = (y*h)/rows;
+            r[y*w + x].width = w/cols;
+            r[y*w + x].height = h/rows;
+        }
+    }
 }
-void rect_init_four_way(Rect r[4], int w, int h)
-{
-    r[0] = Rect (0  , 0  , w/2, h/2);
-    r[1] = Rect (w/2, 0  , w/2, h/2);
-    r[2] = Rect (0  , h/2, w/2, h/2);
-    r[3] = Rect (w/2, h/2, w/2, h/2);
-}
 
 
-
+// For visual purpose only:
+// This draw the direction and speed:
 void draw_arrow(Mat frame, Point2f direction)
 {
-    // Draw line from (c) to (cd):
+    // Draw line from Point(c) to Point(c+d):
+    // Where Point(c) is the center of frame:
     Point2f c = Point2f((float)frame.cols / 2.0f, (float)frame.rows / 2.0f);
     Point2f cd = c + direction;
     arrowedLine(frame, c, cd, Scalar(255, 255, 255), 2, LINE_4, 0, 0.5);
     char buf[100];
-
     float speed = HYPOT_F32(direction.x, direction.y);
     snprintf(buf, 100, "%5.2f", speed);
     //snprintf(buf, 100, "%+5.0f    ", (angle / M_PI) * 180.0f);
@@ -67,6 +76,17 @@ int main(int argc, char const* argv[])
     printf("cwd: '%s'\n", cv::utils::fs::getcwd().c_str());
 
     CommandLineParser parser(argc, argv, ASSETS_ARG_KEYS);
+    VideoCapture capture;
+    cv::String filename;
+    Rect r[WELDVISI_VIEWS];
+    Point2f direction[WELDVISI_VIEWS] = {};
+    Mat raw;
+    float alpha = 0.01f;
+    float visual_direction_gain[WELDVISI_VIEWS] = {-60.0f, -120.0f, -60.0f};
+    oflow_context context[WELDVISI_VIEWS];
+    VideoWriter outputVideo;
+
+
     parser.about(ASSETS_ABOUT);
     if (parser.has("help"))
     {
@@ -74,14 +94,14 @@ int main(int argc, char const* argv[])
         return 0;
     }
 
-    cv::String filename = samples::findFile(parser.get<cv::String>("@image"));
+    filename = samples::findFile(parser.get<cv::String>("@image"));
     if (!parser.check())
     {
         parser.printErrors();
         return 0;
     }
 
-    VideoCapture capture(filename);
+    capture.open(filename);
     if (!capture.isOpened())
     {
         //error in opening the video input
@@ -89,64 +109,57 @@ int main(int argc, char const* argv[])
         return 0;
     }
 
-
-    Rect r[NUM_OF_VIEWS];
-    Point2f direction[NUM_OF_VIEWS] = {};
-
     {
         int w = capture.get(CAP_PROP_FRAME_WIDTH);
         int h = capture.get(CAP_PROP_FRAME_HEIGHT);
         printf("Resolution of videocapture is %ix%i!\n", w, h);
-        rect_init_three_way(r, w, h);
+        rect_grid(r, WELDVISI_VIEWS, WELDVISI_ROWS, WELDVISI_COLS, w, h);
     }
 
-
-
-    
-    Mat raw;
-    float alpha = 0.01f;
-    float visual_direction_gain[NUM_OF_VIEWS] = {-60.0f, -120.0f, -60.0f};
-    oflow_context context[NUM_OF_VIEWS];
     capture >> raw;
-    for(int i = 0; i < NUM_OF_VIEWS; ++i)
+    for(int i = 0; i < WELDVISI_VIEWS; ++i)
     {
         oflow_init(context+i, raw(r[i]));
     }
 
 
-    /*
-    VideoWriter outputVideo;
     {
-        int codec = static_cast<int>(capture.get(CAP_PROP_FOURCC));
-        double fps = capture.get(CAP_PROP_FPS);
-        bool isColor = (raw.type() == CV_8UC3);
-        outputVideo.open("out_"+filename, codec, fps, raw.size(), isColor);
+        String outname = parser.get<String>("o");
+        if (outname.length() > 0)
+        {
+            int codec = static_cast<int>(capture.get(CAP_PROP_FOURCC));
+            double fps = capture.get(CAP_PROP_FPS);
+            bool isColor = (raw.type() == CV_8UC3);
+            outputVideo.open(outname+filename, codec, fps, raw.size(), isColor);
+        }
     }
-    */
+
 
     while(true)
     {
-        int keyboard = waitKey(30);
-        if (keyboard == 'q' || keyboard == 27) {break;}
+        {
+            int keyboard = waitKey(30);
+            if (keyboard == 'q' || keyboard == 27) {break;}
+        }
 
         {
             capture >> raw;
             if (raw.empty()) {break;}
-
-            for(int i = 0; i < NUM_OF_VIEWS; ++i)
+            for(int i = 0; i < WELDVISI_VIEWS; ++i)
             {
                 oflow_run(context+i, raw(r[i]), direction[i], alpha);
-                rectangle(raw, r[i], Scalar(255, 255, 255), 6, LINE_4);
+                rectangle(raw, r[i], Scalar(0, 0, 255), 2, LINE_4);
                 draw_arrow(raw(r[i]), direction[i]*visual_direction_gain[i]);
             }
             imshow(filename, raw);
-            //outputVideo.write(raw);
+            if (outputVideo.isOpened())
+            {
+                outputVideo.write(raw);
+            }
         }
-
     }
     printf("Anteater exited successfully!\n");
-    capture.release();
-    //outputVideo.release();
+    if (capture.isOpened()){capture.release();}   
+    if (outputVideo.isOpened()) {outputVideo.release();}
     return 0;
-
 }
