@@ -30,7 +30,7 @@ using namespace cv;
 
 
 
-// Sets multiple rectangles as a grid:
+// Make rectangles in a grid of rows and columns:
 void rect_grid(Rect r[], int n, int rows, int cols, int w, int h)
 {
     for(int y = 0; y < rows; ++y)
@@ -39,10 +39,10 @@ void rect_grid(Rect r[], int n, int rows, int cols, int w, int h)
         {
             if (n == 0) {return;}
             n--;
-            r[y*w + x].x = (x*w)/cols;
-            r[y*w + x].y = (y*h)/rows;
-            r[y*w + x].width = w/cols;
-            r[y*w + x].height = h/rows;
+            r[y*cols + x].x = (x*w)/cols;
+            r[y*cols + x].y = (y*h)/rows;
+            r[y*cols + x].width = w/cols;
+            r[y*cols + x].height = h/rows;
         }
     }
 }
@@ -72,19 +72,37 @@ void draw_arrow(Mat frame, Point2f direction)
 int main(int argc, char const* argv[])
 {
     setbuf(stdout, NULL);
-    printf("Hello this is the Anteater!\n");
+    printf("Hello this is Anteater!\n");
     printf("cwd: '%s'\n", cv::utils::fs::getcwd().c_str());
 
     CommandLineParser parser(argc, argv, ASSETS_ARG_KEYS);
-    VideoCapture capture;
+
+    // Video capture from the anteater:
+    VideoCapture video_capture;
+
+    // Video writing is optional for developer feedback:
+    VideoWriter video_writer;
+
+    // Input video file path:
     cv::String filename;
-    Rect r[WELDVISI_VIEWS];
-    Point2f direction[WELDVISI_VIEWS] = {};
+
+    // Raw video frame from the video capture:
     Mat raw;
+
+    // FIR filter constant:
     float alpha = 0.01f;
+
+    // Split a video frame into smaller views:
+    Rect views[WELDVISI_VIEWS];
+
+    // Speed and direction being set by the motion estimators:
+    Point2f direction[WELDVISI_VIEWS] = {};
+
+    // Make arrow longer for human friendly visuals:
     float visual_direction_gain[WELDVISI_VIEWS] = {-60.0f, -120.0f, -60.0f};
-    oflow_context context[WELDVISI_VIEWS];
-    VideoWriter outputVideo;
+
+    // Motion estimators, direction and speed can be retrived from this:
+    oflow_context motion_estimator[WELDVISI_VIEWS];
 
 
     parser.about(ASSETS_ABOUT);
@@ -101,8 +119,8 @@ int main(int argc, char const* argv[])
         return 0;
     }
 
-    capture.open(filename);
-    if (!capture.isOpened())
+    video_capture.open(filename);
+    if (!video_capture.isOpened())
     {
         //error in opening the video input
         printf("Unable to open file! %s\n", filename.c_str());
@@ -110,16 +128,19 @@ int main(int argc, char const* argv[])
     }
 
     {
-        int w = capture.get(CAP_PROP_FRAME_WIDTH);
-        int h = capture.get(CAP_PROP_FRAME_HEIGHT);
+        int w = video_capture.get(CAP_PROP_FRAME_WIDTH);
+        int h = video_capture.get(CAP_PROP_FRAME_HEIGHT);
         printf("Resolution of videocapture is %ix%i!\n", w, h);
-        rect_grid(r, WELDVISI_VIEWS, WELDVISI_ROWS, WELDVISI_COLS, w, h);
+        // Split video frame into smaller views:
+        rect_grid(views, WELDVISI_VIEWS, WELDVISI_ROWS, WELDVISI_COLS, w, h);
     }
 
-    capture >> raw;
+
+    // Init motion estimator with a starting frame:
+    video_capture >> raw;
     for(int i = 0; i < WELDVISI_VIEWS; ++i)
     {
-        oflow_init(context+i, raw(r[i]));
+        oflow_init(motion_estimator + i, raw(views[i]));
     }
 
 
@@ -127,10 +148,11 @@ int main(int argc, char const* argv[])
         String outname = parser.get<String>("o");
         if (outname.length() > 0)
         {
-            int codec = static_cast<int>(capture.get(CAP_PROP_FOURCC));
-            double fps = capture.get(CAP_PROP_FPS);
+            // Set the video writers to use the same settings as input video:
+            int codec = static_cast<int>(video_capture.get(CAP_PROP_FOURCC));
+            double fps = video_capture.get(CAP_PROP_FPS);
             bool isColor = (raw.type() == CV_8UC3);
-            outputVideo.open(outname+filename, codec, fps, raw.size(), isColor);
+            video_writer.open(outname+filename, codec, fps, raw.size(), isColor);
         }
     }
 
@@ -143,23 +165,31 @@ int main(int argc, char const* argv[])
         }
 
         {
-            capture >> raw;
+            video_capture >> raw;
             if (raw.empty()) {break;}
+
+            // Run motion estimation on every view:
             for(int i = 0; i < WELDVISI_VIEWS; ++i)
             {
-                oflow_run(context+i, raw(r[i]), direction[i], alpha);
-                rectangle(raw, r[i], Scalar(0, 0, 255), 2, LINE_4);
-                draw_arrow(raw(r[i]), direction[i]*visual_direction_gain[i]);
+                oflow_run(motion_estimator + i, raw(views[i]), direction[i], alpha);
+                // Developer feedback, Draw rectangle to visuale the views area for:
+                rectangle(raw, views[i], Scalar(0, 0, 255), 2, LINE_4);
+                // Developer feedback, Draw arrow for developer feedback:
+                draw_arrow(raw(views[i]), direction[i]*visual_direction_gain[i]);
             }
+
+            // Developer feedback:
             imshow(filename, raw);
-            if (outputVideo.isOpened())
+
+            // Developer feedback, Optional video writer:
+            if (video_writer.isOpened())
             {
-                outputVideo.write(raw);
+                video_writer.write(raw);
             }
         }
     }
     printf("Anteater exited successfully!\n");
-    if (capture.isOpened()){capture.release();}   
-    if (outputVideo.isOpened()) {outputVideo.release();}
+    if (video_capture.isOpened()){video_capture.release();}   
+    if (video_writer.isOpened()) {video_writer.release();}
     return 0;
 }
