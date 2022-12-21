@@ -61,24 +61,6 @@ void go_with_the_flow(InputOutputArray frame2, Mat next, Mat prvs, float alpha, 
         // Direction average FIR calculation, FIR filter N=1
         direction_fir.x = direction_fir.x *(1.0f-alpha) + direction.x * (alpha);
         direction_fir.y = direction_fir.y *(1.0f-alpha) + direction.y * (alpha);
-
-        {
-            // Draw line from (c) to (cd):
-            Point2f c = Point2f((float)flow.cols / 2.0f, (float)flow.rows / 2.0f);
-            Point2f cd = c + direction_fir*-60.0f;
-            arrowedLine(frame2, c, cd, Scalar(255, 255, 255), 2, LINE_4, 0, 0.5);
-            char buf[100];
-
-            // Print angle:
-            //float angle = atan2(direction_fir.y, direction_fir.x);
-            direction_fir;
-            float speed = HYPOT_F32(direction_fir.x, direction_fir.y);
-            //snprintf(buf, 100, "%f %f    ", da_fir.x, da_fir.y);
-            snprintf(buf, 100, "%5.2f", speed);
-            //snprintf(buf, 100, "%+5.0f    ", (angle / M_PI) * 180.0f);
-            cv::putText(frame2, buf, cd, cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,255,0),2,false);
-            printf("%s\n", buf);
-        }
     }
 
 }
@@ -96,13 +78,10 @@ void oflow_farneback_init(struct oflow_farneback_context * context, InputArray r
 }
 
 
-void oflow_farneback_run(struct oflow_farneback_context * context, InputOutputArray raw)
+void oflow_farneback_run(struct oflow_farneback_context * context, InputOutputArray raw, Point2f& direction, float alpha)
 {
-    float alpha = 0.1f;
-
     Mat next;
     cvtColor(raw, next, COLOR_BGR2GRAY);
-    go_with_the_flow(raw, next, context->prvs, alpha, context->direction);
-
+    go_with_the_flow(raw, next, context->prvs, alpha, direction);
     context->prvs = next;
 }

@@ -30,7 +30,7 @@ void oflow_lucaskanade_init(struct oflow_lucaskanade_context * context, InputArr
 }
 
 
-void oflow_lucaskanade_run(struct oflow_lucaskanade_context * context, InputOutputArray raw, Point2f& direction)
+void oflow_lucaskanade_run(struct oflow_lucaskanade_context * context, InputOutputArray raw, Point2f& direction, float alpha)
 {
     Mat frame_gray;
     cvtColor(raw, frame_gray, COLOR_BGR2GRAY);
@@ -40,6 +40,8 @@ void oflow_lucaskanade_run(struct oflow_lucaskanade_context * context, InputOutp
     TermCriteria criteria = TermCriteria((TermCriteria::COUNT) + (TermCriteria::EPS), 10, 0.03);
     calcOpticalFlowPyrLK(context->old_gray, frame_gray, context->p0, context->p1, status, err, Size(15,15), 2, criteria);
     vector<Point2f> good_new;
+    Point2f d = {0,0};
+    float n = 0;
     for(uint i = 0; i < context->p0.size(); i++)
     {
         // Select good points
@@ -49,14 +51,23 @@ void oflow_lucaskanade_run(struct oflow_lucaskanade_context * context, InputOutp
             // draw the tracks
             line(context->mask, context->p1[i], context->p0[i], context->colors[i], 1);
             circle(raw, context->p1[i], 5, context->colors[i], -1);
-            Point2d d = context->p1[i] - context->p0[i];
-            float alpha = 0.01f;
-            direction.x = direction.x *(1.0f-alpha) + d.x * (alpha);
-            direction.y = direction.y *(1.0f-alpha) + d.y * (alpha);
+            d += (context->p1[i] - context->p0[i]);
+            n += 1.0f;
         }
     }
+    d /= n;
+    direction.x = direction.x *(1.0f-alpha) + d.x * (alpha);
+    direction.y = direction.y *(1.0f-alpha) + d.y * (alpha);
     copyTo(context->mask, raw, context->mask);
 
     context->old_gray = frame_gray.clone();
     context->p0 = good_new;
+
+
+    context->time++;
+    if(context->time >= 5)
+    {
+        context->time = 0;
+        //goodFeaturesToTrack(context->old_gray, context->p0, 100, 0.3, 7, Mat(), 7, false, 0.04);
+    }
 }

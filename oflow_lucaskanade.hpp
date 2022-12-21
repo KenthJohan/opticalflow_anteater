@@ -9,6 +9,7 @@ struct oflow_lucaskanade_context
     Mat old_gray;
     vector<Point2f> p0, p1;
     Mat mask;
+    int time;
 };
 
 
@@ -16,4 +17,4 @@ struct oflow_lucaskanade_context
 void oflow_lucaskanade_init(struct oflow_lucaskanade_context * context, InputArray raw);
 
 
-void oflow_lucaskanade_run(struct oflow_lucaskanade_context * context, InputOutputArray raw, Point2f& direction);
+void oflow_lucaskanade_run(struct oflow_lucaskanade_context * context, InputOutputArray raw, Point2f& direction, float alpha);

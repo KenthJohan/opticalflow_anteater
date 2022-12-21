@@ -53,7 +53,7 @@ void draw_arrow(Mat frame, Point2f& direction)
     snprintf(buf, 100, "%5.2f", speed);
     //snprintf(buf, 100, "%+5.0f    ", (angle / M_PI) * 180.0f);
     cv::putText(frame, buf, cd, cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,255,0),2,false);
-    printf("%s\n", buf);
+    //printf("%s\n", buf);
 }
 
 
@@ -102,12 +102,13 @@ int main(int argc, char const* argv[])
 
 
 
-
+    
+    Mat raw;
+    float alpha = 0.01f;
     //struct oflow_farneback_context context[NUM_OF_VIEWS];
     struct oflow_lucaskanade_context context[NUM_OF_VIEWS];
 
     {
-        Mat raw;
         capture >> raw;
         for(int i = 0; i < NUM_OF_VIEWS; ++i)
         {
@@ -117,26 +118,38 @@ int main(int argc, char const* argv[])
     }
 
 
+    VideoWriter outputVideo;
+    {
+        int codec = static_cast<int>(capture.get(CAP_PROP_FOURCC));
+        double fps = capture.get(CAP_PROP_FPS);
+        bool isColor = (raw.type() == CV_8UC3);
+        outputVideo.open("out_"+filename, codec, fps, raw.size(), isColor);
+    }
+
     while(true)
     {
         int keyboard = waitKey(30);
         if (keyboard == 'q' || keyboard == 27) {break;}
 
         {
-            Mat raw;
             capture >> raw;
+            if (raw.empty()) {break;}
+
             for(int i = 0; i < NUM_OF_VIEWS; ++i)
             {
-                //oflow_farneback_run(context+i, raw(r[i]));
-                oflow_lucaskanade_run(context+i, raw(r[i]), direction[i]);
+                //oflow_farneback_run(context+i, raw(r[i]), direction[i], alpha);
+                oflow_lucaskanade_run(context+i, raw(r[i]), direction[i], alpha);
                 rectangle(raw, r[i], Scalar(255, 255, 255), 6, LINE_4);
                 draw_arrow(raw(r[i]), direction[i]);
             }
-            imshow(filename, raw);
+            //imshow(filename, raw);
+            outputVideo.write(raw);
         }
 
     }
     printf("Anteater exited successfully!\n");
+    capture.release();
+    outputVideo.release();
     return 0;
 
 }
