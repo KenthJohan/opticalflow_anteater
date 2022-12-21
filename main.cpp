@@ -24,6 +24,7 @@ using namespace cv;
 "{ @image | vtest.avi | path to image file }"
 
 
+
 void rect_init_three_way(Rect r[3], int w, int h)
 {
     r[0] = Rect ((0*w)/3, 0, w/3, h);
@@ -40,11 +41,11 @@ void rect_init_four_way(Rect r[4], int w, int h)
 
 
 
-void draw_arrow(Mat frame, Point2f& direction)
+void draw_arrow(Mat frame, Point2f direction)
 {
     // Draw line from (c) to (cd):
     Point2f c = Point2f((float)frame.cols / 2.0f, (float)frame.rows / 2.0f);
-    Point2f cd = c + direction*-60.0f;
+    Point2f cd = c + direction;
     arrowedLine(frame, c, cd, Scalar(255, 255, 255), 2, LINE_4, 0, 0.5);
     char buf[100];
 
@@ -104,6 +105,7 @@ int main(int argc, char const* argv[])
     
     Mat raw;
     float alpha = 0.01f;
+    float visual_direction_gain[NUM_OF_VIEWS] = {-60.0f, -120.0f, -60.0f};
     oflow_context context[NUM_OF_VIEWS];
     capture >> raw;
     for(int i = 0; i < NUM_OF_VIEWS; ++i)
@@ -135,7 +137,7 @@ int main(int argc, char const* argv[])
             {
                 oflow_run(context+i, raw(r[i]), direction[i], alpha);
                 rectangle(raw, r[i], Scalar(255, 255, 255), 6, LINE_4);
-                draw_arrow(raw(r[i]), direction[i]);
+                draw_arrow(raw(r[i]), direction[i]*visual_direction_gain[i]);
             }
             imshow(filename, raw);
             //outputVideo.write(raw);
