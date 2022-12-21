@@ -7,10 +7,15 @@
 #include <opencv2/core/utils/filesystem.hpp>
 #include <opencv2/core/types_c.h>
 #include <stdio.h>
-#include "oflow_farneback.hpp"
+#include "oflow.hpp"
 #include "common.h"
 using namespace cv;
 
+
+struct oflow_farneback_context
+{
+    Mat prvs;
+};
 
 
 void go_with_the_flow(InputOutputArray frame2, Mat next, Mat prvs, float alpha, Point2f& direction_fir)
@@ -69,19 +74,19 @@ void go_with_the_flow(InputOutputArray frame2, Mat next, Mat prvs, float alpha, 
 
 
 
-
-
-
-void oflow_farneback_init(struct oflow_farneback_context * context, InputArray raw)
+void oflow_init(struct oflow_context * context, InputArray raw)
 {
-    cvtColor(raw, context->prvs, COLOR_BGR2GRAY);
+    context->internal = calloc(1, sizeof(oflow_farneback_context));
+    oflow_farneback_context * internal = (oflow_farneback_context *)context->internal;
+    cvtColor(raw, internal->prvs, COLOR_BGR2GRAY);
 }
 
 
-void oflow_farneback_run(struct oflow_farneback_context * context, InputOutputArray raw, Point2f& direction, float alpha)
+void oflow_run(struct oflow_context * context, InputOutputArray raw, Point2f& direction, float alpha)
 {
+    oflow_farneback_context * internal = (oflow_farneback_context *)context->internal;
     Mat next;
     cvtColor(raw, next, COLOR_BGR2GRAY);
-    go_with_the_flow(raw, next, context->prvs, alpha, direction);
-    context->prvs = next;
+    go_with_the_flow(raw, next, internal->prvs, alpha, direction);
+    internal->prvs = next;
 }

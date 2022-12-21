@@ -8,8 +8,7 @@
 #include <opencv2/core/types_c.h>
 #include <stdio.h>
 #include "common.h"
-#include "oflow_farneback.hpp"
-#include "oflow_lucaskanade.hpp"
+#include "oflow.hpp"
 
 using namespace cv;
 
@@ -105,19 +104,15 @@ int main(int argc, char const* argv[])
     
     Mat raw;
     float alpha = 0.01f;
-    //struct oflow_farneback_context context[NUM_OF_VIEWS];
-    struct oflow_lucaskanade_context context[NUM_OF_VIEWS];
-
+    oflow_context context[NUM_OF_VIEWS];
+    capture >> raw;
+    for(int i = 0; i < NUM_OF_VIEWS; ++i)
     {
-        capture >> raw;
-        for(int i = 0; i < NUM_OF_VIEWS; ++i)
-        {
-            //oflow_farneback_init(context+i, raw(r[i]));
-            oflow_lucaskanade_init(context+i, raw(r[i]));
-        }
+        oflow_init(context+i, raw(r[i]));
     }
 
 
+    /*
     VideoWriter outputVideo;
     {
         int codec = static_cast<int>(capture.get(CAP_PROP_FOURCC));
@@ -125,6 +120,7 @@ int main(int argc, char const* argv[])
         bool isColor = (raw.type() == CV_8UC3);
         outputVideo.open("out_"+filename, codec, fps, raw.size(), isColor);
     }
+    */
 
     while(true)
     {
@@ -137,19 +133,18 @@ int main(int argc, char const* argv[])
 
             for(int i = 0; i < NUM_OF_VIEWS; ++i)
             {
-                //oflow_farneback_run(context+i, raw(r[i]), direction[i], alpha);
-                oflow_lucaskanade_run(context+i, raw(r[i]), direction[i], alpha);
+                oflow_run(context+i, raw(r[i]), direction[i], alpha);
                 rectangle(raw, r[i], Scalar(255, 255, 255), 6, LINE_4);
                 draw_arrow(raw(r[i]), direction[i]);
             }
-            //imshow(filename, raw);
-            outputVideo.write(raw);
+            imshow(filename, raw);
+            //outputVideo.write(raw);
         }
 
     }
     printf("Anteater exited successfully!\n");
     capture.release();
-    outputVideo.release();
+    //outputVideo.release();
     return 0;
 
 }
