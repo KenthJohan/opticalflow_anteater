@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include "common.h"
 #include "oflow.hpp"
+#include "flecs.h"
+#include "module_weldvisi.hpp"
 
 using namespace cv;
 
@@ -71,6 +73,9 @@ void draw_arrow(Mat frame, Point2f direction)
 
 int main(int argc, char const* argv[])
 {
+    flecs::world ecs;
+    ecs.import<simple::module>();
+
     setbuf(stdout, NULL);
     printf("Hello this is Anteater!\n");
     printf("cwd: '%s'\n", cv::utils::fs::getcwd().c_str());
@@ -156,9 +161,14 @@ int main(int argc, char const* argv[])
         }
     }
 
+    flecs::entity e = ecs.entity()
+        .set<simple::Position>({10, 20})
+        .set<simple::Velocity>({1, 1});
+
 
     while(true)
     {
+        ecs.progress();
         {
             int keyboard = waitKey(30);
             if (keyboard == 'q' || keyboard == 27) {break;}

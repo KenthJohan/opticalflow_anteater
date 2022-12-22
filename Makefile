@@ -30,7 +30,7 @@ oflow ?= oflow_default.cpp
 #SRCS := main.cpp oflow_farneback.cpp
 #SRCS := main.cpp oflow_lucaskanade.cpp
 #SRCS := main.cpp oflow_phasecorr.cpp
-SRCS := main.cpp $(oflow)
+SRCS := main.cpp flecs.c module_weldvisi.cpp $(oflow)
 
 
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
@@ -40,6 +40,12 @@ DEPS := $(OBJS:.o=.d)
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
 
+# Build step for C source
+$(BUILD_DIR)/%.c.o: %.c
+	mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+# Build step for C++ source
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	mkdir -p $(dir $@)
 	$(CXX) $(CFLAGS) -c $< -o $@
