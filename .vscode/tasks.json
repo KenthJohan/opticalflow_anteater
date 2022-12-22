@@ -5,7 +5,7 @@
         "type": "shell",
         "label": "mingw64 build",
         "command": "",
-        "args": ["C:/msys64/mingw64/bin/mingw32-make.exe -f Makefile.msys2"],
+        "args": ["C:/msys64/mingw64/bin/mingw32-make.exe -f Makefile"],
         "options": {
           "cwd": "${workspaceFolder}",
           "shell": {

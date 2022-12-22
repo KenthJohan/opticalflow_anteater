@@ -1,10 +1,6 @@
-#include <iostream>
-#include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/videoio.hpp>
-#include <opencv2/video.hpp>
 #include "oflow.hpp"
+#include <opencv2/imgproc.hpp>
+#include <opencv2/video.hpp>
 
 using namespace cv;
 using namespace std;

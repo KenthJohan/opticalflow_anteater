@@ -25,12 +25,13 @@ else
 	LDFLAGS := `pkg-config opencv4 --libs`
 endif
 
-
+oflow ?= oflow_default.cpp
 #SRCS := $(shell find $(SRC_DIRS) -name "*.cpp")
 #SRCS := main.cpp oflow_farneback.cpp
 #SRCS := main.cpp oflow_lucaskanade.cpp
 #SRCS := main.cpp oflow_phasecorr.cpp
 SRCS := main.cpp $(oflow)
+
 
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
