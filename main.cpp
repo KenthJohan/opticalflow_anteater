@@ -10,7 +10,7 @@
 #include "common.h"
 #include "oflow.hpp"
 #include "flecs.h"
-#include "module_weldvisi.hpp"
+#include "mainer.h"
 
 using namespace cv;
 
@@ -52,15 +52,15 @@ void rect_grid(Rect r[], int n, int rows, int cols, int w, int h)
 
 // For visual purpose only:
 // This draw the direction and speed:
-void draw_arrow(Mat frame, Point2f direction)
+void draw_arrow(Mat frame, float direction[2], float gain)
 {
     // Draw line from Point(c) to Point(c+d):
     // Where Point(c) is the center of frame:
     Point2f c = Point2f((float)frame.cols / 2.0f, (float)frame.rows / 2.0f);
-    Point2f cd = c + direction;
+    Point2f cd = c + Point2f(direction[0]*gain, direction[1]*gain);
     arrowedLine(frame, c, cd, Scalar(255, 255, 255), 2, LINE_4, 0, 0.5);
     char buf[100];
-    float speed = HYPOT_F32(direction.x, direction.y);
+    float speed = HYPOT_F32(direction[0], direction[1]);
     snprintf(buf, 100, "%5.2f", speed);
     //snprintf(buf, 100, "%+5.0f    ", (angle / M_PI) * 180.0f);
     cv::putText(frame, buf, cd, cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,255,0),2,false);
@@ -71,10 +71,10 @@ void draw_arrow(Mat frame, Point2f direction)
 
 
 
-int main(int argc, char const* argv[])
+int main(int argc, char* argv[])
 {
-    flecs::world ecs;
-    ecs.import<simple::module>();
+    ecs_world_t *world = ecs_init_w_args(argc, argv);
+    mainer(world);
 
     setbuf(stdout, NULL);
     printf("Hello this is Anteater!\n");
@@ -95,13 +95,13 @@ int main(int argc, char const* argv[])
     Mat raw;
 
     // FIR filter constant:
-    float alpha = 0.01f;
+    float alpha = 0.1f;
 
     // Split a video frame into smaller views:
     Rect views[WELDVISI_VIEWS];
 
     // Speed and direction being set by the motion estimators:
-    Point2f direction[WELDVISI_VIEWS] = {};
+    float direction[2*WELDVISI_VIEWS] = {};
 
     // Make arrow longer for human friendly visuals:
     float visual_direction_gain[WELDVISI_VIEWS] = {-60.0f, -120.0f, -60.0f};
@@ -145,7 +145,8 @@ int main(int argc, char const* argv[])
     video_capture >> raw;
     for(int i = 0; i < WELDVISI_VIEWS; ++i)
     {
-        oflow_init(motion_estimator + i, raw(views[i]));
+        Mat sub = raw(views[i]);
+        oflow_init(motion_estimator + i, sub.data, sub.type(), sub.rows, sub.cols);
     }
 
 
@@ -161,14 +162,14 @@ int main(int argc, char const* argv[])
         }
     }
 
-    flecs::entity e = ecs.entity()
-        .set<simple::Position>({10, 20})
-        .set<simple::Velocity>({1, 1});
+
+ 
 
 
     while(true)
     {
-        ecs.progress();
+        ecs_progress(world, 0);
+
         {
             int keyboard = waitKey(30);
             if (keyboard == 'q' || keyboard == 27) {break;}
@@ -181,11 +182,15 @@ int main(int argc, char const* argv[])
             // Run motion estimation on every view:
             for(int i = 0; i < WELDVISI_VIEWS; ++i)
             {
-                oflow_run(motion_estimator + i, raw(views[i]), direction[i], alpha);
+                oflow_run(motion_estimator + i, raw.data, raw.type(), raw.rows, raw.cols, direction + i*2, alpha, views[i].x, views[i].y, views[i].width, views[i].height);
+            }
+            
+            for(int i = 0; i < WELDVISI_VIEWS; ++i)
+            {
                 // Developer feedback, Draw rectangle to visuale the views area for:
                 rectangle(raw, views[i], Scalar(0, 0, 255), 2, LINE_4);
                 // Developer feedback, Draw arrow for developer feedback:
-                draw_arrow(raw(views[i]), direction[i]*visual_direction_gain[i]);
+                draw_arrow(raw(views[i]), direction + i*2, visual_direction_gain[i]);
             }
 
             // Developer feedback:
@@ -201,5 +206,6 @@ int main(int argc, char const* argv[])
     printf("Anteater exited successfully!\n");
     if (video_capture.isOpened()){video_capture.release();}   
     if (video_writer.isOpened()) {video_writer.release();}
+    ecs_fini(world);
     return 0;
 }

@@ -6,5 +6,5 @@ struct oflow_context
     void * internal;
 };
 
-void oflow_init(struct oflow_context * context, cv::InputArray raw);
-void oflow_run(struct oflow_context * context, cv::InputOutputArray raw, cv::Point2f& direction, float alpha);
+void oflow_init(struct oflow_context * context, void * raw, int type, int rows, int cols);
+void oflow_run(struct oflow_context * context, void * raw, int type, int rows, int cols, float direction[2], float alpha, int cropx, int cropy, int cropw, int croph);

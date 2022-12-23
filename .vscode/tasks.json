@@ -5,7 +5,7 @@
         "type": "shell",
         "label": "mingw64 build",
         "command": "",
-        "args": ["C:/msys64/mingw64/bin/mingw32-make.exe -f Makefile"],
+        "args": ["C:/msys64/mingw64/bin/mingw32-make.exe -f Makefile oflow=oflow_phasecorr.cpp"],
         "options": {
           "cwd": "${workspaceFolder}",
           "shell": {
