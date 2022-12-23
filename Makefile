@@ -30,7 +30,7 @@ oflow ?= oflow_default.cpp
 #SRCS := main.cpp oflow_farneback.cpp
 #SRCS := main.cpp oflow_lucaskanade.cpp
 #SRCS := main.cpp oflow_phasecorr.cpp
-SRCS := main.cpp flecs.c module_weldvisi.c mainer.c $(oflow)
+SRCS := main.cpp flecs.c camera.cpp module_weldvisi.c mainer.c $(oflow)
 
 
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)

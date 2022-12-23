@@ -1,6 +1,8 @@
 #include "mainer.h"
 #include "module_weldvisi.h"
 
+static char * a = "2022-12-15_14-56-29.mp4";
+
 void mainer(ecs_world_t * world)
 {
     ECS_IMPORT(world, SimpleModule);
@@ -9,7 +11,7 @@ void mainer(ecs_world_t * world)
     ecs_singleton_set(world, EcsRest, {0});
 
 	ecs_entity_t cam = ecs_new_entity(world, "Camera1");
-	ecs_set(world, cam, Device, {"2022-12-15_14-56-29.mp4"});
+	ecs_set(world, cam, Device, {a});
 	ecs_add(world, cam, Camera);
     ecs_add_pair(world, cam, Action, Open);
 

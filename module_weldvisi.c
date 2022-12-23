@@ -1,5 +1,6 @@
 #include "module_weldvisi.h"
 #include "oflow.h"
+#include "camera.h"
 #include <stdio.h>
 
 void Move(ecs_iter_t *it)
@@ -16,21 +17,75 @@ void Move(ecs_iter_t *it)
     }
 }
 
+void System_Camera_Create(ecs_iter_t *it)
+{
+    Camera *c = ecs_field(it, Camera, 1);
+    for(int i = 0; i < it->count; ++i)
+    {
+        printf("Create camera\n");
+        camera_create(c+i);
+    }
+}
+
+void System_Camera_Destroy(ecs_iter_t *it)
+{
+    Camera *c = ecs_field(it, Camera, 1);
+    for(int i = 0; i < it->count; ++i)
+    {
+        printf("Destroy camera\n");
+        camera_destroy(c+i);
+    }
+}
 
 void System_Capture(ecs_iter_t *it)
 {
-
+    Image *d = ecs_field(it, Image, 1);
+    Camera *c = ecs_field(it, Camera, 3);
+    for(int i = 0; i < it->count; ++i)
+    {
+        printf("Read from camera\n");
+    }
 }
 
-void System_Open_Camera(ecs_iter_t *it)
+void System_Camera_Open(ecs_iter_t *it)
 {
     Device *d = ecs_field(it, Device, 1);
     Camera *c = ecs_field(it, Camera, 2);
     for(int i = 0; i < it->count; ++i)
     {
         printf("Open camera: %s\n", d[i].path);
-        ecs_remove_pair(it->world, it->entities[i], Action, Open);
-        ecs_add_pair(it->world, it->entities[i], Status, Open);
+        int r = camera_open(c + i, d[i].path);
+        if(r == 0)
+        {
+            ecs_remove_pair(it->world, it->entities[i], Action, Open);
+            ecs_add_pair(it->world, it->entities[i], Status, Open);
+        }
+        else
+        {
+            ecs_remove_pair(it->world, it->entities[i], Action, Open);
+            ecs_add_pair(it->world, it->entities[i], Status, OpenError);
+        }
+    }
+}
+
+void System_Camera_Close(ecs_iter_t *it)
+{
+    Device *d = ecs_field(it, Device, 1);
+    Camera *c = ecs_field(it, Camera, 2);
+    for(int i = 0; i < it->count; ++i)
+    {
+        printf("Close camera: %s\n", d[i].path);
+        int r = camera_close(c + i);
+        if(r == 0)
+        {
+            ecs_remove_pair(it->world, it->entities[i], Action, Close);
+            ecs_add_pair(it->world, it->entities[i], Status, Close);
+        }
+        else
+        {
+            ecs_remove_pair(it->world, it->entities[i], Action, Close);
+            ecs_add_pair(it->world, it->entities[i], Status, CloseError);
+        }
     }
 }
 
@@ -80,9 +135,12 @@ void SimpleModuleImport(ecs_world_t *world)
     ECS_COMPONENT_DEFINE(world, Image);
     ECS_COMPONENT_DEFINE(world, Camera);
 
-    ECS_SYSTEM(world, Move, EcsOnUpdate, Weldvisi_View, (Vec2i32, CropPosition), (Vec2i32, CropSize));
-    ECS_SYSTEM(world, System_Capture, EcsOnUpdate, Camera, (Vec2i32, CropSize));
-    ECS_SYSTEM(world, System_Open_Camera, EcsOnUpdate, Camera, (Action, Open));
+    //ECS_SYSTEM(world, Move, EcsOnUpdate, Weldvisi_View, (Vec2i32, CropPosition), (Vec2i32, CropSize));
+    //ECS_SYSTEM(world, System_Capture, EcsOnUpdate, Image, (Uses, $Planet), Camera($Planet));
+    ECS_OBSERVER(world, System_Camera_Create, EcsOnAdd, Camera);
+    ECS_OBSERVER(world, System_Camera_Destroy, EcsOnRemove, Camera);
+    ECS_SYSTEM(world, System_Camera_Open, EcsOnUpdate, Device, Camera, (Action, Open));
+    ECS_SYSTEM(world, System_Camera_Close, EcsOnUpdate, Camera, (Action, Close));
 
     ecs_struct(world, {
         .entity = ecs_id(Vec2i32),
