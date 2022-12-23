@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include "flecs.h"
 
 typedef struct 
 {
@@ -18,8 +19,17 @@ typedef struct
     float y;
 } Vec2f32;
 
+typedef struct 
+{
+    ecs_string_t path;
+} Device;
+
+typedef struct  
+{
+    void * handle;
+} Camera;
+
 typedef struct  
 {
     void * data;
-    
-} XMat;
+} Image;

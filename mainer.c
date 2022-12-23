@@ -5,13 +5,26 @@ void mainer(ecs_world_t * world)
 {
     ECS_IMPORT(world, SimpleModule);
 
-	ecs_entity_t e1 = ecs_new_entity(world, "View1");
-	ecs_set(world, e1, Weldvisi_View, {10});
-	ecs_set_pair(world, e1, Vec2i32, CropPosition, {0, 0});
-	ecs_set_pair(world, e1, Vec2i32, CropSize, {100, 100});
+	//https://www.flecs.dev/explorer/?remote=true
+    ecs_singleton_set(world, EcsRest, {0});
 
-	ecs_entity_t e2 = ecs_new_entity(world, "View2");
-	ecs_set(world, e2, Weldvisi_View, {10});
-	ecs_set_pair(world, e2, Vec2i32, CropPosition, {100, 0});
-	ecs_set_pair(world, e2, Vec2i32, CropSize, {100, 100});
+	ecs_entity_t cam = ecs_new_entity(world, "Camera1");
+	ecs_set(world, cam, Device, {"2022-12-15_14-56-29.mp4"});
+	ecs_add(world, cam, Camera);
+
+	{
+		ecs_entity_t e = ecs_new_entity(world, "View1");
+		ecs_set(world, e, Weldvisi_View, {10});
+		ecs_set_pair(world, e, Vec2i32, CropPosition, {0, 0});
+		ecs_set_pair(world, e, Vec2i32, CropSize, {100, 100});
+		ecs_add_pair(world, e, Uses, cam);
+	}
+
+	{
+		ecs_entity_t e = ecs_new_entity(world, "View2");
+		ecs_set(world, e, Weldvisi_View, {10});
+		ecs_set_pair(world, e, Vec2i32, CropPosition, {100, 0});
+		ecs_set_pair(world, e, Vec2i32, CropSize, {100, 100});
+		ecs_add_pair(world, e, Uses, cam);
+	}
 }

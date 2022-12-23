@@ -17,6 +17,15 @@ void Move(ecs_iter_t *it)
 }
 
 
+void System_Capture(ecs_iter_t *it)
+{
+
+}
+
+void System_Open_Camera(ecs_iter_t *it)
+{
+
+}
 
 
 ECS_DECLARE(Resolution);
@@ -24,26 +33,37 @@ ECS_DECLARE(Position);
 ECS_DECLARE(Veclocity);
 ECS_DECLARE(CropPosition);
 ECS_DECLARE(CropSize);
+ECS_DECLARE(Uses);
+ECS_DECLARE(Open);
+ECS_DECLARE(Close);
+ECS_DECLARE(Try);
 ECS_COMPONENT_DECLARE(Weldvisi_View);
 ECS_COMPONENT_DECLARE(Vec2i32);
 ECS_COMPONENT_DECLARE(Vec2f32);
+ECS_COMPONENT_DECLARE(Device);
+ECS_COMPONENT_DECLARE(Image);
+ECS_COMPONENT_DECLARE(Camera);
 
-void SimpleModuleImport(ecs_world_t *world) {
-    // Create the module entity. The PascalCase module name is translated to a
-    // lower case path for the entity name, like "simple.module".
+void SimpleModuleImport(ecs_world_t *world)
+{
     ECS_MODULE(world, SimpleModule);
-
-    // All contents of the module are created inside the module's namespace, so
-    // the Position component will be created as simple.module.Position
-
     ECS_TAG_DEFINE(world, Resolution);
     ECS_TAG_DEFINE(world, Position);
     ECS_TAG_DEFINE(world, Veclocity);
     ECS_TAG_DEFINE(world, CropPosition);
     ECS_TAG_DEFINE(world, CropSize);
+    ECS_TAG_DEFINE(world, Uses);
+    ECS_TAG_DEFINE(world, Open);
+    ECS_TAG_DEFINE(world, Close);
+    ECS_TAG_DEFINE(world, Try);
     ECS_COMPONENT_DEFINE(world, Weldvisi_View);
     ECS_COMPONENT_DEFINE(world, Vec2i32);
     ECS_COMPONENT_DEFINE(world, Vec2f32);
+    ECS_COMPONENT_DEFINE(world, Device);
+    ECS_COMPONENT_DEFINE(world, Image);
+    ECS_COMPONENT_DEFINE(world, Camera);
 
-    ECS_SYSTEM(world, Move, EcsOnUpdate, Weldvisi_View, (CropPosition, Vec2i32), (CropSize, Vec2i32));
+    ECS_SYSTEM(world, Move, EcsOnUpdate, Weldvisi_View, (Vec2i32, CropPosition), (Vec2i32, CropSize));
+    ECS_SYSTEM(world, System_Capture, EcsOnUpdate, Camera, (Vec2i32, CropSize));
+    ECS_SYSTEM(world, System_Open_Camera, EcsOnUpdate, Camera, (Open, Try));
 }
