@@ -43,3 +43,9 @@ int camera_read(Camera *camera, void * data, Vec2i32 * resolution, int * type)
     c->capture >> c->frame;
     return 0;
 }
+
+int camera_get_int(Camera *camera, int prop)
+{
+    Camera_CV *c = (Camera_CV *)camera->handle;
+    return c->capture.get(prop);
+}

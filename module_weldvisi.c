@@ -22,7 +22,7 @@ void System_Camera_Create(ecs_iter_t *it)
     Camera *c = ecs_field(it, Camera, 1);
     for(int i = 0; i < it->count; ++i)
     {
-        printf("Create camera\n");
+        printf("Create camera %s\n", ecs_get_name(it->world, it->entities[i]));
         camera_create(c+i);
     }
 }
@@ -32,21 +32,8 @@ void System_Camera_Destroy(ecs_iter_t *it)
     Camera *c = ecs_field(it, Camera, 1);
     for(int i = 0; i < it->count; ++i)
     {
-        printf("Destroy camera\n");
+        printf("Destroy camera %s\n", ecs_get_name(it->world, it->entities[i]));
         camera_destroy(c+i);
-    }
-}
-
-void System_Capture(ecs_iter_t *it)
-{
-    Image *d = ecs_field(it, Image, 1);
-    Camera *c = ecs_field(it, Camera, 2);
-    for(int i = 0; i < it->count; ++i)
-    {
-        printf("Read from camera %s %s\n", 
-        ecs_get_name(it->world, it->entities[i]),
-        ecs_get_name(it->world, ecs_field_src(it, 2))
-        );
     }
 }
 
@@ -62,6 +49,9 @@ void System_Camera_Open(ecs_iter_t *it)
         {
             ecs_remove_pair(it->world, it->entities[i], Action, Open);
             ecs_add_pair(it->world, it->entities[i], Status, Open);
+            int w = camera_get_int(c + i, CAMERA_PROP_FRAME_WIDTH);
+            int h = camera_get_int(c + i, CAMERA_PROP_FRAME_HEIGHT);
+            ecs_set_pair(it->world, it->entities[i], Vec2i32, Resolution, {w,h});
         }
         else
         {
@@ -92,6 +82,18 @@ void System_Camera_Close(ecs_iter_t *it)
     }
 }
 
+void System_Capture(ecs_iter_t *it)
+{
+    Image *d = ecs_field(it, Image, 1);
+    Camera *c = ecs_field(it, Camera, 2);
+    for(int i = 0; i < it->count; ++i)
+    {
+        printf("Read from camera %s %s\n", 
+        ecs_get_name(it->world, it->entities[i]),
+        ecs_get_name(it->world, ecs_field_src(it, 2))
+        );
+    }
+}
 
 ECS_DECLARE(Resolution);
 ECS_DECLARE(Position);
