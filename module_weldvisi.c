@@ -17,6 +17,23 @@ void Move(ecs_iter_t *it)
     }
 }
 
+
+void Mve2(ecs_iter_t *it)
+{
+    Image *d = ecs_field(it, Image, 1);
+    Camera *c = ecs_field(it, Camera, 2);
+    for(int i = 0; i < it->count; ++i)
+    {
+        printf("Read from camera %s %s\n", 
+        ecs_get_name(it->world, it->entities[i]),
+        ecs_get_name(it->world, ecs_field_src(it, 2))
+        );
+    }
+}
+
+
+
+
 void System_Camera_Create(ecs_iter_t *it)
 {
     Camera *c = ecs_field(it, Camera, 1);
@@ -82,18 +99,26 @@ void System_Camera_Close(ecs_iter_t *it)
     }
 }
 
-void System_Capture(ecs_iter_t *it)
+
+
+void System_Camera_Capture(ecs_iter_t *it)
 {
-    Image *d = ecs_field(it, Image, 1);
-    Camera *c = ecs_field(it, Camera, 2);
+    Camera *cam = ecs_field(it, Camera, 1);
+    Image *img = ecs_field(it, Image, 2);
+    Vec2i32 *res = ecs_field(it, Vec2i32, 3);
     for(int i = 0; i < it->count; ++i)
     {
-        printf("Read from camera %s %s\n", 
-        ecs_get_name(it->world, it->entities[i]),
-        ecs_get_name(it->world, ecs_field_src(it, 2))
-        );
+        int type;
+        void * data;
+        camera_read(cam + i, &data, res + i, &type);
+        img[i].data = data;
+        img[i].type = type;
     }
 }
+
+
+
+
 
 ECS_DECLARE(Resolution);
 ECS_DECLARE(Position);
@@ -142,7 +167,8 @@ void SimpleModuleImport(ecs_world_t *world)
     ECS_COMPONENT_DEFINE(world, Camera);
 
     //ECS_SYSTEM(world, Move, EcsOnUpdate, Weldvisi_View, (Vec2i32, CropPosition), (Vec2i32, CropSize));
-    ECS_SYSTEM(world, System_Capture, EcsOnUpdate, Image, Camera(cascade(Uses)));
+    ECS_SYSTEM(world, System_Camera_Capture, EcsOnUpdate, Camera, Image, (Vec2i32, Resolution));
+    //ECS_SYSTEM(world, System_Capture, EcsOnUpdate, Image, Image(cascade(Uses)));
     ECS_OBSERVER(world, System_Camera_Create, EcsOnAdd, Camera);
     ECS_OBSERVER(world, System_Camera_Destroy, EcsOnRemove, Camera);
     ECS_SYSTEM(world, System_Camera_Open, EcsOnUpdate, Device, Camera, (Action, Open));

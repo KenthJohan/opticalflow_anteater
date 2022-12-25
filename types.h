@@ -31,5 +31,7 @@ typedef struct
 
 typedef struct  
 {
+    int type;
+    int step;
     void * data;
 } Image;

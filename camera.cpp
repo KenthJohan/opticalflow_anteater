@@ -37,10 +37,14 @@ int camera_destroy(Camera *camera)
     return 0;
 }
 
-int camera_read(Camera *camera, void * data, Vec2i32 * resolution, int * type)
+int camera_read(Camera *camera, void const ** data, Vec2i32 * resolution, int * type)
 {
     Camera_CV *c = (Camera_CV *)camera->handle;
     c->capture >> c->frame;
+    *data = c->frame.data;
+    resolution->x = c->frame.cols;
+    resolution->y = c->frame.rows;
+    *type = c->frame.type();
     return 0;
 }
 

@@ -12,7 +12,7 @@ int camera_create(Camera * camera);
 int camera_open(Camera * camera, char const * path);
 int camera_close(Camera * camera);
 int camera_destroy(Camera * camera);
-int camera_read(Camera * camera, Image * data, Vec2i32 * resolution, int * type);
+int camera_read(Camera *camera, void const ** data, Vec2i32 * resolution, int * type);
 int camera_get_int(Camera *camera, int prop);
 
 #ifdef __cplusplus
