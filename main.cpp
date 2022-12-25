@@ -11,6 +11,7 @@
 #include "oflow.h"
 #include "flecs.h"
 #include "mainer.h"
+#include "draw.h"
 
 using namespace cv;
 
@@ -50,22 +51,7 @@ void rect_grid(Rect r[], int n, int rows, int cols, int w, int h)
 }
 
 
-// For visual purpose only:
-// This draw the direction and speed:
-void draw_arrow(Mat frame, Vec2f32 direction, float gain)
-{
-    // Draw line from Point(c) to Point(c+d):
-    // Where Point(c) is the center of frame:
-    Point2f c = Point2f((float)frame.cols / 2.0f, (float)frame.rows / 2.0f);
-    Point2f cd = c + Point2f(direction.x*gain, direction.y*gain);
-    arrowedLine(frame, c, cd, Scalar(255, 255, 255), 2, LINE_4, 0, 0.5);
-    char buf[100];
-    float speed = HYPOT_F32(direction.x, direction.y);
-    snprintf(buf, 100, "%5.2f", speed);
-    //snprintf(buf, 100, "%+5.0f    ", (angle / M_PI) * 180.0f);
-    cv::putText(frame, buf, cd, cv::FONT_HERSHEY_SIMPLEX,1,cv::Scalar(0,255,0),2,false);
-    //printf("%s\n", buf);
-}
+
 
 
 
@@ -191,10 +177,15 @@ int main(int argc, char* argv[])
             
             for(int i = 0; i < WELDVISI_VIEWS; ++i)
             {
+                Vec2i32 resolution = {raw.cols, raw.rows};
+                Vec2i32 crop_pos = {views[i].x, views[i].y};
+                Vec2i32 crop_size = {views[i].width, views[i].height};
+                Vec2i32 rect_pos = {views[i].x, views[i].y};
+                Vec2i32 rect_len = {views[i].width, views[i].height};
                 // Developer feedback, Draw rectangle to visuale the views area for:
-                rectangle(raw, views[i], Scalar(0, 0, 255), 2, LINE_4);
+                draw_rectangle(raw.data, raw.type(), resolution, rect_pos, rect_len);
                 // Developer feedback, Draw arrow for developer feedback:
-                draw_arrow(raw(views[i]), direction[i], visual_direction_gain[i]);
+                draw_arrow(raw.data, raw.type(), resolution, crop_pos, crop_size, direction[i], visual_direction_gain[i]);
             }
 
             // Developer feedback:

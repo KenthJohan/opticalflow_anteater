@@ -11,6 +11,7 @@ struct Camera_CV
 int camera_create(Camera *camera)
 {
     camera->handle = (void*) new Camera_CV;
+    return 0;
 }
 
 int camera_open(Camera *camera, char const * path)
@@ -37,7 +38,7 @@ int camera_destroy(Camera *camera)
     return 0;
 }
 
-int camera_read(Camera *camera, void const ** data, Vec2i32 * resolution, int * type)
+int camera_read(Camera *camera, void ** data, Vec2i32 * resolution, int * type)
 {
     Camera_CV *c = (Camera_CV *)camera->handle;
     c->capture >> c->frame;
