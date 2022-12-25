@@ -1,24 +1,11 @@
 #include "module_weldvisi.h"
 #include "oflow.h"
 #include "camera.h"
+#include "draw.h"
 #include <stdio.h>
 
-void Move(ecs_iter_t *it)
-{
-    Weldvisi_View *v = ecs_field(it, Weldvisi_View, 1);
-    Vec2i32 *p = ecs_field(it, Vec2i32, 2);
-    Vec2i32 *r = ecs_field(it, Vec2i32, 3);
-    for(int i = 0; i < it->count; ++i)
-    {
-        printf("Move: %i %i\n", p[i].x, p[i].y);
-        //void * context;
-        //void * raw;
-        //oflow_run(context, raw, 0, r[i], v + i, 0.1f, p[i], r[i]);
-    }
-}
 
-
-void Mve2(ecs_iter_t *it)
+void System_Test(ecs_iter_t *it)
 {
     Image *d = ecs_field(it, Image, 1);
     Camera *c = ecs_field(it, Camera, 2);
@@ -28,6 +15,36 @@ void Mve2(ecs_iter_t *it)
         ecs_get_name(it->world, it->entities[i]),
         ecs_get_name(it->world, ecs_field_src(it, 2))
         );
+    }
+}
+
+
+void System_Motion_Estimation(ecs_iter_t *it)
+{
+    Weldvisi_View *v = ecs_field(it, Weldvisi_View, 1);
+    Image *img = ecs_field(it, Image, 2);
+    /*
+    Vec2i32 *res = ecs_field(it, Vec2i32, 3);
+    Vec2i32 *rio_pos = ecs_field(it, Vec2i32, 4);
+    Vec2i32 *rio_len = ecs_field(it, Vec2i32, 5);
+    for(int i = 0; i < it->count; ++i)
+    {
+        //printf("Move: %i %i\n", p[i].x, p[i].y);
+        //void * context;
+        //void * raw;
+        //oflow_run(context, raw, 0, r[i], v + i, 0.1f, p[i], r[i]);
+    }
+    */
+}
+
+
+void System_Draw(ecs_iter_t *it)
+{
+    Image *img = ecs_field(it, Image, 1);
+    Vec2i32 *res = ecs_field(it, Vec2i32, 2);
+    for(int i = 0; i < it->count; ++i)
+    {
+        draw_show(img[i].data, img[i].type, res[i]);
     }
 }
 
@@ -134,6 +151,7 @@ ECS_DECLARE(CloseTry);
 ECS_DECLARE(CloseError);
 ECS_DECLARE(Status);
 ECS_DECLARE(Action);
+ECS_DECLARE(Draw);
 ECS_COMPONENT_DECLARE(Weldvisi_View);
 ECS_COMPONENT_DECLARE(Vec2i32);
 ECS_COMPONENT_DECLARE(Vec2f32);
@@ -159,6 +177,7 @@ void SimpleModuleImport(ecs_world_t *world)
     ECS_TAG_DEFINE(world, CloseTry);
     ECS_TAG_DEFINE(world, CloseError);
     ECS_TAG_DEFINE(world, Action);
+    ECS_TAG_DEFINE(world, Draw);
     ECS_COMPONENT_DEFINE(world, Weldvisi_View);
     ECS_COMPONENT_DEFINE(world, Vec2i32);
     ECS_COMPONENT_DEFINE(world, Vec2f32);
@@ -167,12 +186,15 @@ void SimpleModuleImport(ecs_world_t *world)
     ECS_COMPONENT_DEFINE(world, Camera);
 
     //ECS_SYSTEM(world, Move, EcsOnUpdate, Weldvisi_View, (Vec2i32, CropPosition), (Vec2i32, CropSize));
+    ECS_SYSTEM(world, System_Motion_Estimation, EcsOnUpdate, Weldvisi_View, Image(cascade(Uses)));
+
+    ECS_SYSTEM(world, System_Draw, EcsOnUpdate, Image, (Vec2i32, Resolution), Draw);
+    
     ECS_SYSTEM(world, System_Camera_Capture, EcsOnUpdate, Camera, Image, (Vec2i32, Resolution));
-    //ECS_SYSTEM(world, System_Capture, EcsOnUpdate, Image, Image(cascade(Uses)));
-    ECS_OBSERVER(world, System_Camera_Create, EcsOnAdd, Camera);
-    ECS_OBSERVER(world, System_Camera_Destroy, EcsOnRemove, Camera);
     ECS_SYSTEM(world, System_Camera_Open, EcsOnUpdate, Device, Camera, (Action, Open));
     ECS_SYSTEM(world, System_Camera_Close, EcsOnUpdate, Camera, (Action, Close));
+    ECS_OBSERVER(world, System_Camera_Create, EcsOnAdd, Camera);
+    ECS_OBSERVER(world, System_Camera_Destroy, EcsOnRemove, Camera);
 
     ecs_struct(world, {
         .entity = ecs_id(Vec2i32),

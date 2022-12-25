@@ -189,7 +189,10 @@ int main(int argc, char* argv[])
             }
 
             // Developer feedback:
-            imshow(filename, raw);
+            {
+                Vec2i32 resolution = {raw.cols, raw.rows};
+                draw_show(raw.data, raw.type(), resolution);
+            }
 
             // Developer feedback, Optional video writer:
             if (video_writer.isOpened())

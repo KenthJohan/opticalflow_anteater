@@ -24,6 +24,7 @@ extern ECS_DECLARE(CloseTry);
 extern ECS_DECLARE(CloseError);
 extern ECS_DECLARE(Status);
 extern ECS_DECLARE(Action);
+extern ECS_DECLARE(Draw);
 extern ECS_COMPONENT_DECLARE(Weldvisi_View);
 extern ECS_COMPONENT_DECLARE(Vec2i32);
 extern ECS_COMPONENT_DECLARE(Vec2f32);

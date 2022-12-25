@@ -1,6 +1,7 @@
 #include "draw.h"
 #include "common.h"
 #include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 
 // For visual purpose only:
 // This draw the direction and speed:
@@ -26,4 +27,10 @@ void draw_rectangle(void * image, int type, Vec2i32 resolution, Vec2i32 pos, Vec
 {
     cv::Mat mat = cv::Mat(resolution.y, resolution.x, type, image);
     cv::rectangle(mat, cv::Rect(pos.x, pos.y, length.x, length.y), cv::Scalar(0, 0, 255), 2, cv::LINE_4);
+}
+
+void draw_show(void * image, int type, Vec2i32 resolution)
+{
+    cv::Mat mat = cv::Mat(resolution.y, resolution.x, type, image);
+    cv::imshow("hej!", mat);
 }
