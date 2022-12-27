@@ -12,7 +12,7 @@ extern "C" {
 
 extern ECS_DECLARE(Resolution);
 extern ECS_DECLARE(Position);
-extern ECS_DECLARE(Veclocity);
+extern ECS_DECLARE(Velocity);
 extern ECS_DECLARE(CropPosition);
 extern ECS_DECLARE(CropSize);
 extern ECS_DECLARE(Uses);

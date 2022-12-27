@@ -2,9 +2,16 @@
 #include <stdint.h>
 #include "flecs.h"
 
+
+struct oflow_context
+{
+    void * internal;
+};
+
 typedef struct 
 {
     int dummy;
+    struct oflow_context context;
 } Weldvisi_View;
 
 typedef struct 
