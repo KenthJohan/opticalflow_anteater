@@ -191,7 +191,7 @@ int main(int argc, char* argv[])
             // Developer feedback:
             {
                 Vec2i32 resolution = {raw.cols, raw.rows};
-                draw_show(raw.data, raw.type(), resolution);
+                //draw_show(raw.data, raw.type(), resolution);
             }
 
             // Developer feedback, Optional video writer:
