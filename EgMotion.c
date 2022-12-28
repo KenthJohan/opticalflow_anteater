@@ -62,17 +62,7 @@ void System_Oflow_Destroy(ecs_iter_t *it)
 }
 
 
-void System_Copy_Image(ecs_iter_t *it)
-{
-    Image *img1 = ecs_field(it, Image, 1); // Shared
-    Vec2i32 *res1 = ecs_field(it, Vec2i32, 2); // Shared
-    Image *img2 = ecs_field(it, Image, 2);
-    Vec2i32 *res2 = ecs_field(it, Vec2i32, 2);
-    for(int i = 0; i < it->count; ++i)
-    {
-        //draw_show(img[i].data, img[i].type, res[i]);
-    }
-}
+
 
 
 void System_Draw(ecs_iter_t *it)

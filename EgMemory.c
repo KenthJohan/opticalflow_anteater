@@ -24,7 +24,7 @@ ECS_COPY(Image, dst, src, {
 })
 
 
-void Image_callback(ecs_iter_t *it)
+void System_Image_callback(ecs_iter_t *it)
 {
     ecs_world_t *world = it->world;
     ecs_entity_t event = it->event;
@@ -35,7 +35,21 @@ void Image_callback(ecs_iter_t *it)
     }
 }
 
-
+void System_Image_Copy(ecs_iter_t *it)
+{
+    Image *img1 = ecs_field(it, Image, 1); // Shared
+    Vec2i32 *res1 = ecs_field(it, Vec2i32, 2); // Shared
+    Image *img2 = ecs_field(it, Image, 3);
+    Vec2i32 *res2 = ecs_field(it, Vec2i32, 4);
+    for(int i = 0; i < it->count; ++i)
+    {
+        printf("Copy %s %s\n", 
+        ecs_get_name(it->world, it->entities[i]),
+        ecs_get_name(it->world, ecs_field_src(it, 3))
+        );
+        ecs_remove_pair(it->world, it->entities[i], Copy, ecs_field_src(it, 3));
+    }
+}
 
 
 void EgMemoryImport(ecs_world_t *world)
@@ -50,11 +64,19 @@ void EgMemoryImport(ecs_world_t *world)
         .move = ecs_move(Image),
         .copy = ecs_copy(Image),
         .dtor = ecs_dtor(Image),
-        .on_add = Image_callback,
-        .on_remove = Image_callback,
-        .on_set = Image_callback
+        .on_add = System_Image_callback,
+        .on_remove = System_Image_callback,
+        .on_set = System_Image_callback
     });
 
+    
 
+
+    ECS_SYSTEM(world, System_Image_Copy, EcsOnUpdate, 
+        Image, 
+        (eg.types.Vec2i32, eg.types.Resolution), 
+        Image(up(eg.types.Copy)), 
+        Vec2i32(up(eg.types.Copy), eg.types.Resolution)
+    );
 
 }

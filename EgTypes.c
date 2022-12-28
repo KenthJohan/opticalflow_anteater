@@ -35,7 +35,6 @@ void EgTypesImport(ecs_world_t *world)
     ECS_TAG_DEFINE(world, CropPosition);
     ECS_TAG_DEFINE(world, CropSize);
     //ECS_TAG_DEFINE(world, Uses);
-    ECS_ENTITY_DEFINE(world, Uses, EcsAcyclic);
     ECS_TAG_DEFINE(world, Open);
     ECS_TAG_DEFINE(world, OpenTry);
     ECS_TAG_DEFINE(world, OpenError);
@@ -46,7 +45,8 @@ void EgTypesImport(ecs_world_t *world)
     ECS_TAG_DEFINE(world, Draw);
     ECS_TAG_DEFINE(world, Visualize);
     ECS_TAG_DEFINE(world, Window);
-    ECS_TAG_DEFINE(world, Copy);
+    ECS_ENTITY_DEFINE(world, Uses, EcsAcyclic);
+    ECS_ENTITY_DEFINE(world, Copy, EcsAcyclic);
     ECS_COMPONENT_DEFINE(world, Vec2i32);
     ECS_COMPONENT_DEFINE(world, Vec2f32);
 
