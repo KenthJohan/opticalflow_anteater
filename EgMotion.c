@@ -1,4 +1,4 @@
-#include "module_weldvisi.h"
+#include "EgMotion.h"
 #include "oflow.h"
 #include "camera.h"
 #include "draw.h"
@@ -94,9 +94,9 @@ void System_Draw(ecs_iter_t *it)
 
 ECS_COMPONENT_DECLARE(Weldvisi_View);
 
-void SimpleModuleImport(ecs_world_t *world)
+void EgMotionImport(ecs_world_t *world)
 {
-    ECS_MODULE(world, SimpleModule);
+    ECS_MODULE(world, EgMotion);
     ECS_IMPORT(world, EgTypes);
     ECS_IMPORT(world, EgMemory);
 

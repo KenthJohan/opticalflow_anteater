@@ -12,7 +12,7 @@ extern "C" {
 
 extern ECS_COMPONENT_DECLARE(Weldvisi_View);
 
-void SimpleModuleImport(ecs_world_t *world);
+void EgMotionImport(ecs_world_t *world);
 
 #ifdef __cplusplus
 }
