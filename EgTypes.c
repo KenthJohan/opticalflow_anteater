@@ -50,4 +50,20 @@ void EgTypesImport(ecs_world_t *world)
     ECS_COMPONENT_DEFINE(world, Vec2i32);
     ECS_COMPONENT_DEFINE(world, Vec2f32);
 
+
+    ecs_struct(world, {
+        .entity = ecs_id(Vec2i32),
+        .members = {
+            { .name = "x", .type = ecs_id(ecs_i32_t) },
+            { .name = "y", .type = ecs_id(ecs_i32_t) }
+        }
+    });
+    
+    ecs_struct(world, {
+        .entity = ecs_id(Vec2f32),
+        .members = {
+            { .name = "x", .type = ecs_id(ecs_f32_t) },
+            { .name = "y", .type = ecs_id(ecs_f32_t) }
+        }
+    });
 }

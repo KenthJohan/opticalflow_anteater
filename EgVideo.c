@@ -83,7 +83,7 @@ void System_Camera_Close(ecs_iter_t *it)
 void System_Camera_Capture(ecs_iter_t *it)
 {
     Camera *cam = ecs_field(it, Camera, 1);
-    Image *img = ecs_field(it, Image, 2);
+    Memory *img = ecs_field(it, Memory, 2);
     Vec2i32 *res = ecs_field(it, Vec2i32, 3);
     for(int i = 0; i < it->count; ++i)
     {
@@ -112,7 +112,7 @@ void EgVideoImport(ecs_world_t *world)
     ECS_COMPONENT_DEFINE(world, Device);
     ECS_COMPONENT_DEFINE(world, Camera);
 
-    ECS_SYSTEM(world, System_Camera_Capture, EcsOnUpdate, Camera, Image, (Vec2i32, eg.types.Resolution));
+    ECS_SYSTEM(world, System_Camera_Capture, EcsOnUpdate, Camera, Memory, (Vec2i32, eg.types.Resolution));
     ECS_SYSTEM(world, System_Camera_Open, EcsOnUpdate, Device, Camera, (eg.types.Action, eg.types.Open));
     ECS_SYSTEM(world, System_Camera_Close, EcsOnUpdate, Camera, (eg.types.Action, eg.types.Close));
     ECS_OBSERVER(world, System_Camera_Create, EcsOnAdd, Camera);

@@ -41,4 +41,5 @@ typedef struct
     void * data;
     int32_t type;
     int32_t step;
-} Image;
+    int32_t size;
+} Memory;
