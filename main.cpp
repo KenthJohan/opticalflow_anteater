@@ -13,7 +13,6 @@
 #include "mainer.h"
 #include "draw.h"
 
-using namespace cv;
 
 // How many camera views and how its placed, like horizontally or verticly.
 #define WELDVISI_VIEWS 3
@@ -34,7 +33,7 @@ using namespace cv;
 
 
 // Make rectangles in a grid of rows and columns:
-void rect_grid(Rect r[], int n, int rows, int cols, int w, int h)
+void rect_grid(cv::Rect r[], int n, int rows, int cols, int w, int h)
 {
     for(int y = 0; y < rows; ++y)
     {
@@ -66,25 +65,25 @@ int main(int argc, char* argv[])
     printf("Hello this is Anteater!\n");
     printf("cwd: '%s'\n", cv::utils::fs::getcwd().c_str());
 
-    CommandLineParser parser(argc, argv, ASSETS_ARG_KEYS);
+    cv::CommandLineParser parser(argc, argv, ASSETS_ARG_KEYS);
 
     // Video capture from the anteater:
-    VideoCapture video_capture;
+    cv::VideoCapture video_capture;
 
     // Video writing is optional for developer feedback:
-    VideoWriter video_writer;
+    cv::VideoWriter video_writer;
 
     // Input video file path:
     cv::String filename;
 
     // Raw video frame from the video capture:
-    Mat raw;
+    cv::Mat raw;
 
     // FIR filter constant:
     float alpha = 0.1f;
 
     // Split a video frame into smaller views:
-    Rect views[WELDVISI_VIEWS];
+    cv::Rect views[WELDVISI_VIEWS];
 
     // Speed and direction being set by the motion estimators:
     Vec2f32 direction[WELDVISI_VIEWS] = {};
@@ -103,7 +102,7 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    filename = samples::findFile(parser.get<cv::String>("@image"));
+    filename = cv::samples::findFile(parser.get<cv::String>("@image"));
     if (!parser.check())
     {
         parser.printErrors();
@@ -119,8 +118,8 @@ int main(int argc, char* argv[])
     }
 
     {
-        int w = video_capture.get(CAP_PROP_FRAME_WIDTH);
-        int h = video_capture.get(CAP_PROP_FRAME_HEIGHT);
+        int w = video_capture.get(cv::CAP_PROP_FRAME_WIDTH);
+        int h = video_capture.get(cv::CAP_PROP_FRAME_HEIGHT);
         printf("Resolution of videocapture is %ix%i!\n", w, h);
         // Split video frame into smaller views:
         rect_grid(views, WELDVISI_VIEWS, WELDVISI_ROWS, WELDVISI_COLS, w, h);
@@ -131,26 +130,30 @@ int main(int argc, char* argv[])
     video_capture >> raw;
     for(int i = 0; i < WELDVISI_VIEWS; ++i)
     {
-        Mat sub = raw(views[i]);
+        cv::Mat sub = raw(views[i]);
         Vec2i32 resolution = {sub.cols, sub.rows};
         oflow_init(motion_estimator + i, sub.data, sub.type(), resolution);
     }
 
 
     {
-        String outname = parser.get<String>("o");
+        cv::String outname = parser.get<cv::String>("o");
         if (outname.length() > 0)
         {
             // Set the video writers to use the same settings as input video:
-            int codec = static_cast<int>(video_capture.get(CAP_PROP_FOURCC));
-            double fps = video_capture.get(CAP_PROP_FPS);
+            int codec = static_cast<int>(video_capture.get(cv::CAP_PROP_FOURCC));
+            double fps = video_capture.get(cv::CAP_PROP_FPS);
             bool isColor = (raw.type() == CV_8UC3);
             video_writer.open(outname+filename, codec, fps, raw.size(), isColor);
         }
     }
 
 
- 
+    while(true)
+    {
+        ecs_progress(world, 0);
+        ecs_sleepf(0.1f);
+    }
 
 
     while(true)
@@ -158,7 +161,7 @@ int main(int argc, char* argv[])
         ecs_progress(world, 0);
 
         {
-            int keyboard = waitKey(30);
+            int keyboard = cv::waitKey(30);
             if (keyboard == 'q' || keyboard == 27) {break;}
         }
 

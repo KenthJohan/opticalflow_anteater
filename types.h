@@ -43,3 +43,10 @@ typedef struct
     int32_t step;
     int32_t size;
 } Memory;
+
+
+
+typedef struct
+{
+    char *value;
+} String;

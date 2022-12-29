@@ -2,7 +2,7 @@
 #include "EgTypes.h"
 
 ECS_COMPONENT_DECLARE(Memory);
-
+ECS_DECLARE(Image);
 
 
 
@@ -42,17 +42,15 @@ void System_Memory_callback(ecs_iter_t *it)
 
 void System_Memory_Copy(ecs_iter_t *it)
 {
-    Memory *img1 = ecs_field(it, Memory, 1); // Shared
-    Vec2i32 *res1 = ecs_field(it, Vec2i32, 2); // Shared
-    Memory *img2 = ecs_field(it, Memory, 3);
-    Vec2i32 *res2 = ecs_field(it, Vec2i32, 4);
+    Memory *img1 = ecs_field(it, Memory, 1); //Shared
+    Memory *img2 = ecs_field(it, Memory, 2);
     for(int i = 0; i < it->count; ++i)
     {
         printf("Copy %s %s\n", 
         ecs_get_name(it->world, it->entities[i]),
-        ecs_get_name(it->world, ecs_field_src(it, 3))
+        ecs_get_name(it->world, ecs_field_src(it, 1))
         );
-        ecs_remove_pair(it->world, it->entities[i], Copy, ecs_field_src(it, 3));
+        //ecs_remove_pair(it->world, it->entities[i], Copy, ecs_field_src(it, 1));
     }
 }
 
@@ -61,9 +59,8 @@ void EgMemoryImport(ecs_world_t *world)
 {
     ECS_MODULE(world, EgMemory);
     ECS_IMPORT(world, EgTypes);
+
     ECS_COMPONENT_DEFINE(world, Memory);
-
-
     ecs_set_hooks(world, Memory, {
         .ctor = ecs_ctor(Memory),
         .move = ecs_move(Memory),
@@ -73,10 +70,6 @@ void EgMemoryImport(ecs_world_t *world)
         .on_remove = System_Memory_callback,
         .on_set = System_Memory_callback
     });
-
-
-
-
     ecs_struct(world, {
         .entity = ecs_id(Memory),
         .members = {
@@ -87,12 +80,8 @@ void EgMemoryImport(ecs_world_t *world)
         }
     });
 
-
-    ECS_SYSTEM(world, System_Memory_Copy, EcsOnUpdate, 
-        Memory, 
-        (eg.types.Vec2i32, eg.types.Resolution), 
-        Memory(up(eg.types.Copy)), 
-        Vec2i32(up(eg.types.Copy), eg.types.Resolution)
-    );
+    ECS_PREFAB_DEFINE(world, Image, Memory, (Vec2i32, eg.types.Resolution));
+    
+    ECS_SYSTEM(world, System_Memory_Copy, EcsOnUpdate, Memory(up(eg.types.Copy)), Memory);
 
 }

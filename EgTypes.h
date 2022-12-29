@@ -21,7 +21,9 @@ extern ECS_DECLARE(Draw);
 extern ECS_DECLARE(Visualize);
 extern ECS_DECLARE(Window);
 extern ECS_DECLARE(Copy);
+
 extern ECS_COMPONENT_DECLARE(Vec2i32);
 extern ECS_COMPONENT_DECLARE(Vec2f32);
+extern ECS_COMPONENT_DECLARE(String);
 
 void EgTypesImport(ecs_world_t *world);

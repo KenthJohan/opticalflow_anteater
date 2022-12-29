@@ -20,8 +20,53 @@ ECS_DECLARE(Draw);
 ECS_DECLARE(Visualize);
 ECS_DECLARE(Window);
 ECS_DECLARE(Copy);
+
 ECS_COMPONENT_DECLARE(Vec2i32);
 ECS_COMPONENT_DECLARE(Vec2f32);
+ECS_COMPONENT_DECLARE(String);
+
+
+
+
+ECS_CTOR(String, ptr, {
+    ptr->value = NULL;
+})
+ECS_DTOR(String, ptr, {
+    ecs_os_free(ptr->value);
+})
+ECS_MOVE(String, dst, src, {
+    ecs_os_free(dst->value);
+    dst->value = src->value;
+    src->value = NULL;
+})
+
+ECS_COPY(String, dst, src, {
+    ecs_os_free(dst->value);
+    dst->value = ecs_os_strdup(src->value);
+})
+
+void hook_callback(ecs_iter_t *it) {
+    ecs_world_t *world = it->world;
+    ecs_entity_t event = it->event;
+    for (int i = 0; i < it->count; i ++) {
+        ecs_entity_t e = it->entities[i];
+        //ecs_trace("%s: %s", ecs_get_name(world, event), ecs_get_name(world, e));
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void EgTypesImport(ecs_world_t *world)
 {
@@ -29,12 +74,14 @@ void EgTypesImport(ecs_world_t *world)
 	
 
     ECS_ENTITY_DEFINE(world, Status, Union);
+    ECS_ENTITY_DEFINE(world, Uses, EcsAcyclic);
+    ECS_ENTITY_DEFINE(world, Copy, EcsAcyclic);
+
     ECS_TAG_DEFINE(world, Resolution);
     ECS_TAG_DEFINE(world, Position);
     ECS_TAG_DEFINE(world, Velocity);
     ECS_TAG_DEFINE(world, CropPosition);
     ECS_TAG_DEFINE(world, CropSize);
-    //ECS_TAG_DEFINE(world, Uses);
     ECS_TAG_DEFINE(world, Open);
     ECS_TAG_DEFINE(world, OpenTry);
     ECS_TAG_DEFINE(world, OpenError);
@@ -45,11 +92,28 @@ void EgTypesImport(ecs_world_t *world)
     ECS_TAG_DEFINE(world, Draw);
     ECS_TAG_DEFINE(world, Visualize);
     ECS_TAG_DEFINE(world, Window);
-    ECS_ENTITY_DEFINE(world, Uses, EcsAcyclic);
-    ECS_ENTITY_DEFINE(world, Copy, EcsAcyclic);
+
+
     ECS_COMPONENT_DEFINE(world, Vec2i32);
     ECS_COMPONENT_DEFINE(world, Vec2f32);
+    ECS_COMPONENT_DEFINE(world, String);
 
+    ecs_set_hooks(world, String, {
+    .ctor = ecs_ctor(String),
+    .move = ecs_move(String),
+    .copy = ecs_copy(String),
+    .dtor = ecs_dtor(String),
+    .on_add = hook_callback,
+    .on_remove = hook_callback,
+    .on_set = hook_callback
+    });
+
+    ecs_struct(world, {
+        .entity = ecs_id(String),
+        .members = {
+            { .name = "value", .type = ecs_id(ecs_string_t) }
+        }
+    });
 
     ecs_struct(world, {
         .entity = ecs_id(Vec2i32),
