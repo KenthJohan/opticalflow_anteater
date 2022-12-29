@@ -3,6 +3,7 @@
 #include "EgMemory.h"
 #include "EgVideo.h"
 #include "EgTypes.h"
+#include "EgDraws.h"
 
 
 
@@ -13,6 +14,7 @@ void mainer(ecs_world_t * world)
     ECS_IMPORT(world, EgMemory);
     ECS_IMPORT(world, EgVideo);
     ECS_IMPORT(world, EgTypes);
+    ECS_IMPORT(world, EgDraws);
 
 	//https://www.flecs.dev/explorer/?remote=true
     ecs_singleton_set(world, EcsRest, {0});
@@ -26,6 +28,7 @@ void mainer(ecs_world_t * world)
 	ecs_set(world, cam, Device, {"2022-12-15_14-56-29.mp4"});
 	ecs_add(world, cam, Camera);
 	ecs_add(world, cam, Memory);
+	ecs_add(world, cam, Window);
 	ecs_set(world, cam, Vec2i32, {0, 0});
 	ecs_set_pair(world, cam, Vec2i32, Resolution, {0, 0});
     ecs_add_pair(world, cam, Action, Open);
@@ -36,8 +39,8 @@ void mainer(ecs_world_t * world)
 		ecs_add(world, show, Window);
 		ecs_add(world, show, Memory);
 		ecs_set_pair(world, show, Vec2i32, Resolution, {0, 0});
-    	ecs_add_pair(world, show, Copy, Image);
 	}
+
 
 
 	{

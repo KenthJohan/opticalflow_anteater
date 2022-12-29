@@ -92,6 +92,7 @@ void System_Camera_Capture(ecs_iter_t *it)
         camera_read(cam + i, &data, res + i, &type);
         img[i].data = data;
         img[i].type = type;
+        printf("Capture %s %ix%i %i %p\n", ecs_get_name(it->world, it->entities[i]), res[i].x, res[i].y, img[i].type, img[i].data);
     }
 }
 

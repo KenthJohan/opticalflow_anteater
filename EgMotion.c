@@ -1,7 +1,6 @@
 #include "EgMotion.h"
 #include "oflow.h"
 #include "camera.h"
-#include "draw.h"
 #include "EgMemory.h"
 #include "EgTypes.h"
 #include <stdio.h>
@@ -65,15 +64,7 @@ void System_Oflow_Destroy(ecs_iter_t *it)
 
 
 
-void System_Draw(ecs_iter_t *it)
-{
-    Memory *img = ecs_field(it, Memory, 1);
-    Vec2i32 *res = ecs_field(it, Vec2i32, 2);
-    for(int i = 0; i < it->count; ++i)
-    {
-        //draw_show(img[i].data, img[i].type, res[i]);
-    }
-}
+
 
 
 
@@ -127,7 +118,6 @@ void EgMotionImport(ecs_world_t *world)
     ECS_OBSERVER(world, System_Oflow_Destroy, EcsOnRemove, Weldvisi_View);
 
 
-    ECS_SYSTEM(world, System_Draw, EcsOnUpdate, Memory, (eg.types.Vec2i32, eg.types.Resolution), eg.types.Window);
     
 
 

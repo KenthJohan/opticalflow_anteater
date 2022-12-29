@@ -30,7 +30,7 @@ oflow ?= oflow_default.cpp
 #SRCS := main.cpp oflow_farneback.cpp
 #SRCS := main.cpp oflow_lucaskanade.cpp
 #SRCS := main.cpp oflow_phasecorr.cpp
-SRCS := main.cpp flecs.c camera.cpp mainer.c EgMotion.c EgMemory.c EgVideo.c EgTypes.c draw.cpp $(oflow)
+SRCS := main.cpp flecs.c camera.cpp mainer.c EgMotion.c EgMemory.c EgVideo.c EgTypes.c EgDraws.c draw.cpp $(oflow)
 
 
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)

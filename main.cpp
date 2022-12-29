@@ -151,12 +151,15 @@ int main(int argc, char* argv[])
 
     while(true)
     {
+        {
+            int keyboard = cv::waitKey(30);
+            if (keyboard == 'q' || keyboard == 27) {break;}
+        }
         ecs_progress(world, 0);
         ecs_sleepf(0.1f);
     }
 
-
-    while(true)
+    while(0)
     {
         ecs_progress(world, 0);
 

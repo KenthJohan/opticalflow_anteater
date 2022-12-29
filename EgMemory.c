@@ -20,8 +20,7 @@ ECS_MOVE(Memory, dst, src, {
     printf("Memory Move\n");
     ecs_os_free(dst->data);
     dst->data = src->data;
-    src->data = NULL; // This makes sure the value doesn't get deleted twice,
-                       // as the destructor is still invoked after a move.
+    src->data = NULL;
 })
 
 ECS_COPY(Memory, dst, src, {
@@ -81,7 +80,7 @@ void EgMemoryImport(ecs_world_t *world)
     });
 
     ECS_PREFAB_DEFINE(world, Image, Memory, (Vec2i32, eg.types.Resolution));
-    
-    ECS_SYSTEM(world, System_Memory_Copy, EcsOnUpdate, Memory(up(eg.types.Copy)), Memory);
+
+    //ECS_SYSTEM(world, System_Memory_Copy, EcsOnUpdate, Memory(up(eg.types.Copy)), Memory);
 
 }
