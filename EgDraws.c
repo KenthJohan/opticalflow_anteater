@@ -10,10 +10,11 @@ void System_Draw(ecs_iter_t *it)
     Vec2i32 *res = ecs_field(it, Vec2i32, 2);
     for(int i = 0; i < it->count; ++i)
     {
-        printf("Draw %s %p\n", ecs_get_name(it->world, it->entities[i]), img[i].data);
+        char const * name = ecs_get_name(it->world, it->entities[i]);
+        printf("Draw %s %p\n", name, img[i].data);
 		if(img[i].data)
 		{	
-			draw_show(img[i].data, img[i].type, res[i]);
+			draw_show(name, img[i].data, img[i].type, res[i]);
 		}
     }
 }
