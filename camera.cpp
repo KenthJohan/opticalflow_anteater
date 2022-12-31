@@ -66,9 +66,13 @@ int camera_read(Camera *camera, Memory * mem, Vec2i32 * resolution)
     {
         return -1;
     }
+    printf("step: %i %i\n", c->frame.step[0], c->frame.step[1]);
     mem->size = c->frame.step[0] * c->frame.rows;
     mem->data = c->frame.data;
-    mem->step = c->frame.step;
+    mem->step[0] = c->frame.step[0];
+    mem->step[1] = c->frame.step[1];
+    mem->step[2] = c->frame.step[2];
+    mem->step[3] = c->frame.step[3];
     mem->type = c->frame.type();
     resolution->x = c->frame.cols;
     resolution->y = c->frame.rows;

@@ -8,11 +8,8 @@ ECS_DECLARE(Image);
 
 
 ECS_CTOR(Memory, ptr, {
-    printf("Memory Ctor %i %i %i\n", ptr->size, ptr->type, ptr->step);
-    ptr->data = NULL;
-    ptr->size = 0;
-    ptr->type = 0;
-    ptr->step = 0;
+    printf("Memory Ctor %i %i %ix%ix%ix%i\n", ptr->size, ptr->type, ptr->step[0], ptr->step[0], ptr->step[0], ptr->step[0]);
+    ecs_os_memset_t(ptr, 0, Memory);
 })
 
 ECS_DTOR(Memory, ptr, {
@@ -49,6 +46,7 @@ void System_Memory_callback(ecs_iter_t *it)
 
 void System_Memory_Copy(ecs_iter_t *it)
 {
+    //https://docs.opencv.org/2.4/modules/core/doc/basic_structures.html#mat
     Memory *dst_mem = ecs_field(it, Memory, 1);
     Vec2i32 *dst_res = ecs_field(it, Vec2i32, 2);
     Memory *src_mem = ecs_field(it, Memory, 3); //Shared
@@ -65,7 +63,10 @@ void System_Memory_Copy(ecs_iter_t *it)
             dst_mem[i].data = ecs_os_malloc(src_mem[0].size);
             dst_mem[i].size = src_mem[0].size;
         }
-        dst_mem[i].step = src_mem[0].step;
+        dst_mem[i].step[0] = src_mem[0].step[0];
+        dst_mem[i].step[1] = src_mem[0].step[1];
+        dst_mem[i].step[2] = src_mem[0].step[2];
+        dst_mem[i].step[3] = src_mem[0].step[3];
         dst_mem[i].type = src_mem[0].type;
         ecs_os_memcpy(dst_mem[i].data, src_mem[0].data, src_mem[0].size);
         dst_res[i] = src_res[0];
@@ -98,7 +99,7 @@ void EgMemoryImport(ecs_world_t *world)
             { .name = "size", .type = ecs_id(ecs_i32_t) },
 
             { .name = "type", .type = ecs_id(ecs_i32_t) },
-            { .name = "step", .type = ecs_id(ecs_i32_t) }
+            { .name = "step", .type = ecs_id(ecs_i32_t), .count = 4 }
         }
     });
 

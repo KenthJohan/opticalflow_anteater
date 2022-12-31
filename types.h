@@ -46,7 +46,7 @@ typedef struct
     int32_t size;
 
     int32_t type;
-    int32_t step;
+    int32_t step[4];
 } Memory;
 
 

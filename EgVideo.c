@@ -60,12 +60,11 @@ void System_Camera_Open(ecs_iter_t *it)
             ecs_set_pair(it->world, it->entities[i], Vec2i32, Resolution, {res.x, res.y});
             ecs_set_ptr(it->world, it->entities[i], Memory, &mem);
 
-            /*
-            printf("Camera %s: %ix%ix%i\n", name, res.x, res.y, t);
-            char buf[100] = {0};
-            camera_type2str(t, buf, 100);
-            printf("Camera %s: %ix%ix%i %s\n", name, res.x, res.y, t, buf);
-            */
+            {
+                char buf[100] = {0};
+                camera_type2str(mem.type, buf, 100);
+                printf("Camera %s: %ix%ix%s\n", name, res.x, res.y, buf);
+            }
 
 
         }

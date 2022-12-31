@@ -210,6 +210,9 @@ int main(int argc, char* argv[])
     printf("Anteater exited successfully!\n");
     if (video_capture.isOpened()){video_capture.release();}   
     if (video_writer.isOpened()) {video_writer.release();}
+
+    
+	ecs_log_set_level(0);
     ecs_fini(world);
     return 0;
 }
