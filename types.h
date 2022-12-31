@@ -1,6 +1,5 @@
 #pragma once
 #include <stdint.h>
-#include "flecs.h"
 
 
 struct oflow_context
@@ -22,13 +21,18 @@ typedef struct
 
 typedef struct 
 {
+    int32_t n;
+} Channels;
+
+typedef struct 
+{
     float x;
     float y;
 } Vec2f32;
 
 typedef struct 
 {
-    ecs_string_t path;
+    char * path;
 } Device;
 
 typedef struct  
@@ -39,9 +43,10 @@ typedef struct
 typedef struct  
 {
     void * data;
+    int32_t size;
+
     int32_t type;
     int32_t step;
-    int32_t size;
 } Memory;
 
 

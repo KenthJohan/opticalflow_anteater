@@ -38,14 +38,40 @@ int camera_destroy(Camera *camera)
     return 0;
 }
 
-int camera_read(Camera *camera, void ** data, Vec2i32 * resolution, int * type)
+
+void camera_type2str(int type, char * buf, int len)
+{
+  uchar depth = type & CV_MAT_DEPTH_MASK;
+  uchar channels = 1 + (type >> CV_CN_SHIFT);
+  char const * r;
+  switch ( depth ) {
+    case CV_8U:  r = "8U"; break;
+    case CV_8S:  r = "8S"; break;
+    case CV_16U: r = "16U"; break;
+    case CV_16S: r = "16S"; break;
+    case CV_32S: r = "32S"; break;
+    case CV_32F: r = "32F"; break;
+    case CV_64F: r = "64F"; break;
+    default:     r = "User"; break;
+  }
+  snprintf(buf, len, "%sC%i", r, channels);
+}
+
+
+int camera_read(Camera *camera, Memory * mem, Vec2i32 * resolution)
 {
     Camera_CV *c = (Camera_CV *)camera->handle;
     c->capture >> c->frame;
-    *data = c->frame.data;
+    if (c->frame.isContinuous() == false)
+    {
+        return -1;
+    }
+    mem->size = c->frame.step[0] * c->frame.rows;
+    mem->data = c->frame.data;
+    mem->step = c->frame.step;
+    mem->type = c->frame.type();
     resolution->x = c->frame.cols;
     resolution->y = c->frame.rows;
-    *type = c->frame.type();
     return 0;
 }
 

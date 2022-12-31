@@ -22,7 +22,7 @@ void System_Test(ecs_iter_t *it)
 
 void System_Motion_Estimation(ecs_iter_t *it)
 {
-    printf("System_Motion_Estimation %i\n", it->count);
+    //printf("System_Motion_Estimation %i\n", it->count);
     Weldvisi_View *v = ecs_field(it, Weldvisi_View, 1);
     Vec2i32 *rio_pos = ecs_field(it, Vec2i32, 2);
     Vec2i32 *rio_len = ecs_field(it, Vec2i32, 3);
@@ -31,7 +31,7 @@ void System_Motion_Estimation(ecs_iter_t *it)
     Vec2i32 *res = ecs_field(it, Vec2i32, 6);  // Shared
     for(int i = 0; i < it->count; ++i)
     {
-        printf("%s:\n", ecs_get_name(it->world, it->entities[i]));
+        //printf("%s:\n", ecs_get_name(it->world, it->entities[i]));
         //printf("%s: %i %i\n", ecs_get_name(it->world, it->entities[i]), res[i].x, res[i].y);
         float alpha = 0.1f;
         //oflow_run(&v[i].context, img[0].data, img[0].type, res[0], vel + i, alpha, rio_pos[i], rio_len[i]);

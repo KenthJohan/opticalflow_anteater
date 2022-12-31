@@ -39,6 +39,7 @@ void mainer(ecs_world_t * world)
 		ecs_add(world, show, Window);
 		ecs_add(world, show, Memory);
 		ecs_set_pair(world, show, Vec2i32, Resolution, {0, 0});
+		ecs_add_pair(world, show, Copy, cam);
 	}
 
 

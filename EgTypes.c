@@ -24,6 +24,7 @@ ECS_DECLARE(Copy);
 ECS_COMPONENT_DECLARE(Vec2i32);
 ECS_COMPONENT_DECLARE(Vec2f32);
 ECS_COMPONENT_DECLARE(String);
+ECS_COMPONENT_DECLARE(Channels);
 
 
 
@@ -97,6 +98,7 @@ void EgTypesImport(ecs_world_t *world)
     ECS_COMPONENT_DEFINE(world, Vec2i32);
     ECS_COMPONENT_DEFINE(world, Vec2f32);
     ECS_COMPONENT_DEFINE(world, String);
+    ECS_COMPONENT_DEFINE(world, Channels);
 
     ecs_set_hooks(world, String, {
     .ctor = ecs_ctor(String),
@@ -128,6 +130,13 @@ void EgTypesImport(ecs_world_t *world)
         .members = {
             { .name = "x", .type = ecs_id(ecs_f32_t) },
             { .name = "y", .type = ecs_id(ecs_f32_t) }
+        }
+    });
+
+    ecs_struct(world, {
+        .entity = ecs_id(Channels),
+        .members = {
+            { .name = "n", .type = ecs_id(ecs_i32_t) }
         }
     });
 }

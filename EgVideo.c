@@ -1,5 +1,6 @@
 #include "EgVideo.h"
 #include "EgTypes.h"
+#include "EgMemory.h"
 #include "camera.h"
 #include <stdio.h>
 
@@ -39,15 +40,34 @@ void System_Camera_Open(ecs_iter_t *it)
     Camera *c = ecs_field(it, Camera, 2);
     for(int i = 0; i < it->count; ++i)
     {
-        printf("Open camera: %s\n", d[i].path);
+        Vec2i32 res;
+        char const * name = ecs_get_name(it->world, it->entities[i]);
+        printf("Open camera %s: device: %s\n", name, d[i].path);
         int r = camera_open(c + i, d[i].path);
         if(r == 0)
         {
             ecs_remove_pair(it->world, it->entities[i], Action, Open);
             ecs_add_pair(it->world, it->entities[i], Status, Open);
-            int w = camera_get_int(c + i, CAMERA_PROP_FRAME_WIDTH);
-            int h = camera_get_int(c + i, CAMERA_PROP_FRAME_HEIGHT);
-            ecs_set_pair(it->world, it->entities[i], Vec2i32, Resolution, {w,h});
+            
+            /*
+            res.x = camera_get_int(c + i, CAMERA_PROP_FRAME_WIDTH);
+            res.y = camera_get_int(c + i, CAMERA_PROP_FRAME_HEIGHT);
+            int t = camera_get_int(c + i, CAMERA_CAP_PROP_FORMAT);
+            */
+           
+            Memory mem;
+            camera_read(c + i, &mem, &res);
+            ecs_set_pair(it->world, it->entities[i], Vec2i32, Resolution, {res.x, res.y});
+            ecs_set_ptr(it->world, it->entities[i], Memory, &mem);
+
+            /*
+            printf("Camera %s: %ix%ix%i\n", name, res.x, res.y, t);
+            char buf[100] = {0};
+            camera_type2str(t, buf, 100);
+            printf("Camera %s: %ix%ix%i %s\n", name, res.x, res.y, t, buf);
+            */
+
+
         }
         else
         {
@@ -83,16 +103,12 @@ void System_Camera_Close(ecs_iter_t *it)
 void System_Camera_Capture(ecs_iter_t *it)
 {
     Camera *cam = ecs_field(it, Camera, 1);
-    Memory *img = ecs_field(it, Memory, 2);
+    Memory *mem = ecs_field(it, Memory, 2);
     Vec2i32 *res = ecs_field(it, Vec2i32, 3);
     for(int i = 0; i < it->count; ++i)
     {
-        int type;
-        void * data;
-        camera_read(cam + i, &data, res + i, &type);
-        img[i].data = data;
-        img[i].type = type;
-        printf("Capture %s %ix%i %i %p\n", ecs_get_name(it->world, it->entities[i]), res[i].x, res[i].y, img[i].type, img[i].data);
+        camera_read(cam + i, mem + i, res + i);
+        //printf("Capture %s %ix%i %i %p\n", ecs_get_name(it->world, it->entities[i]), res[i].x, res[i].y, img[i].type, img[i].data);
     }
 }
 
