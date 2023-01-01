@@ -58,7 +58,7 @@ void camera_type2str(int type, char * buf, int len)
 }
 
 
-int camera_read(Camera *camera, Memory * mem, Vec2i32 * resolution)
+int camera_read(Camera *camera, Memory * mem, Matspec * spec)
 {
     Camera_CV *c = (Camera_CV *)camera->handle;
     c->capture >> c->frame;
@@ -66,16 +66,16 @@ int camera_read(Camera *camera, Memory * mem, Vec2i32 * resolution)
     {
         return -1;
     }
-    printf("step: %i %i\n", c->frame.step[0], c->frame.step[1]);
     mem->size = c->frame.step[0] * c->frame.rows;
     mem->data = c->frame.data;
-    mem->step[0] = c->frame.step[0];
-    mem->step[1] = c->frame.step[1];
-    mem->step[2] = c->frame.step[2];
-    mem->step[3] = c->frame.step[3];
-    mem->type = c->frame.type();
-    resolution->x = c->frame.cols;
-    resolution->y = c->frame.rows;
+    spec->dims = c->frame.dims;
+    spec->type = c->frame.type();
+    spec->step[0] = c->frame.step[0];
+    spec->step[1] = c->frame.step[1];
+    spec->dim[0] = c->frame.size[0];
+    spec->dim[1] = c->frame.size[1];
+    //printf("step: %i %i\n", spec->step[0], spec->step[1]);
+    //printf("dim: %i %i\n", spec->dim[0], spec->dim[1]);
     return 0;
 }
 

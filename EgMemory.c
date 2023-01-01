@@ -8,28 +8,20 @@ ECS_DECLARE(Image);
 
 
 ECS_CTOR(Memory, ptr, {
-    printf("Memory Ctor %i %i %ix%ix%ix%i\n", ptr->size, ptr->type, ptr->step[0], ptr->step[0], ptr->step[0], ptr->step[0]);
+    printf("Memory Ctor\n");
     ecs_os_memset_t(ptr, 0, Memory);
 })
 
 ECS_DTOR(Memory, ptr, {
-    printf("Memory Dtor %i %i %i\n", ptr->size, ptr->type, ptr->step);
-    ecs_os_free(ptr->data);
+    printf("Memory Dtor\n");
 })
 
 ECS_MOVE(Memory, dst, src, {
-    printf("Memory Move %i %i %i\n", src->size, src->type, src->step);
-    ecs_os_free(dst->data);
-    dst->data = src->data;
-    dst->size = src->size;
-    dst->type = src->type;
-    src->data = NULL;
+    printf("Memory Move\n");
 })
 
 ECS_COPY(Memory, dst, src, {
     printf("Memory Copy\n");
-    ecs_os_memcpy_t(dst, src, Memory);
-    //dst->data = ecs_os_memdup(src->data, src->size);
 })
 
 
@@ -44,19 +36,21 @@ void System_Memory_callback(ecs_iter_t *it)
     }
 }
 
+
 void System_Memory_Copy(ecs_iter_t *it)
 {
     //https://docs.opencv.org/2.4/modules/core/doc/basic_structures.html#mat
     Memory *dst_mem = ecs_field(it, Memory, 1);
-    Vec2i32 *dst_res = ecs_field(it, Vec2i32, 2);
+    Matspec *dst_res = ecs_field(it, Matspec, 2);
     Memory *src_mem = ecs_field(it, Memory, 3); //Shared
-    Vec2i32 *src_res = ecs_field(it, Vec2i32, 4); //Shared
+    Matspec *src_res = ecs_field(it, Matspec, 4); //Shared
     for(int i = 0; i < it->count; ++i)
     {
         printf("Copy %s %s\n", 
         ecs_get_name(it->world, it->entities[i]),
         ecs_get_name(it->world, ecs_field_src(it, 3))
         );
+        /*
         if(dst_mem[i].size != src_mem[0].size)
         {
             ecs_os_free(dst_mem[i].data);
@@ -70,10 +64,11 @@ void System_Memory_Copy(ecs_iter_t *it)
         dst_mem[i].type = src_mem[0].type;
         ecs_os_memcpy(dst_mem[i].data, src_mem[0].data, src_mem[0].size);
         dst_res[i] = src_res[0];
-
         //ecs_remove_pair(it->world, it->entities[i], Copy, ecs_field_src(it, 1));
+        */
     }
 }
+
 
 
 void EgMemoryImport(ecs_world_t *world)
@@ -96,10 +91,7 @@ void EgMemoryImport(ecs_world_t *world)
         .entity = ecs_id(Memory),
         .members = {
             { .name = "data", .type = ecs_id(ecs_uptr_t) },
-            { .name = "size", .type = ecs_id(ecs_i32_t) },
-
-            { .name = "type", .type = ecs_id(ecs_i32_t) },
-            { .name = "step", .type = ecs_id(ecs_i32_t), .count = 4 }
+            { .name = "size", .type = ecs_id(ecs_i32_t) }
         }
     });
 

@@ -13,7 +13,7 @@ int camera_create(Camera * camera);
 int camera_open(Camera * camera, char const * path);
 int camera_close(Camera * camera);
 int camera_destroy(Camera * camera);
-int camera_read(Camera *camera, Memory * mem, Vec2i32 * resolution);
+int camera_read(Camera *camera, Memory * mem, Matspec * spec);
 int camera_get_int(Camera *camera, int prop);
 void camera_type2str(int type, char * buf, int len);
 

@@ -40,7 +40,6 @@ void System_Camera_Open(ecs_iter_t *it)
     Camera *c = ecs_field(it, Camera, 2);
     for(int i = 0; i < it->count; ++i)
     {
-        Vec2i32 res;
         char const * name = ecs_get_name(it->world, it->entities[i]);
         printf("Open camera %s: device: %s\n", name, d[i].path);
         int r = camera_open(c + i, d[i].path);
@@ -56,14 +55,15 @@ void System_Camera_Open(ecs_iter_t *it)
             */
            
             Memory mem;
-            camera_read(c + i, &mem, &res);
-            ecs_set_pair(it->world, it->entities[i], Vec2i32, Resolution, {res.x, res.y});
+            Matspec spec;
+            camera_read(c + i, &mem, &spec);
             ecs_set_ptr(it->world, it->entities[i], Memory, &mem);
+            ecs_set_ptr(it->world, it->entities[i], Matspec, &spec);
 
             {
                 char buf[100] = {0};
-                camera_type2str(mem.type, buf, 100);
-                printf("Camera %s: %ix%ix%s\n", name, res.x, res.y, buf);
+                camera_type2str(spec.type, buf, 100);
+                printf("Camera %s: %ix%ix%s\n", name, spec.dim[0], spec.dim[1], buf);
             }
 
 
@@ -103,10 +103,10 @@ void System_Camera_Capture(ecs_iter_t *it)
 {
     Camera *cam = ecs_field(it, Camera, 1);
     Memory *mem = ecs_field(it, Memory, 2);
-    Vec2i32 *res = ecs_field(it, Vec2i32, 3);
+    Matspec *spec = ecs_field(it, Matspec, 3);
     for(int i = 0; i < it->count; ++i)
     {
-        camera_read(cam + i, mem + i, res + i);
+        camera_read(cam + i, mem + i, spec + i);
         //printf("Capture %s %ix%i %i %p\n", ecs_get_name(it->world, it->entities[i]), res[i].x, res[i].y, img[i].type, img[i].data);
     }
 }
@@ -128,7 +128,7 @@ void EgVideoImport(ecs_world_t *world)
     ECS_COMPONENT_DEFINE(world, Device);
     ECS_COMPONENT_DEFINE(world, Camera);
 
-    ECS_SYSTEM(world, System_Camera_Capture, EcsOnUpdate, Camera, Memory, (Vec2i32, eg.types.Resolution));
+    ECS_SYSTEM(world, System_Camera_Capture, EcsOnUpdate, Camera, Memory, Matspec);
     ECS_SYSTEM(world, System_Camera_Open, EcsOnUpdate, Device, Camera, (eg.types.Action, eg.types.Open));
     ECS_SYSTEM(world, System_Camera_Close, EcsOnUpdate, Camera, (eg.types.Action, eg.types.Close));
     ECS_OBSERVER(world, System_Camera_Create, EcsOnAdd, Camera);
@@ -138,6 +138,13 @@ void EgVideoImport(ecs_world_t *world)
         .entity = ecs_id(Device),
         .members = {
             { .name = "path", .type = ecs_id(ecs_string_t) }
+        }
+    });
+
+    ecs_struct(world, {
+        .entity = ecs_id(Camera),
+        .members = {
+            { .name = "handle", .type = ecs_id(ecs_uptr_t) }
         }
     });
 

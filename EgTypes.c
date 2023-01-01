@@ -25,6 +25,7 @@ ECS_COMPONENT_DECLARE(Vec2i32);
 ECS_COMPONENT_DECLARE(Vec2f32);
 ECS_COMPONENT_DECLARE(String);
 ECS_COMPONENT_DECLARE(Channels);
+ECS_COMPONENT_DECLARE(Matspec);
 
 
 
@@ -99,6 +100,7 @@ void EgTypesImport(ecs_world_t *world)
     ECS_COMPONENT_DEFINE(world, Vec2f32);
     ECS_COMPONENT_DEFINE(world, String);
     ECS_COMPONENT_DEFINE(world, Channels);
+    ECS_COMPONENT_DEFINE(world, Matspec);
 
     ecs_set_hooks(world, String, {
     .ctor = ecs_ctor(String),
@@ -137,6 +139,16 @@ void EgTypesImport(ecs_world_t *world)
         .entity = ecs_id(Channels),
         .members = {
             { .name = "n", .type = ecs_id(ecs_i32_t) }
+        }
+    });
+
+    ecs_struct(world, {
+        .entity = ecs_id(Matspec),
+        .members = {
+            { .name = "type", .type = ecs_id(ecs_i32_t) },
+            { .name = "dims", .type = ecs_id(ecs_i32_t) },
+            { .name = "dim", .type = ecs_id(ecs_i32_t), .count = 4 },
+            { .name = "step", .type = ecs_id(ecs_i32_t), .count = 4 }
         }
     });
 }

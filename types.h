@@ -44,10 +44,16 @@ typedef struct
 {
     void * data;
     int32_t size;
-
-    int32_t type;
-    int32_t step[4];
 } Memory;
+
+
+typedef struct  
+{
+    int32_t type;
+    int32_t dims;
+    int32_t dim[4];
+    int32_t step[4];
+} Matspec;
 
 
 

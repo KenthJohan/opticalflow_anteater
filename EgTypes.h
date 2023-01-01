@@ -25,5 +25,7 @@ extern ECS_DECLARE(Copy);
 extern ECS_COMPONENT_DECLARE(Vec2i32);
 extern ECS_COMPONENT_DECLARE(Vec2f32);
 extern ECS_COMPONENT_DECLARE(String);
+extern ECS_COMPONENT_DECLARE(Channels);
+extern ECS_COMPONENT_DECLARE(Matspec);
 
 void EgTypesImport(ecs_world_t *world);
