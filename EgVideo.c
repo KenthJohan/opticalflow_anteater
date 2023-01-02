@@ -1,7 +1,7 @@
 #include "EgVideo.h"
 #include "EgTypes.h"
 #include "EgMemory.h"
-#include "camera.h"
+#include "VideoReader.h"
 #include <stdio.h>
 
 ECS_COMPONENT_DECLARE(Device);
@@ -20,7 +20,7 @@ void System_Camera_Create(ecs_iter_t *it)
     for(int i = 0; i < it->count; ++i)
     {
         printf("Create camera %s\n", ecs_get_name(it->world, it->entities[i]));
-        camera_create(c+i);
+        VideoReader_create(c+i);
     }
 }
 
@@ -30,7 +30,7 @@ void System_Camera_Destroy(ecs_iter_t *it)
     for(int i = 0; i < it->count; ++i)
     {
         printf("Destroy camera %s\n", ecs_get_name(it->world, it->entities[i]));
-        camera_destroy(c+i);
+        VideoReader_destroy(c+i);
     }
 }
 
@@ -42,27 +42,27 @@ void System_Camera_Open(ecs_iter_t *it)
     {
         char const * name = ecs_get_name(it->world, it->entities[i]);
         printf("Open camera %s: device: %s\n", name, d[i].path);
-        int r = camera_open(c + i, d[i].path);
+        int r = VideoReader_open(c + i, d[i].path);
         if(r == 0)
         {
             ecs_remove_pair(it->world, it->entities[i], Action, Open);
             ecs_add_pair(it->world, it->entities[i], Status, Open);
             
             /*
-            res.x = camera_get_int(c + i, CAMERA_PROP_FRAME_WIDTH);
-            res.y = camera_get_int(c + i, CAMERA_PROP_FRAME_HEIGHT);
-            int t = camera_get_int(c + i, CAMERA_CAP_PROP_FORMAT);
+            res.x = VideoReader_get_int(c + i, VIDEOREADER_PROP_FRAME_WIDTHWIDTH);
+            res.y = VideoReader_get_int(c + i, CAMERA_PROP_FRAME_HEIGHT);
+            int t = VideoReader_get_int(c + i, CAMERA_CAP_PROP_FORMAT);
             */
            
             Memory mem;
             Matspec spec;
-            camera_read(c + i, &mem, &spec);
+            VideoReader_read(c + i, &mem, &spec);
             ecs_set_ptr(it->world, it->entities[i], Memory, &mem);
             ecs_set_ptr(it->world, it->entities[i], Matspec, &spec);
 
             {
                 char buf[100] = {0};
-                camera_type2str(spec.type, buf, 100);
+                cv_mat_type2str(spec.type, buf, 100);
                 printf("VideoReader %s: %ix%ix%s\n", name, spec.size[0], spec.size[1], buf);
             }
         }
@@ -81,7 +81,7 @@ void System_Camera_Close(ecs_iter_t *it)
     for(int i = 0; i < it->count; ++i)
     {
         printf("Close camera: %s\n", d[i].path);
-        int r = camera_close(c + i);
+        int r = VideoReader_close(c + i);
         if(r == 0)
         {
             ecs_remove_pair(it->world, it->entities[i], Action, Close);
@@ -104,7 +104,7 @@ void System_Camera_Capture(ecs_iter_t *it)
     Matspec *spec = ecs_field(it, Matspec, 3);
     for(int i = 0; i < it->count; ++i)
     {
-        camera_read(cam + i, mem + i, spec + i);
+        VideoReader_read(cam + i, mem + i, spec + i);
         //printf("Capture %s %ix%i %i %p\n", ecs_get_name(it->world, it->entities[i]), res[i].x, res[i].y, img[i].type, img[i].data);
     }
 }

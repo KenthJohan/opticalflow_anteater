@@ -1,6 +1,6 @@
 #include "EgMotion.h"
 #include "oflow.h"
-#include "camera.h"
+#include "VideoReader.h"
 #include "EgMemory.h"
 #include "EgTypes.h"
 #include <stdio.h>

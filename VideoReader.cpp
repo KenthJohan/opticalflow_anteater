@@ -1,4 +1,4 @@
-#include "camera.h"
+#include "VideoReader.h"
 #include <opencv2/videoio.hpp>
 
 typedef struct
@@ -8,13 +8,13 @@ typedef struct
 } vidcapcv_t;
 
 
-int camera_create(VideoReader *camera)
+int VideoReader_create(VideoReader *camera)
 {
     camera->handle = (void*) new vidcapcv_t;
     return 0;
 }
 
-int camera_open(VideoReader *camera, char const * path)
+int VideoReader_open(VideoReader *camera, char const * path)
 {
     if(camera->handle == NULL){return -1;}
     vidcapcv_t *c = (vidcapcv_t *)camera->handle;
@@ -22,7 +22,7 @@ int camera_open(VideoReader *camera, char const * path)
     return r == true ? 0 : -1;
 }
 
-int camera_close(VideoReader *camera)
+int VideoReader_close(VideoReader *camera)
 {
     if(camera->handle == NULL){return -1;}
     vidcapcv_t *c = (vidcapcv_t *)camera->handle;
@@ -30,7 +30,7 @@ int camera_close(VideoReader *camera)
     return 0;
 }
 
-int camera_destroy(VideoReader *camera)
+int VideoReader_destroy(VideoReader *camera)
 {
     vidcapcv_t *c = (vidcapcv_t *)camera->handle;
     delete c;
@@ -39,7 +39,7 @@ int camera_destroy(VideoReader *camera)
 }
 
 
-void camera_type2str(int type, char * buf, int len)
+void cv_mat_type2str(int type, char * buf, int len)
 {
   uchar depth = type & CV_MAT_DEPTH_MASK;
   uchar channels = 1 + (type >> CV_CN_SHIFT);
@@ -58,7 +58,7 @@ void camera_type2str(int type, char * buf, int len)
 }
 
 
-int camera_read(VideoReader *camera, Memory * mem, Matspec * spec)
+int VideoReader_read(VideoReader *camera, Memory * mem, Matspec * spec)
 {
     vidcapcv_t *c = (vidcapcv_t *)camera->handle;
     c->capture >> c->frame;
@@ -79,7 +79,7 @@ int camera_read(VideoReader *camera, Memory * mem, Matspec * spec)
     return 0;
 }
 
-int camera_get_int(VideoReader *camera, int prop)
+int VideoReader_get_int(VideoReader *camera, int prop)
 {
     vidcapcv_t *c = (vidcapcv_t *)camera->handle;
     return c->capture.get(prop);
