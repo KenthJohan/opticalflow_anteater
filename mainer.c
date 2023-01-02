@@ -26,22 +26,28 @@ void mainer(ecs_world_t * world)
 	ecs_set_pair(world, roi1, Vec2i32, Area, {100, 100});
 
 
-	ecs_entity_t cam = ecs_new_entity(world, "Camera1");
+	ecs_entity_t cam = ecs_new_entity(world, "Vidcap1");
 	ecs_set(world, cam, Device, {"2022-12-15_14-56-29.mp4"});
 	ecs_add(world, cam, VideoReader);
     ecs_add_pair(world, cam, Action, Open);
-	ecs_add(world, cam, Window);
+
+	
+	ecs_entity_t cap1 = ecs_new_entity(world, "Vidcap1Frame");
+	ecs_add_pair(world, cap1, EcsChildOf, cam);
+	ecs_add(world, cap1, Matspec);
+	ecs_add(world, cap1, Memory);
+	//ecs_add(world, cap1, Window);
 
 	{
 		ecs_entity_t show = ecs_new_entity(world, "Show");
 		ecs_add(world, show, Memory);
 		ecs_add(world, show, Matspec);
 		ecs_add_pair(world, show, EcsIsA, roi1);
-		ecs_add_pair(world, show, EcsChildOf, cam);
+		ecs_add_pair(world, show, EcsChildOf, cap1);
 		ecs_add(world, show, Window);
 	}
 
-
+	/*
 
 	{
 		ecs_entity_t e = ecs_new_entity(world, "View1");
@@ -60,6 +66,6 @@ void mainer(ecs_world_t * world)
 		ecs_set_pair(world, e, Vec2f32, Velocity, {0, 0});
 		ecs_add_pair(world, e, Uses, cam);
 	}
-
+	*/
 
 }

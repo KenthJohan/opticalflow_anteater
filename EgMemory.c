@@ -63,8 +63,8 @@ void System_Memory_Copy(ecs_iter_t *it)
     Vec2i32 *area = ecs_field(it, Vec2i32, 6);
     for(int i = 0; i < it->count; ++i)
     {
-        char * name0 = ecs_get_name(it->world, ecs_field_src(it, 1));
-        char * name = ecs_get_name(it->world, it->entities[i]);
+        char const * name0 = ecs_get_name(it->world, ecs_field_src(it, 1));
+        char const * name = ecs_get_name(it->world, it->entities[i]);
         int32_t reqsize = area[i].x * area[i].y * spec0[0].step[1];
         if(mem[i].size != reqsize)
         {
