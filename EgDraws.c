@@ -11,7 +11,7 @@ void System_Draw(ecs_iter_t *it)
     for(int i = 0; i < it->count; ++i)
     {
         char const * name = ecs_get_name(it->world, it->entities[i]);
-        //printf("Draw %s %p\n", name, img[i].data);
+        printf("Draw %s %i\n", name, spec[i].size[i]);
 		if(img[i].data)
 		{	
 			draw_show(name, img[i].data, spec + i);

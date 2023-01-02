@@ -42,7 +42,7 @@ typedef struct
 
 typedef struct  
 {
-    void * data;
+    uint8_t * data;
     int32_t size;
 } Memory;
 
@@ -51,7 +51,7 @@ typedef struct
 {
     int32_t type;
     int32_t dims;
-    int32_t dim[4];
+    int32_t size[4];
     int32_t step[4];
 } Matspec;
 

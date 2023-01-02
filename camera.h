@@ -7,7 +7,7 @@ extern "C" {
 
 #define CAMERA_PROP_FRAME_WIDTH 3 //!< Width of the frames in the video stream.
 #define CAMERA_PROP_FRAME_HEIGHT 4 //!< Height of the frames in the video stream.
-#define CAMERA_CAP_PROP_FORMAT 8 //!< Format of the %Mat objects (see Mat::type()) returned by VideoCapture::retrieve().
+#define CAMERA_PROP_FORMAT 8 //!< Format of the %Mat objects (see Mat::type()) returned by VideoCapture::retrieve().
 
 int camera_create(Camera * camera);
 int camera_open(Camera * camera, char const * path);

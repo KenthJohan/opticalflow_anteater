@@ -31,6 +31,6 @@ void draw_rectangle(void * image, int type, Vec2i32 resolution, Vec2i32 pos, Vec
 
 void draw_show(char const * title, void * image, Matspec * spec)
 {
-    cv::Mat mat = cv::Mat(spec->dim[0], spec->dim[1], spec->type, image);
+    cv::Mat mat = cv::Mat(spec->size[0], spec->size[1], spec->type, image);
     cv::imshow(title, mat);
 }

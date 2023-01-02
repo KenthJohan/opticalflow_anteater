@@ -63,10 +63,8 @@ void System_Camera_Open(ecs_iter_t *it)
             {
                 char buf[100] = {0};
                 camera_type2str(spec.type, buf, 100);
-                printf("Camera %s: %ix%ix%s\n", name, spec.dim[0], spec.dim[1], buf);
+                printf("Camera %s: %ix%ix%s\n", name, spec.size[0], spec.size[1], buf);
             }
-
-
         }
         else
         {

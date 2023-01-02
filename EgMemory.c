@@ -37,35 +37,51 @@ void System_Memory_callback(ecs_iter_t *it)
 }
 
 
+
+void copy1(uint8_t * dst, uint8_t * src, int32_t srcstep[2], int32_t pos[2], int32_t size[2])
+{
+    src += pos[0]*srcstep[0] + pos[1]*srcstep[1];
+    for(int32_t i = 0; i < size[0]; ++i)
+    {
+        ecs_os_memcpy(dst, src, size[1]*srcstep[1]);
+        src += srcstep[0];
+        dst += size[1]*srcstep[1];
+    }
+}
+
+
+
+
 void System_Memory_Copy(ecs_iter_t *it)
 {
+    //printf("System_Memory_Copy %i\n", it->count);
     //https://docs.opencv.org/2.4/modules/core/doc/basic_structures.html#mat
-    Memory *dst_mem = ecs_field(it, Memory, 1);
-    Matspec *dst_res = ecs_field(it, Matspec, 2);
-    Memory *src_mem = ecs_field(it, Memory, 3); //Shared
-    Matspec *src_res = ecs_field(it, Matspec, 4); //Shared
+    Memory *mem0 = ecs_field(it, Memory, 1); //Shared
+    Matspec *spec0 = ecs_field(it, Matspec, 2); //Shared
+    Memory *mem = ecs_field(it, Memory, 3);
+    Matspec *spec = ecs_field(it, Matspec, 4);
+    Vec2i32 *pos = ecs_field(it, Vec2i32, 5);
+    Vec2i32 *area = ecs_field(it, Vec2i32, 6);
     for(int i = 0; i < it->count; ++i)
     {
-        printf("Copy %s %s\n", 
-        ecs_get_name(it->world, it->entities[i]),
-        ecs_get_name(it->world, ecs_field_src(it, 3))
-        );
-        /*
-        if(dst_mem[i].size != src_mem[0].size)
+        char * name0 = ecs_get_name(it->world, ecs_field_src(it, 1));
+        char * name = ecs_get_name(it->world, it->entities[i]);
+        int32_t reqsize = area[i].x * area[i].y * spec0[0].step[1];
+        if(mem[i].size != reqsize)
         {
-            ecs_os_free(dst_mem[i].data);
-            dst_mem[i].data = ecs_os_malloc(src_mem[0].size);
-            dst_mem[i].size = src_mem[0].size;
+            printf("%s: Reqsize %i\n", name, reqsize);
+            //ecs_os_free(mem[i].data);
+            mem[i].data = ecs_os_malloc(reqsize);
+            mem[i].size = reqsize;
         }
-        dst_mem[i].step[0] = src_mem[0].step[0];
-        dst_mem[i].step[1] = src_mem[0].step[1];
-        dst_mem[i].step[2] = src_mem[0].step[2];
-        dst_mem[i].step[3] = src_mem[0].step[3];
-        dst_mem[i].type = src_mem[0].type;
-        ecs_os_memcpy(dst_mem[i].data, src_mem[0].data, src_mem[0].size);
-        dst_res[i] = src_res[0];
-        //ecs_remove_pair(it->world, it->entities[i], Copy, ecs_field_src(it, 1));
-        */
+        printf("%s: Copyfrom %s\n", name, name0);
+        spec[i].type = spec0[0].type;
+        spec[i].dims = spec0[0].dims;
+        spec[i].size[0] = area[i].y;
+        spec[i].size[1] = area[i].x;
+        spec[i].step[0] = area[i].x * spec0[0].step[1];
+        spec[i].step[1] = spec0[0].step[1];
+        copy1(mem[i].data, mem0[0].data, spec0[0].step, (int32_t[]){pos[i].y, pos[i].x}, (int32_t[]){area[i].y, area[i].x});
     }
 }
 
@@ -97,7 +113,17 @@ void EgMemoryImport(ecs_world_t *world)
 
     ECS_PREFAB_DEFINE(world, Image, Memory, (Vec2i32, eg.types.Resolution));
 
-    
+    /*
+    {
+        .id = ecs_pair(ecs_id(Position), World), 
+        .inout = EcsIn,
+        // Get from the parent, in breadth-first order (cascade)
+        .src.flags = EcsParent | EcsCascade,
+        // Make parent term optional so we also match the root (sun)
+        .oper = EcsOptional
+    }
+    */
+
     ecs_system(world, {
         .entity = ecs_entity(world, {
             .name = "System_Memory_Copy",
@@ -105,10 +131,12 @@ void EgMemoryImport(ecs_world_t *world)
         }),
         .query.filter.instanced = true,
         .query.filter.terms = {
-            {.id = ecs_id(Memory), .inout = EcsIn },
-            {.id = ecs_pair(ecs_id(Vec2i32), Resolution), .inout = EcsIn },
-            {.id = ecs_id(Memory), .inout = EcsIn, .src.flags = EcsUp, .src.trav = Copy},
-            {.id = ecs_pair(ecs_id(Vec2i32), Resolution), .inout = EcsIn,.src.flags = EcsUp, .src.trav = Copy}
+            {.id = ecs_id(Memory), .inout = EcsIn, .src.flags = EcsParent},
+            {.id = ecs_id(Matspec), .inout = EcsIn,.src.flags = EcsParent},
+            {.id = ecs_id(Memory), .inout = EcsInOut },
+            {.id = ecs_id(Matspec), .inout = EcsInOut },
+            {.id = ecs_pair(ecs_id(Vec2i32), Position), .inout = EcsIn },
+            {.id = ecs_pair(ecs_id(Vec2i32), Area), .inout = EcsIn }
         },
         .callback = System_Memory_Copy
     });

@@ -20,6 +20,8 @@ ECS_DECLARE(Draw);
 ECS_DECLARE(Visualize);
 ECS_DECLARE(Window);
 ECS_DECLARE(Copy);
+ECS_DECLARE(Area);
+ECS_DECLARE(Snippet);
 
 ECS_COMPONENT_DECLARE(Vec2i32);
 ECS_COMPONENT_DECLARE(Vec2f32);
@@ -94,6 +96,8 @@ void EgTypesImport(ecs_world_t *world)
     ECS_TAG_DEFINE(world, Draw);
     ECS_TAG_DEFINE(world, Visualize);
     ECS_TAG_DEFINE(world, Window);
+    ECS_TAG_DEFINE(world, Area);
+    ECS_TAG_DEFINE(world, Snippet);
 
 
     ECS_COMPONENT_DEFINE(world, Vec2i32);
@@ -147,7 +151,7 @@ void EgTypesImport(ecs_world_t *world)
         .members = {
             { .name = "type", .type = ecs_id(ecs_i32_t) },
             { .name = "dims", .type = ecs_id(ecs_i32_t) },
-            { .name = "dim", .type = ecs_id(ecs_i32_t), .count = 4 },
+            { .name = "size", .type = ecs_id(ecs_i32_t), .count = 4 },
             { .name = "step", .type = ecs_id(ecs_i32_t), .count = 4 }
         }
     });

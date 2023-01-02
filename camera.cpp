@@ -72,8 +72,8 @@ int camera_read(Camera *camera, Memory * mem, Matspec * spec)
     spec->type = c->frame.type();
     spec->step[0] = c->frame.step[0];
     spec->step[1] = c->frame.step[1];
-    spec->dim[0] = c->frame.size[0];
-    spec->dim[1] = c->frame.size[1];
+    spec->size[0] = c->frame.size[0];
+    spec->size[1] = c->frame.size[1];
     //printf("step: %i %i\n", spec->step[0], spec->step[1]);
     //printf("dim: %i %i\n", spec->dim[0], spec->dim[1]);
     return 0;

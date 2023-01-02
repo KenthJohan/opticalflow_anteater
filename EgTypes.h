@@ -5,6 +5,7 @@
 
 extern ECS_DECLARE(Resolution);
 extern ECS_DECLARE(Position);
+extern ECS_DECLARE(Area);
 extern ECS_DECLARE(Velocity);
 extern ECS_DECLARE(CropPosition);
 extern ECS_DECLARE(CropSize);
@@ -21,6 +22,8 @@ extern ECS_DECLARE(Draw);
 extern ECS_DECLARE(Visualize);
 extern ECS_DECLARE(Window);
 extern ECS_DECLARE(Copy);
+extern ECS_DECLARE(Crop);
+extern ECS_DECLARE(Snippet);
 
 extern ECS_COMPONENT_DECLARE(Vec2i32);
 extern ECS_COMPONENT_DECLARE(Vec2f32);
