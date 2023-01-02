@@ -3,7 +3,6 @@
 #include <stdio.h>
 
 ECS_COMPONENT_DECLARE(Memory);
-ECS_DECLARE(Image);
 
 
 
@@ -110,19 +109,6 @@ void EgMemoryImport(ecs_world_t *world)
             { .name = "size", .type = ecs_id(ecs_i32_t) }
         }
     });
-
-    ECS_PREFAB_DEFINE(world, Image, Memory, (Vec2i32, eg.types.Resolution));
-
-    /*
-    {
-        .id = ecs_pair(ecs_id(Position), World), 
-        .inout = EcsIn,
-        // Get from the parent, in breadth-first order (cascade)
-        .src.flags = EcsParent | EcsCascade,
-        // Make parent term optional so we also match the root (sun)
-        .oper = EcsOptional
-    }
-    */
 
     ecs_system(world, {
         .entity = ecs_entity(world, {

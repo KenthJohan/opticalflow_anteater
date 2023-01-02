@@ -38,7 +38,7 @@ typedef struct
 typedef struct  
 {
     void * handle;
-} Camera;
+} VideoReader;
 
 typedef struct  
 {

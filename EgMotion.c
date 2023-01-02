@@ -9,7 +9,7 @@
 void System_Test(ecs_iter_t *it)
 {
     Memory *d = ecs_field(it, Memory, 1);
-    Camera *c = ecs_field(it, Camera, 2);
+    VideoReader *c = ecs_field(it, VideoReader, 2);
     for(int i = 0; i < it->count; ++i)
     {
         printf("Read from camera %s %s\n", 

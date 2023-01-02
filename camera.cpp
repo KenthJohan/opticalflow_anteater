@@ -1,38 +1,38 @@
 #include "camera.h"
 #include <opencv2/videoio.hpp>
 
-struct Camera_CV
+typedef struct
 {
     cv::VideoCapture capture;
     cv::Mat frame;
-};
+} vidcapcv_t;
 
 
-int camera_create(Camera *camera)
+int camera_create(VideoReader *camera)
 {
-    camera->handle = (void*) new Camera_CV;
+    camera->handle = (void*) new vidcapcv_t;
     return 0;
 }
 
-int camera_open(Camera *camera, char const * path)
+int camera_open(VideoReader *camera, char const * path)
 {
     if(camera->handle == NULL){return -1;}
-    Camera_CV *c = (Camera_CV *)camera->handle;
+    vidcapcv_t *c = (vidcapcv_t *)camera->handle;
     bool r = c->capture.open(path);
     return r == true ? 0 : -1;
 }
 
-int camera_close(Camera *camera)
+int camera_close(VideoReader *camera)
 {
     if(camera->handle == NULL){return -1;}
-    Camera_CV *c = (Camera_CV *)camera->handle;
+    vidcapcv_t *c = (vidcapcv_t *)camera->handle;
     c->capture.release();
     return 0;
 }
 
-int camera_destroy(Camera *camera)
+int camera_destroy(VideoReader *camera)
 {
-    Camera_CV *c = (Camera_CV *)camera->handle;
+    vidcapcv_t *c = (vidcapcv_t *)camera->handle;
     delete c;
     camera->handle = NULL;
     return 0;
@@ -58,9 +58,9 @@ void camera_type2str(int type, char * buf, int len)
 }
 
 
-int camera_read(Camera *camera, Memory * mem, Matspec * spec)
+int camera_read(VideoReader *camera, Memory * mem, Matspec * spec)
 {
-    Camera_CV *c = (Camera_CV *)camera->handle;
+    vidcapcv_t *c = (vidcapcv_t *)camera->handle;
     c->capture >> c->frame;
     if (c->frame.isContinuous() == false)
     {
@@ -79,8 +79,8 @@ int camera_read(Camera *camera, Memory * mem, Matspec * spec)
     return 0;
 }
 
-int camera_get_int(Camera *camera, int prop)
+int camera_get_int(VideoReader *camera, int prop)
 {
-    Camera_CV *c = (Camera_CV *)camera->handle;
+    vidcapcv_t *c = (vidcapcv_t *)camera->handle;
     return c->capture.get(prop);
 }

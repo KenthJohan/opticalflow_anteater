@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 ECS_COMPONENT_DECLARE(Device);
-ECS_COMPONENT_DECLARE(Camera);
+ECS_COMPONENT_DECLARE(VideoReader);
 
 
 
@@ -16,7 +16,7 @@ ECS_COMPONENT_DECLARE(Camera);
 
 void System_Camera_Create(ecs_iter_t *it)
 {
-    Camera *c = ecs_field(it, Camera, 1);
+    VideoReader *c = ecs_field(it, VideoReader, 1);
     for(int i = 0; i < it->count; ++i)
     {
         printf("Create camera %s\n", ecs_get_name(it->world, it->entities[i]));
@@ -26,7 +26,7 @@ void System_Camera_Create(ecs_iter_t *it)
 
 void System_Camera_Destroy(ecs_iter_t *it)
 {
-    Camera *c = ecs_field(it, Camera, 1);
+    VideoReader *c = ecs_field(it, VideoReader, 1);
     for(int i = 0; i < it->count; ++i)
     {
         printf("Destroy camera %s\n", ecs_get_name(it->world, it->entities[i]));
@@ -37,7 +37,7 @@ void System_Camera_Destroy(ecs_iter_t *it)
 void System_Camera_Open(ecs_iter_t *it)
 {
     Device *d = ecs_field(it, Device, 1);
-    Camera *c = ecs_field(it, Camera, 2);
+    VideoReader *c = ecs_field(it, VideoReader, 2);
     for(int i = 0; i < it->count; ++i)
     {
         char const * name = ecs_get_name(it->world, it->entities[i]);
@@ -63,7 +63,7 @@ void System_Camera_Open(ecs_iter_t *it)
             {
                 char buf[100] = {0};
                 camera_type2str(spec.type, buf, 100);
-                printf("Camera %s: %ix%ix%s\n", name, spec.size[0], spec.size[1], buf);
+                printf("VideoReader %s: %ix%ix%s\n", name, spec.size[0], spec.size[1], buf);
             }
         }
         else
@@ -77,7 +77,7 @@ void System_Camera_Open(ecs_iter_t *it)
 void System_Camera_Close(ecs_iter_t *it)
 {
     Device *d = ecs_field(it, Device, 1);
-    Camera *c = ecs_field(it, Camera, 2);
+    VideoReader *c = ecs_field(it, VideoReader, 2);
     for(int i = 0; i < it->count; ++i)
     {
         printf("Close camera: %s\n", d[i].path);
@@ -99,7 +99,7 @@ void System_Camera_Close(ecs_iter_t *it)
 
 void System_Camera_Capture(ecs_iter_t *it)
 {
-    Camera *cam = ecs_field(it, Camera, 1);
+    VideoReader *cam = ecs_field(it, VideoReader, 1);
     Memory *mem = ecs_field(it, Memory, 2);
     Matspec *spec = ecs_field(it, Matspec, 3);
     for(int i = 0; i < it->count; ++i)
@@ -124,13 +124,13 @@ void EgVideoImport(ecs_world_t *world)
     ECS_MODULE(world, EgVideo);
 
     ECS_COMPONENT_DEFINE(world, Device);
-    ECS_COMPONENT_DEFINE(world, Camera);
+    ECS_COMPONENT_DEFINE(world, VideoReader);
 
-    ECS_SYSTEM(world, System_Camera_Capture, EcsOnUpdate, Camera, Memory, Matspec);
-    ECS_SYSTEM(world, System_Camera_Open, EcsOnUpdate, Device, Camera, (eg.types.Action, eg.types.Open));
-    ECS_SYSTEM(world, System_Camera_Close, EcsOnUpdate, Camera, (eg.types.Action, eg.types.Close));
-    ECS_OBSERVER(world, System_Camera_Create, EcsOnAdd, Camera);
-    ECS_OBSERVER(world, System_Camera_Destroy, EcsOnRemove, Camera);
+    ECS_SYSTEM(world, System_Camera_Capture, EcsOnUpdate, VideoReader, Memory, Matspec);
+    ECS_SYSTEM(world, System_Camera_Open, EcsOnUpdate, Device, VideoReader, (eg.types.Action, eg.types.Open));
+    ECS_SYSTEM(world, System_Camera_Close, EcsOnUpdate, VideoReader, (eg.types.Action, eg.types.Close));
+    ECS_OBSERVER(world, System_Camera_Create, EcsOnAdd, VideoReader);
+    ECS_OBSERVER(world, System_Camera_Destroy, EcsOnRemove, VideoReader);
 
     ecs_struct(world, {
         .entity = ecs_id(Device),
@@ -140,7 +140,7 @@ void EgVideoImport(ecs_world_t *world)
     });
 
     ecs_struct(world, {
-        .entity = ecs_id(Camera),
+        .entity = ecs_id(VideoReader),
         .members = {
             { .name = "handle", .type = ecs_id(ecs_uptr_t) }
         }

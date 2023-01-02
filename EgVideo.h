@@ -6,7 +6,7 @@
 
 
 extern ECS_COMPONENT_DECLARE(Device);
-extern ECS_COMPONENT_DECLARE(Camera);
+extern ECS_COMPONENT_DECLARE(VideoReader);
 
 
 void EgVideoImport(ecs_world_t *world);
