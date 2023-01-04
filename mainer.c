@@ -34,9 +34,10 @@ void mainer(ecs_world_t * world)
 	
 	ecs_entity_t cap1 = ecs_new_entity(world, "Vidcap1Frame");
 	ecs_add_pair(world, cap1, EcsChildOf, cam);
+	ecs_add(world, cap1, Capture);
 	ecs_add(world, cap1, Matspec);
 	ecs_add(world, cap1, Memory);
-	//ecs_add(world, cap1, Window);
+	ecs_add(world, cap1, Window);
 
 	{
 		ecs_entity_t show = ecs_new_entity(world, "Show");

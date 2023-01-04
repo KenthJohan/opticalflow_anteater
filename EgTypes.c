@@ -22,6 +22,7 @@ ECS_DECLARE(Window);
 ECS_DECLARE(Copy);
 ECS_DECLARE(Area);
 ECS_DECLARE(Snippet);
+ECS_DECLARE(Capture);
 
 ECS_COMPONENT_DECLARE(Vec2i32);
 ECS_COMPONENT_DECLARE(Vec2f32);
@@ -98,6 +99,7 @@ void EgTypesImport(ecs_world_t *world)
     ECS_TAG_DEFINE(world, Window);
     ECS_TAG_DEFINE(world, Area);
     ECS_TAG_DEFINE(world, Snippet);
+    ECS_TAG_DEFINE(world, Capture);
 
 
     ECS_COMPONENT_DEFINE(world, Vec2i32);

@@ -136,9 +136,10 @@ void EgVideoImport(ecs_world_t *world)
         .query.filter.instanced = true,
         .query.filter.terms = {
             //TODO: Match only one level deep:
-            {.id = ecs_id(VideoReader), .inout = EcsIn, .src.trav = EcsChildOf, .src.flags = EcsUp|EcsSelf},
+            {.id = ecs_id(VideoReader), .inout = EcsIn, .src.trav = EcsChildOf, .src.flags = EcsUp},
             {.id = ecs_id(Memory), .inout = EcsInOut },
-            {.id = ecs_id(Matspec), .inout = EcsInOut }
+            {.id = ecs_id(Matspec), .inout = EcsInOut },
+            {.id = ecs_id(Capture)}
         },
         .callback = System_Camera_Capture
     });
