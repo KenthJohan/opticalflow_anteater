@@ -62,10 +62,11 @@ int VideoReader_read(VideoReader *camera, Memory * mem, Matspec * spec)
 {
     vidcapcv_t *c = (vidcapcv_t *)camera->handle;
     c->capture >> c->frame;
-    if (c->frame.isContinuous() == false)
+    if (c->frame.empty())
     {
         return -1;
     }
+    if (c->frame.isContinuous() == false){return -1;}
     mem->size = c->frame.step[0] * c->frame.rows;
     mem->data = c->frame.data;
     spec->dims = c->frame.dims;

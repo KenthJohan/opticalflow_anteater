@@ -43,35 +43,35 @@ void System_Camera_Open(ecs_iter_t *it)
         char const * name = ecs_get_name(it->world, it->entities[i]);
         printf("Open camera %s: device: %s\n", name, d[i].path);
         int r = VideoReader_open(c + i, d[i].path);
-        if(r == 0)
-        {
-            ecs_remove_pair(it->world, it->entities[i], Action, Open);
-            ecs_add_pair(it->world, it->entities[i], Status, Open);
-            
-            /*
-            res.x = VideoReader_get_int(c + i, VIDEOREADER_PROP_FRAME_WIDTHWIDTH);
-            res.y = VideoReader_get_int(c + i, CAMERA_PROP_FRAME_HEIGHT);
-            int t = VideoReader_get_int(c + i, CAMERA_CAP_PROP_FORMAT);
-            */
-           
-            Memory mem;
-            Matspec spec;
-            VideoReader_read(c + i, &mem, &spec);
-            ecs_set_pair(it->world, it->entities[i], Vec2i32, Resolution, {spec.size[1], spec.size[0]});
-
-            {
-                char buf[100] = {0};
-                cv_mat_type2str(spec.type, buf, 100);
-                printf("VideoReader %s: %ix%ix%s\n", name, spec.size[0], spec.size[1], buf);
-            }
-        }
-        else
+        if(r != 0)
         {
             ecs_remove_pair(it->world, it->entities[i], Action, Open);
             ecs_add_pair(it->world, it->entities[i], Status, OpenError);
+            continue;
+        }
+
+        ecs_remove_pair(it->world, it->entities[i], Action, Open);
+        ecs_add_pair(it->world, it->entities[i], Status, Open);
+        
+        /*
+        res.x = VideoReader_get_int(c + i, VIDEOREADER_PROP_FRAME_WIDTHWIDTH);
+        res.y = VideoReader_get_int(c + i, CAMERA_PROP_FRAME_HEIGHT);
+        int t = VideoReader_get_int(c + i, CAMERA_CAP_PROP_FORMAT);
+        */
+        Memory mem;
+        Matspec spec;
+        VideoReader_read(c + i, &mem, &spec);
+        ecs_set_pair(it->world, it->entities[i], Vec2i32, Resolution, {spec.size[1], spec.size[0]});
+
+        {
+            char buf[100] = {0};
+            cv_mat_type2str(spec.type, buf, 100);
+            printf("VideoReader %s: %ix%ix%s\n", name, spec.size[0], spec.size[1], buf);
         }
     }
 }
+
+
 
 void System_Camera_Close(ecs_iter_t *it)
 {
@@ -99,14 +99,19 @@ void System_Camera_Close(ecs_iter_t *it)
 void System_Camera_Capture(ecs_iter_t *it)
 {
     VideoReader *vid0 = ecs_field(it, VideoReader, 1); // Parent
-    Memory *mem = ecs_field(it, Memory, 2);
-    Matspec *spec = ecs_field(it, Matspec, 3);
+    Memory *mem = ecs_field(it, Memory, 3);
+    Matspec *spec = ecs_field(it, Matspec, 4);
     for(int i = 0; i < it->count; ++i)
     {
         char const * name0 = ecs_get_name(it->world, ecs_field_src(it, 1));
         char const * name = ecs_get_name(it->world, it->entities[i]);
         printf("VideoReader_read: %s, %s\n", name0, name);
-        VideoReader_read(vid0, mem + i, spec + i);
+        int r = VideoReader_read(vid0, mem + i, spec + i);
+        if(r != 0)
+        {
+            ecs_add_pair(it->world, it->entities[i], Action, Close);
+            ecs_add_pair(it->world, it->entities[i], Status, CloseTry);
+        }
         //printf("Capture %s %ix%i %i %p\n", ecs_get_name(it->world, it->entities[i]), res[i].x, res[i].y, img[i].type, img[i].data);
     }
 }
@@ -137,6 +142,7 @@ void EgVideoImport(ecs_world_t *world)
         .query.filter.terms = {
             //TODO: Match only one level deep:
             {.id = ecs_id(VideoReader), .inout = EcsIn, .src.trav = EcsChildOf, .src.flags = EcsUp},
+            {.id = ecs_id(Status), .src.trav = EcsChildOf, .src.flags = EcsUp},
             {.id = ecs_id(Memory), .inout = EcsInOut },
             {.id = ecs_id(Matspec), .inout = EcsInOut },
             {.id = ecs_id(Capture)}

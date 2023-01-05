@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
             if (keyboard == 'q' || keyboard == 27) {break;}
         }
         ecs_progress(world, 0);
-        ecs_sleepf(0.1f);
+        //ecs_sleepf(0.1f);
     }
 
     while(0)
