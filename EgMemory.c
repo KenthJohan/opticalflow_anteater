@@ -117,8 +117,8 @@ void EgMemoryImport(ecs_world_t *world)
         }),
         .query.filter.instanced = true,
         .query.filter.terms = {
-            {.id = ecs_id(Memory), .inout = EcsIn, .src.flags = EcsParent},
-            {.id = ecs_id(Matspec), .inout = EcsIn,.src.flags = EcsParent},
+            {.id = ecs_id(Memory), .inout = EcsIn, .src.flags = EcsUp, .src.trav = Copy},
+            {.id = ecs_id(Matspec), .inout = EcsIn,.src.flags = EcsUp, .src.trav = Copy},
             {.id = ecs_id(Memory), .inout = EcsInOut },
             {.id = ecs_id(Matspec), .inout = EcsInOut },
             {.id = ecs_pair(ecs_id(Vec2i32), Position), .inout = EcsIn },

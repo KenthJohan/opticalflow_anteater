@@ -18,24 +18,8 @@ void mainer(ecs_world_t * world)
 
 	//https://www.flecs.dev/explorer/?remote=true
     ecs_singleton_set(world, EcsRest, {0});
-
-
-	ecs_entity_t e1 = ecs_new_entity(world, "e1");
-	ecs_entity_t e2 = ecs_new_entity(world, "e2");
-	ecs_entity_t e3 = ecs_new_entity(world, "e3");
-	ecs_add(world, e1, Vec2f32);
-	ecs_add(world, e2, Vec2f32);
-	ecs_add(world, e3, Vec2f32);
-	ecs_add_pair(world, e1, Status, Open);
-	ecs_add_pair(world, e2, Status, Open);
-	ecs_add_pair(world, e3, Status, Open);
-	ecs_add(world, e1, Status);
-	ecs_add(world, e2, Status);
-	ecs_add(world, e3, Status);
 	
-	ecs_entity_t roi1 = ecs_new_entity(world, "ROI1");
-	ecs_set_pair(world, roi1, Vec2i32, Position, {0, 0});
-	ecs_set_pair(world, roi1, Vec2i32, Area, {100, 100});
+
 
 
 	ecs_entity_t cam = ecs_new_entity(world, "Vidcap1");
@@ -52,12 +36,13 @@ void mainer(ecs_world_t * world)
 	ecs_add(world, cap1, Window);
 
 	{
-		ecs_entity_t show = ecs_new_entity(world, "Show");
-		ecs_add(world, show, Memory);
-		ecs_add(world, show, Matspec);
-		ecs_add_pair(world, show, EcsIsA, roi1);
-		ecs_add_pair(world, show, EcsChildOf, cap1);
-		ecs_add(world, show, Window);
+		ecs_entity_t snippet1 = ecs_new_entity(world, "Snippet1");
+		ecs_add(world, snippet1, Memory);
+		ecs_add(world, snippet1, Matspec);
+		ecs_set_pair(world, snippet1, Vec2i32, Position, {0, 0});
+		ecs_set_pair(world, snippet1, Vec2i32, Area, {100, 100});
+		ecs_add_pair(world, snippet1, Copy, cap1);
+		ecs_add(world, snippet1, Window);
 	}
 
 	/*

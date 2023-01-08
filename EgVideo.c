@@ -46,12 +46,12 @@ void System_Camera_Open(ecs_iter_t *it)
         if(r != 0)
         {
             ecs_remove_pair(it->world, it->entities[i], Action, Open);
-            ecs_add_pair(it->world, it->entities[i], Status, OpenError);
+            ecs_add_pair(it->world, it->entities[i], ecs_id(Status), OpenError);
             continue;
         }
 
         ecs_remove_pair(it->world, it->entities[i], Action, Open);
-        ecs_add_pair(it->world, it->entities[i], Status, Open);
+        ecs_add_pair(it->world, it->entities[i], ecs_id(Status), Open);
         
         /*
         res.x = VideoReader_get_int(c + i, VIDEOREADER_PROP_FRAME_WIDTHWIDTH);
@@ -84,12 +84,12 @@ void System_Camera_Close(ecs_iter_t *it)
         if(r == 0)
         {
             ecs_remove_pair(it->world, it->entities[i], Action, Close);
-            ecs_add_pair(it->world, it->entities[i], Status, Close);
+            ecs_add_pair(it->world, it->entities[i], ecs_id(Status), Close);
         }
         else
         {
             ecs_remove_pair(it->world, it->entities[i], Action, Close);
-            ecs_add_pair(it->world, it->entities[i], Status, CloseError);
+            ecs_add_pair(it->world, it->entities[i], ecs_id(Status), CloseError);
         }
     }
 }
@@ -110,7 +110,7 @@ void System_Camera_Capture(ecs_iter_t *it)
         if(r != 0)
         {
             ecs_add_pair(it->world, it->entities[i], Action, Close);
-            ecs_add_pair(it->world, it->entities[i], Status, CloseTry);
+            ecs_add_pair(it->world, it->entities[i], ecs_id(Status), CloseTry);
         }
         //printf("Capture %s %ix%i %i %p\n", ecs_get_name(it->world, it->entities[i]), res[i].x, res[i].y, img[i].type, img[i].data);
     }
@@ -133,6 +133,7 @@ void EgVideoImport(ecs_world_t *world)
     ECS_COMPONENT_DEFINE(world, Device);
     ECS_COMPONENT_DEFINE(world, VideoReader);
 
+
     ecs_system(world, {
         .entity = ecs_entity(world, {
             .name = "System_Camera_Capture",
@@ -140,9 +141,8 @@ void EgVideoImport(ecs_world_t *world)
         }),
         .query.filter.instanced = true,
         .query.filter.terms = {
-            //TODO: Match only one level deep:
             {.id = ecs_id(VideoReader), .inout = EcsIn, .src.trav = EcsChildOf, .src.flags = EcsUp},
-            {.id = ecs_id(Status), .src.trav = EcsChildOf, .src.flags = EcsUp},
+            {.id = ecs_pair(ecs_id(Status), Open), .inout = EcsIn, .src.trav = EcsChildOf, .src.flags = EcsUp},
             {.id = ecs_id(Memory), .inout = EcsInOut },
             {.id = ecs_id(Matspec), .inout = EcsInOut },
             {.id = ecs_id(Capture)}
@@ -151,7 +151,8 @@ void EgVideoImport(ecs_world_t *world)
     });
 
 
-    //ECS_SYSTEM(world, System_Camera_Capture, EcsOnUpdate, VideoReader(parent), Memory, Matspec);
+
+    //ECS_SYSTEM(world, System_Camera_Capture, EcsOnUpdate, VideoReader(parent), (eg.types.Status(parent), eg.types.Open), Memory, Matspec, eg.types.Capture);
     ECS_SYSTEM(world, System_Camera_Open, EcsOnUpdate, Device, VideoReader, (eg.types.Action, eg.types.Open));
     ECS_SYSTEM(world, System_Camera_Close, EcsOnUpdate, VideoReader, (eg.types.Action, eg.types.Close));
     ECS_OBSERVER(world, System_Camera_Create, EcsOnAdd, VideoReader);

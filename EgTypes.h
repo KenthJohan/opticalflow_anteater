@@ -2,6 +2,8 @@
 #include "flecs.h"
 #include "types.h"
 
+extern ECS_COMPONENT_DECLARE(Status);
+//extern ECS_DECLARE(Status);
 
 extern ECS_DECLARE(Resolution);
 extern ECS_DECLARE(Position);
@@ -16,7 +18,6 @@ extern ECS_DECLARE(OpenError);
 extern ECS_DECLARE(Close);
 extern ECS_DECLARE(CloseTry);
 extern ECS_DECLARE(CloseError);
-extern ECS_DECLARE(Status);
 extern ECS_DECLARE(Action);
 extern ECS_DECLARE(Draw);
 extern ECS_DECLARE(Visualize);

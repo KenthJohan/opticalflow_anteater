@@ -2,6 +2,10 @@
 
 
 
+ECS_COMPONENT_DECLARE(Status);
+//ECS_DECLARE(Status);
+
+
 ECS_DECLARE(Resolution);
 ECS_DECLARE(Position);
 ECS_DECLARE(Velocity);
@@ -14,7 +18,6 @@ ECS_DECLARE(OpenError);
 ECS_DECLARE(Close);
 ECS_DECLARE(CloseTry);
 ECS_DECLARE(CloseError);
-ECS_DECLARE(Status);
 ECS_DECLARE(Action);
 ECS_DECLARE(Draw);
 ECS_DECLARE(Visualize);
@@ -78,7 +81,10 @@ void EgTypesImport(ecs_world_t *world)
     ECS_MODULE(world, EgTypes);
 	
 
-    ECS_ENTITY_DEFINE(world, Status, Union);
+    //ECS_ENTITY_DEFINE(world, Status, Union);
+    ECS_COMPONENT_DEFINE(world, Status);
+    //ecs_add_id(world, ecs_id(Status), EcsUnion);
+
     ECS_ENTITY_DEFINE(world, Uses, EcsAcyclic);
     ECS_ENTITY_DEFINE(world, Copy, EcsAcyclic);
 
@@ -100,6 +106,8 @@ void EgTypesImport(ecs_world_t *world)
     ECS_TAG_DEFINE(world, Area);
     ECS_TAG_DEFINE(world, Snippet);
     ECS_TAG_DEFINE(world, Capture);
+
+
 
 
     ECS_COMPONENT_DEFINE(world, Vec2i32);
@@ -157,4 +165,12 @@ void EgTypesImport(ecs_world_t *world)
             { .name = "step", .type = ecs_id(ecs_i32_t), .count = 4 }
         }
     });
+
+    ecs_struct(world, {
+        .entity = ecs_id(Status),
+        .members = {
+            { .name = "dummy", .type = ecs_id(ecs_i32_t) }
+        }
+    });
+
 }
