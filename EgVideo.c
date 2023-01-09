@@ -152,10 +152,9 @@ void EgVideoImport(ecs_world_t *world)
         }),
         .query.filter.instanced = true,
         .query.filter.terms = {
-            {.id = ecs_id(VideoReader), .inout = EcsIn, .src.trav = EcsChildOf, .src.flags = EcsUp},
+            {.id = ecs_id(VideoReader), .inout = EcsIn, .src.trav = Capture, .src.flags = EcsUp},
             {.id = ecs_id(Memory), .inout = EcsInOut },
             {.id = ecs_id(Matspec), .inout = EcsInOut },
-            {.id = ecs_id(Capture)},
             //{.id = ecs_pair(Status, Open), .src.trav = EcsChildOf, .src.flags = EcsUp}, // Does not work yet, bug in flecs.
         },
         .callback = System_Camera_Capture

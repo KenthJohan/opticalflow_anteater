@@ -82,6 +82,7 @@ void EgTypesImport(ecs_world_t *world)
 	
     ECS_ENTITY_DEFINE(world, Status, EcsUnion);
     ECS_ENTITY_DEFINE(world, Action, EcsUnion);
+    ECS_ENTITY_DEFINE(world, Capture, EcsAcyclic);
     ECS_ENTITY_DEFINE(world, Uses, EcsAcyclic);
     ECS_ENTITY_DEFINE(world, Copy, EcsAcyclic);
     ECS_ENTITY_DEFINE(world, Draw, EcsAcyclic);
@@ -102,7 +103,6 @@ void EgTypesImport(ecs_world_t *world)
     ECS_TAG_DEFINE(world, Window);
     ECS_TAG_DEFINE(world, Area);
     ECS_TAG_DEFINE(world, Snippet);
-    ECS_TAG_DEFINE(world, Capture);
 
 
 

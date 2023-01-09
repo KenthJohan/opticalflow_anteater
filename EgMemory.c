@@ -54,7 +54,6 @@ void copy1(uint8_t * dst, uint8_t * src, int32_t srcstep[2], int32_t pos[2], int
 
 void System_Memory_Copy(ecs_iter_t *it)
 {
-    //printf("System_Memory_Copy %i\n", it->count);
     //https://docs.opencv.org/2.4/modules/core/doc/basic_structures.html#mat
     Memory *mem0 = ecs_field(it, Memory, 1); //Shared
     Matspec *spec0 = ecs_field(it, Matspec, 2); //Shared
@@ -65,7 +64,6 @@ void System_Memory_Copy(ecs_iter_t *it)
     if(mem0[0].data == NULL) {return;}
     for(int i = 0; i < it->count; ++i)
     {
-        if(mem[i].data == NULL) {continue;}
         char const * name0 = ecs_get_name(it->world, ecs_field_src(it, 1));
         char const * name = ecs_get_name(it->world, it->entities[i]);
         int32_t reqsize = area[i].x * area[i].y * spec0[0].step[1];
