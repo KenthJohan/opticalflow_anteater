@@ -48,12 +48,12 @@ void System_Camera_Open(ecs_iter_t *it)
         if(r != 0)
         {
             ecs_remove_pair(it->world, it->entities[i], Action, Open);
-            ecs_add_pair(it->world, it->entities[i], ecs_id(Status), OpenError);
+            ecs_add_pair(it->world, it->entities[i], Status, OpenError);
             continue;
         }
 
         ecs_remove_pair(it->world, it->entities[i], Action, Open);
-        ecs_add_pair(it->world, it->entities[i], ecs_id(Status), Open);
+        ecs_add_pair(it->world, it->entities[i], Status, Open);
         
         /*
         res.x = VideoReader_get_int(c + i, VIDEOREADER_PROP_FRAME_WIDTHWIDTH);
@@ -81,17 +81,17 @@ void System_Camera_Close(ecs_iter_t *it)
     VideoReader *c = ecs_field(it, VideoReader, 1);
     for(int i = 0; i < it->count; ++i)
     {
-        printf("Close camera: %p\n", c[i].handle);
         int r = VideoReader_close(c + i);
+        printf("VideoReader_close: %p, %i\n", c[i].handle, r);
         if(r == 0)
         {
             ecs_remove_pair(it->world, it->entities[i], Action, Close);
-            ecs_add_pair(it->world, it->entities[i], ecs_id(Status), Close);
+            ecs_add_pair(it->world, it->entities[i], Status, Close);
         }
         else
         {
             ecs_remove_pair(it->world, it->entities[i], Action, Close);
-            ecs_add_pair(it->world, it->entities[i], ecs_id(Status), CloseError);
+            ecs_add_pair(it->world, it->entities[i], Status, CloseError);
         }
     }
 }
@@ -100,10 +100,12 @@ void System_Camera_Close(ecs_iter_t *it)
 
 void System_Camera_Capture(ecs_iter_t *it)
 {
+    ecs_entity_t e0 = ecs_field_src(it, 1); // Parent
+    // TODO: Replace ecs_has_pair with query. Parent Union pair does not work in query for some reason.
+    if (ecs_has_pair(it->world, e0, Status, Open) == false) {return;}
     VideoReader *vid0 = ecs_field(it, VideoReader, 1); // Parent
-    Memory *mem = ecs_field(it, Memory, 3);
-    Matspec *spec = ecs_field(it, Matspec, 4);
-    ecs_entity_t e0 = ecs_field_src(it, 1);
+    Memory *mem = ecs_field(it, Memory, 2);
+    Matspec *spec = ecs_field(it, Matspec, 3);
     for(int i = 0; i < it->count; ++i)
     {
         char const * name0 = ecs_get_name(it->world, e0);
@@ -116,8 +118,9 @@ void System_Camera_Capture(ecs_iter_t *it)
             mem[i].size = 0;
             spec[i].type = 0;
             spec[i].dims = 0;
+            printf("Closing: %s %jx\n", name0, e0);
             ecs_add_pair(it->world, e0, Action, Close);
-            ecs_add_pair(it->world, e0, ecs_id(Status), CloseTry);
+            ecs_enable(it->world, it->entities[i], false);
         }
         //printf("Capture %s %ix%i %i %p\n", ecs_get_name(it->world, it->entities[i]), res[i].x, res[i].y, img[i].type, img[i].data);
     }
@@ -141,6 +144,7 @@ void EgVideoImport(ecs_world_t *world)
     ECS_COMPONENT_DEFINE(world, VideoReader);
 
 
+    
     ecs_system(world, {
         .entity = ecs_entity(world, {
             .name = "System_Camera_Capture",
@@ -149,10 +153,10 @@ void EgVideoImport(ecs_world_t *world)
         .query.filter.instanced = true,
         .query.filter.terms = {
             {.id = ecs_id(VideoReader), .inout = EcsIn, .src.trav = EcsChildOf, .src.flags = EcsUp},
-            {.id = ecs_pair(ecs_id(Status), Open), .inout = EcsIn, .src.trav = EcsChildOf, .src.flags = EcsUp},
             {.id = ecs_id(Memory), .inout = EcsInOut },
             {.id = ecs_id(Matspec), .inout = EcsInOut },
-            {.id = ecs_id(Capture)}
+            {.id = ecs_id(Capture)},
+            //{.id = ecs_pair(Status, Open), .src.trav = EcsChildOf, .src.flags = EcsUp}, // Does not work yet, bug in flecs.
         },
         .callback = System_Camera_Capture
     });
@@ -161,7 +165,7 @@ void EgVideoImport(ecs_world_t *world)
 
     //ECS_SYSTEM(world, System_Camera_Capture, EcsOnUpdate, VideoReader(parent), (eg.types.Status(parent), eg.types.Open), Memory, Matspec, eg.types.Capture);
     ECS_SYSTEM(world, System_Camera_Open, EcsOnUpdate, Device, VideoReader, (eg.types.Action, eg.types.Open));
-    ECS_SYSTEM(world, System_Camera_Close, EcsOnUpdate, VideoReader, (Status, eg.types.Open), (eg.types.Action, eg.types.Close));
+    ECS_SYSTEM(world, System_Camera_Close, EcsOnUpdate, VideoReader, (eg.types.Status, eg.types.Open), (eg.types.Action, eg.types.Close));
     ECS_OBSERVER(world, System_Camera_Create, EcsOnAdd, VideoReader);
     ECS_OBSERVER(world, System_Camera_Destroy, EcsOnRemove, VideoReader);
 

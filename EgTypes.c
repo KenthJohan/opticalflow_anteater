@@ -2,8 +2,8 @@
 
 
 
-ECS_COMPONENT_DECLARE(Status);
-//ECS_DECLARE(Status);
+
+ECS_DECLARE(Status);
 
 
 ECS_DECLARE(Resolution);
@@ -80,11 +80,8 @@ void EgTypesImport(ecs_world_t *world)
 {
     ECS_MODULE(world, EgTypes);
 	
-
-    //ECS_ENTITY_DEFINE(world, Status, Union);
-    ECS_COMPONENT_DEFINE(world, Status);
-    //ecs_add_id(world, ecs_id(Status), EcsUnion);
-
+    ECS_ENTITY_DEFINE(world, Status, EcsUnion);
+    ECS_ENTITY_DEFINE(world, Action, EcsUnion);
     ECS_ENTITY_DEFINE(world, Uses, EcsAcyclic);
     ECS_ENTITY_DEFINE(world, Copy, EcsAcyclic);
     ECS_ENTITY_DEFINE(world, Draw, EcsAcyclic);
@@ -100,7 +97,6 @@ void EgTypesImport(ecs_world_t *world)
     ECS_TAG_DEFINE(world, Close);
     ECS_TAG_DEFINE(world, CloseTry);
     ECS_TAG_DEFINE(world, CloseError);
-    ECS_TAG_DEFINE(world, Action);
     ECS_TAG_DEFINE(world, Draw);
     ECS_TAG_DEFINE(world, Visualize);
     ECS_TAG_DEFINE(world, Window);
@@ -164,13 +160,6 @@ void EgTypesImport(ecs_world_t *world)
             { .name = "dims", .type = ecs_id(ecs_i32_t) },
             { .name = "size", .type = ecs_id(ecs_i32_t), .count = 4 },
             { .name = "step", .type = ecs_id(ecs_i32_t), .count = 4 }
-        }
-    });
-
-    ecs_struct(world, {
-        .entity = ecs_id(Status),
-        .members = {
-            { .name = "dummy", .type = ecs_id(ecs_i32_t) }
         }
     });
 

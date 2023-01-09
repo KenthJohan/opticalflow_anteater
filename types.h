@@ -62,8 +62,3 @@ typedef struct
 {
     char *value;
 } String;
-
-typedef struct
-{
-    int32_t dummy;
-} Status;

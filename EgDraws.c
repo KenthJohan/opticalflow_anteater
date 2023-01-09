@@ -14,7 +14,7 @@ void System_Draw(ecs_iter_t *it)
         printf("Draw %s %i\n", name, spec[i].size[i]);
 		if(img[i].data)
 		{	
-			//draw_show(name, img[i].data, spec + i);
+			draw_show(name, img[i].data, spec + i);
 		}
     }
 }
