@@ -47,7 +47,6 @@ void mainer(ecs_world_t * world)
 	ecs_add(world, snippet1, Matspec);
 	ecs_add_pair(world, snippet1, Copy, cap1);
 	ecs_add_pair(world, snippet1, EcsIsA, roi1);
-	ecs_add(world, snippet1, Window);
 
 
 
@@ -56,7 +55,10 @@ void mainer(ecs_world_t * world)
 	ecs_set_pair(world, window1, Vec2i32, Area, {100, 100});
 	ecs_add_pair(world, window1, Draw, snippet1);
 
-
+	ecs_entity_t window2 = ecs_new_entity(world, "Window2");
+	ecs_add(world, window2, Window);
+	ecs_set_pair(world, window2, Vec2i32, Area, {100, 100});
+	ecs_add_pair(world, window2, Draw, snippet1);
 
 	/*
 
