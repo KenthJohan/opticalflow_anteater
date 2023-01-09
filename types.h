@@ -38,7 +38,8 @@ typedef struct
 typedef struct  
 {
     void * handle;
-    int32_t offset;
+    int32_t frame_offset;
+    int32_t frame_count;
 } VideoReader;
 
 typedef struct  

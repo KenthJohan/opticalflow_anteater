@@ -67,7 +67,8 @@ int VideoReader_read(VideoReader *camera, Memory * mem, Matspec * spec)
         return -1;
     }
     if (c->frame.isContinuous() == false){return -1;}
-    camera->offset = c->capture.get(cv::CAP_PROP_POS_FRAMES);
+    camera->frame_offset = c->capture.get(cv::CAP_PROP_POS_FRAMES);
+    camera->frame_count = c->capture.get(cv::CAP_PROP_FRAME_COUNT);
     mem->size = c->frame.step[0] * c->frame.rows;
     mem->data = c->frame.data;
     spec->dims = c->frame.dims;

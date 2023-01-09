@@ -179,7 +179,8 @@ void EgVideoImport(ecs_world_t *world)
         .entity = ecs_id(VideoReader),
         .members = {
             { .name = "handle", .type = ecs_id(ecs_uptr_t) },
-            { .name = "offset", .type = ecs_id(ecs_i32_t) }
+            { .name = "frame_offset", .type = ecs_id(ecs_i32_t) },
+            { .name = "frame_count", .type = ecs_id(ecs_i32_t) }
         }
     });
 
