@@ -21,6 +21,14 @@ void mainer(ecs_world_t * world)
 	
 
 
+		
+
+
+
+	ecs_entity_t roi1 = ecs_new_entity(world, "ROI1");
+	ecs_set_pair(world, roi1, Vec2i32, Position, {0, 0});
+	ecs_set_pair(world, roi1, Vec2i32, Area, {100, 100});
+
 
 	ecs_entity_t cam = ecs_new_entity(world, "Vidcap1");
 	ecs_set(world, cam, Device, {"2022-12-15_14-56-29.mp4"});
@@ -35,15 +43,21 @@ void mainer(ecs_world_t * world)
 	ecs_add(world, cap1, Memory);
 	ecs_add(world, cap1, Window);
 
-	{
-		ecs_entity_t snippet1 = ecs_new_entity(world, "Snippet1");
-		ecs_add(world, snippet1, Memory);
-		ecs_add(world, snippet1, Matspec);
-		ecs_set_pair(world, snippet1, Vec2i32, Position, {0, 0});
-		ecs_set_pair(world, snippet1, Vec2i32, Area, {100, 100});
-		ecs_add_pair(world, snippet1, Copy, cap1);
-		ecs_add(world, snippet1, Window);
-	}
+
+	ecs_entity_t snippet1 = ecs_new_entity(world, "Snippet1");
+	ecs_add(world, snippet1, Memory);
+	ecs_add(world, snippet1, Matspec);
+	ecs_add_pair(world, snippet1, Copy, cap1);
+	ecs_add_pair(world, snippet1, EcsIsA, roi1);
+
+
+/*
+	ecs_entity_t window1 = ecs_new_entity(world, "Window1");
+	ecs_add(world, window1, Window);
+	ecs_set_pair(world, window1, Vec2i32, Area, {100, 100});
+	ecs_add_pair(world, window1, Draw, snippet1);
+	*/
+
 
 	/*
 

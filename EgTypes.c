@@ -87,6 +87,7 @@ void EgTypesImport(ecs_world_t *world)
 
     ECS_ENTITY_DEFINE(world, Uses, EcsAcyclic);
     ECS_ENTITY_DEFINE(world, Copy, EcsAcyclic);
+    ECS_ENTITY_DEFINE(world, Draw, EcsAcyclic);
 
     ECS_TAG_DEFINE(world, Resolution);
     ECS_TAG_DEFINE(world, Position);

@@ -39,6 +39,7 @@ void System_Memory_callback(ecs_iter_t *it)
 
 void copy1(uint8_t * dst, uint8_t * src, int32_t srcstep[2], int32_t pos[2], int32_t size[2])
 {
+    printf("%p %p, %i %i, %i %i, %i %i\n", dst, src, srcstep[0], srcstep[1], pos[0], pos[1], size[0], size[1]);
     src += pos[0]*srcstep[0] + pos[1]*srcstep[1];
     for(int32_t i = 0; i < size[0]; ++i)
     {
@@ -61,8 +62,10 @@ void System_Memory_Copy(ecs_iter_t *it)
     Matspec *spec = ecs_field(it, Matspec, 4);
     Vec2i32 *pos = ecs_field(it, Vec2i32, 5);
     Vec2i32 *area = ecs_field(it, Vec2i32, 6);
+    if(mem0[0].data == NULL) {return;}
     for(int i = 0; i < it->count; ++i)
     {
+        if(mem[i].data == NULL) {continue;}
         char const * name0 = ecs_get_name(it->world, ecs_field_src(it, 1));
         char const * name = ecs_get_name(it->world, it->entities[i]);
         int32_t reqsize = area[i].x * area[i].y * spec0[0].step[1];
@@ -126,6 +129,7 @@ void EgMemoryImport(ecs_world_t *world)
         },
         .callback = System_Memory_Copy
     });
+    
 
 
     //ECS_SYSTEM(world, System_Memory_Copy, EcsOnUpdate, Vec2i32(up(eg.types.Copy), eg.types.Resolution), Memory);

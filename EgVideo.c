@@ -16,6 +16,7 @@ ECS_COMPONENT_DECLARE(VideoReader);
 
 void System_Camera_Create(ecs_iter_t *it)
 {
+    printf("System_Camera_Create\n");
     VideoReader *c = ecs_field(it, VideoReader, 1);
     for(int i = 0; i < it->count; ++i)
     {
@@ -26,6 +27,7 @@ void System_Camera_Create(ecs_iter_t *it)
 
 void System_Camera_Destroy(ecs_iter_t *it)
 {
+    printf("System_Camera_Destroy\n");
     VideoReader *c = ecs_field(it, VideoReader, 1);
     for(int i = 0; i < it->count; ++i)
     {
@@ -75,11 +77,11 @@ void System_Camera_Open(ecs_iter_t *it)
 
 void System_Camera_Close(ecs_iter_t *it)
 {
-    Device *d = ecs_field(it, Device, 1);
-    VideoReader *c = ecs_field(it, VideoReader, 2);
+    printf("System_Camera_Close\n");
+    VideoReader *c = ecs_field(it, VideoReader, 1);
     for(int i = 0; i < it->count; ++i)
     {
-        printf("Close camera: %s\n", d[i].path);
+        printf("Close camera: %p\n", c[i].handle);
         int r = VideoReader_close(c + i);
         if(r == 0)
         {
@@ -101,16 +103,21 @@ void System_Camera_Capture(ecs_iter_t *it)
     VideoReader *vid0 = ecs_field(it, VideoReader, 1); // Parent
     Memory *mem = ecs_field(it, Memory, 3);
     Matspec *spec = ecs_field(it, Matspec, 4);
+    ecs_entity_t e0 = ecs_field_src(it, 1);
     for(int i = 0; i < it->count; ++i)
     {
-        char const * name0 = ecs_get_name(it->world, ecs_field_src(it, 1));
+        char const * name0 = ecs_get_name(it->world, e0);
         char const * name = ecs_get_name(it->world, it->entities[i]);
-        printf("VideoReader_read: %s, %s\n", name0, name);
         int r = VideoReader_read(vid0, mem + i, spec + i);
+        printf("VideoReader_read: %s, %s, %i\n", name0, name, r);
         if(r != 0)
         {
-            ecs_add_pair(it->world, it->entities[i], Action, Close);
-            ecs_add_pair(it->world, it->entities[i], ecs_id(Status), CloseTry);
+            mem[i].data = NULL;
+            mem[i].size = 0;
+            spec[i].type = 0;
+            spec[i].dims = 0;
+            ecs_add_pair(it->world, e0, Action, Close);
+            ecs_add_pair(it->world, e0, ecs_id(Status), CloseTry);
         }
         //printf("Capture %s %ix%i %i %p\n", ecs_get_name(it->world, it->entities[i]), res[i].x, res[i].y, img[i].type, img[i].data);
     }
@@ -154,7 +161,7 @@ void EgVideoImport(ecs_world_t *world)
 
     //ECS_SYSTEM(world, System_Camera_Capture, EcsOnUpdate, VideoReader(parent), (eg.types.Status(parent), eg.types.Open), Memory, Matspec, eg.types.Capture);
     ECS_SYSTEM(world, System_Camera_Open, EcsOnUpdate, Device, VideoReader, (eg.types.Action, eg.types.Open));
-    ECS_SYSTEM(world, System_Camera_Close, EcsOnUpdate, VideoReader, (eg.types.Action, eg.types.Close));
+    ECS_SYSTEM(world, System_Camera_Close, EcsOnUpdate, VideoReader, (Status, eg.types.Open), (eg.types.Action, eg.types.Close));
     ECS_OBSERVER(world, System_Camera_Create, EcsOnAdd, VideoReader);
     ECS_OBSERVER(world, System_Camera_Destroy, EcsOnRemove, VideoReader);
 
@@ -168,7 +175,8 @@ void EgVideoImport(ecs_world_t *world)
     ecs_struct(world, {
         .entity = ecs_id(VideoReader),
         .members = {
-            { .name = "handle", .type = ecs_id(ecs_uptr_t) }
+            { .name = "handle", .type = ecs_id(ecs_uptr_t) },
+            { .name = "offset", .type = ecs_id(ecs_i32_t) }
         }
     });
 
