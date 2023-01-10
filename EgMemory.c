@@ -2,9 +2,27 @@
 #include "EgTypes.h"
 #include <stdio.h>
 
+void Observer_Mat_EcsOnSet(ecs_iter_t *it)
+{
+    Mat *mat = ecs_field(it, Mat, 1);
+    for(int i = 0; i < it->count; ++i)
+    {
+        char const * name = ecs_get_name(it->world, it->entities[i]);
+        printf("Observer_Mat_EcsOnSet: %s\n", name);
+        mat[i].type = 16; // OpenCV type: CV_U8C3
+        mat[i].step[1] = 3; // Three bytes per pixel
+        int32_t reqsize = mat[i].size[0] * mat[i].size[1] * mat[i].step[1];
+        if(reqsize <= 0){continue;}
+        if(mat[i].size == reqsize){continue;}
 
+        //printf("%s: Reqsize %i\n", name, reqsize);
+        ecs_os_free(mat[i].data);
+        mat[i].data = ecs_os_malloc(reqsize);
+        mat[i].data_size = reqsize;
+        mat[i].step[0] = mat[i].size[1] * mat[i].step[1];
 
-
+    }
+}
 
 void copy1(uint8_t * dst, uint8_t * src, int32_t srcstep[2], int32_t pos[2], int32_t size[2])
 {
@@ -18,59 +36,44 @@ void copy1(uint8_t * dst, uint8_t * src, int32_t srcstep[2], int32_t pos[2], int
     }
 }
 
-
-
-
-void System_Mat_Copy_Region(ecs_iter_t *it)
+void System_Mat_Copy_Instruction(ecs_iter_t *it)
 {
-    //https://docs.opencv.org/2.4/modules/core/doc/basic_structures.html#mat
-    Mat *mat0 = ecs_field(it, Mat, 1); //Shared
-    Mat *mat = ecs_field(it, Mat, 2);
+    Mat *matsrc = ecs_field(it, Mat, 1); //Shared
+    Mat *matdst = ecs_field(it, Mat, 2); //Shared
     Vec2i32 *pos = ecs_field(it, Vec2i32, 3);
     Vec2i32 *area = ecs_field(it, Vec2i32, 4);
-    if(mat0->data == NULL) {return;}
+    if(matsrc->data == NULL) {return;}
+    char const * name1 = ecs_get_name(it->world, ecs_field_src(it, 1));
+    char const * name2 = ecs_get_name(it->world, ecs_field_src(it, 2));
+    //printf("Copy: %s %s %i\n", name1, name2, it->count);
     for(int i = 0; i < it->count; ++i)
     {
-        char const * name0 = ecs_get_name(it->world, ecs_field_src(it, 1));
-        char const * name = ecs_get_name(it->world, it->entities[i]);
-        int32_t reqsize = area[i].x * area[i].y * mat0->step[1];
-        if(mat[i].size != reqsize)
+        int32_t reqsize = area[i].x * area[i].y * matsrc->step[1];
+        if(matdst[i].size != reqsize)
         {
             //printf("%s: Reqsize %i\n", name, reqsize);
-            ecs_os_free(mat[i].data);
-            mat[i].data = ecs_os_malloc(reqsize);
-            mat[i].data_size = reqsize;
+            ecs_os_free(matdst[i].data);
+            matdst[i].data = ecs_os_malloc(reqsize);
+            matdst[i].data_size = reqsize;
         }
         //printf("%s: Copyfrom %s\n", name, name0);
-        mat[i].type = mat0[0].type;
-        mat[i].dims = mat0[0].dims;
-        mat[i].size[0] = area[i].y;
-        mat[i].size[1] = area[i].x;
-        mat[i].step[0] = area[i].x * mat0->step[1];
-        mat[i].step[1] = mat0->step[1];
-        copy1(mat[i].data, mat0->data, mat0->step, (int32_t[]){pos[i].y, pos[i].x}, (int32_t[]){area[i].y, area[i].x});
+        matdst[i].type = matsrc[0].type;
+        matdst[i].dims = matsrc[0].dims;
+        matdst[i].size[0] = area[i].y;
+        matdst[i].size[1] = area[i].x;
+        matdst[i].step[0] = area[i].x * matsrc->step[1];
+        matdst[i].step[1] = matsrc->step[1];
+        copy1(matdst[i].data, matsrc->data, matsrc->step, (int32_t[]){pos[i].y, pos[i].x}, (int32_t[]){area[i].y, area[i].x});
     }
 }
 
-void Observer_Mat_EcsOnSet(ecs_iter_t *it)
-{
-    Mat *mat = ecs_field(it, Mat, 1);
-    for(int i = 0; i < it->count; ++i)
-    {
-        char const * name = ecs_get_name(it->world, it->entities[i]);
-        printf("Observer_Mat_EcsOnSet: %s\n", name);
-        mat[i].step[1] = 3;
-        int32_t reqsize = mat[i].size[0] * mat[i].size[1] * mat[i].step[1];
-        if(mat[i].size != reqsize)
-        {
-            //printf("%s: Reqsize %i\n", name, reqsize);
-            ecs_os_free(mat[i].data);
-            mat[i].data = ecs_os_malloc(reqsize);
-            mat[i].data_size = reqsize;
-            mat[i].step[0] = mat[i].size[1] * mat[i].step[1];
-        }
-    }
-}
+
+
+
+
+
+
+
 
 void EgMemoryImport(ecs_world_t *world)
 {
@@ -78,22 +81,24 @@ void EgMemoryImport(ecs_world_t *world)
     ECS_IMPORT(world, EgTypes);
 
 
+    ECS_OBSERVER(world, Observer_Mat_EcsOnSet, EcsOnSet, Mat);
+
+    
     ecs_system(world, {
         .entity = ecs_entity(world, {
-            .name = "System_Mat_Copy_Region",
+            .name = "System_Mat_Copy_Instruction",
             .add = { ecs_dependson(EcsOnUpdate) }
         }),
         .query.filter.instanced = true,
         .query.filter.terms = {
-            {.id = ecs_id(Mat), .inout = EcsIn, .src.flags = EcsUp, .src.trav = Copy},
-            {.id = ecs_id(Mat), .inout = EcsInOut },
+            {.id = ecs_id(Mat), .inout = EcsIn, .src.flags = EcsUp, .src.trav = CopyFrom},
+            {.id = ecs_id(Mat), .inout = EcsInOut, .src.flags = EcsUp, .src.trav = CopyTo},
             {.id = ecs_pair(ecs_id(Vec2i32), Position), .inout = EcsIn },
             {.id = ecs_pair(ecs_id(Vec2i32), Area), .inout = EcsIn }
         },
-        .callback = System_Mat_Copy_Region
+        .callback = System_Mat_Copy_Instruction
     });
-    
-    ECS_OBSERVER(world, Observer_Mat_EcsOnSet, EcsOnSet, Mat);
+
 
     //ECS_SYSTEM(world, System_Memory_Copy, EcsOnUpdate, Vec2i32(up(eg.types.Copy), eg.types.Resolution), Memory);
 

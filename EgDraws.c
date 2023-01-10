@@ -25,7 +25,9 @@ void System_Add(ecs_iter_t *it)
     {
         char const * name0 = ecs_get_name(it->world, ecs_field_src(it, 1));
         char const * name = ecs_get_name(it->world, it->entities[i]);
-        //printf("draw_weighed: %s, %s\n", name0, name);
+        printf("draw_weighed: %s, %s\n", name0, name);
+        if(mat[i].data == NULL) {continue;}
+        draw_weighed(mat + i, 0.5, mat0, 0.5, 0.0, mat0);
 
         /*
         if(mem[i].size != reqsize)
@@ -43,7 +45,6 @@ void System_Add(ecs_iter_t *it)
         spec[i].step[0] = area[i].x * spec0[0].step[1];
         spec[i].step[1] = spec0[0].step[1];
 
-        draw_weighed(img0, spec0, 0.5, img[i].data, spec + i, 0.5, 0.0, img[i].data, spec + i);
         */
     }
 }
@@ -80,7 +81,7 @@ void EgDrawsImport(ecs_world_t *world)
         }),
         .query.filter.instanced = true,
         .query.filter.terms = {
-            {.id = ecs_id(Mat), .inout = EcsInOut, .src.trav = Draw, .src.flags = EcsUp },
+            {.id = ecs_id(Mat), .inout = EcsInOut, .src.trav = EcsChildOf, .src.flags = EcsUp },
             {.id = ecs_id(Mat), .inout = EcsInOut },
         },
         .callback = System_Add

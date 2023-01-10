@@ -22,9 +22,12 @@ extern ECS_DECLARE(Draw);
 extern ECS_DECLARE(Visualize);
 extern ECS_DECLARE(Window);
 extern ECS_DECLARE(Copy);
+extern ECS_DECLARE(CopyTo);
+extern ECS_DECLARE(CopyFrom);
 extern ECS_DECLARE(Crop);
 extern ECS_DECLARE(Snippet);
 extern ECS_DECLARE(Capture);
+extern ECS_DECLARE(Image);
 
 extern ECS_COMPONENT_DECLARE(Vec2i32);
 extern ECS_COMPONENT_DECLARE(Vec2f32);

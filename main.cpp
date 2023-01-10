@@ -58,12 +58,14 @@ void rect_grid(cv::Rect r[], int n, int rows, int cols, int w, int h)
 
 int main(int argc, char* argv[])
 {
-    ecs_world_t *world = ecs_init_w_args(argc, argv);
-    mainer(world);
-
     setbuf(stdout, NULL);
     printf("Hello this is Anteater!\n");
     printf("cwd: '%s'\n", cv::utils::fs::getcwd().c_str());
+
+
+    mainer(argc, argv);
+    return 0;
+
 
     cv::CommandLineParser parser(argc, argv, ASSETS_ARG_KEYS);
 
@@ -149,19 +151,8 @@ int main(int argc, char* argv[])
     }
 
 
-    while(true)
-    {
-        {
-            int keyboard = cv::waitKey(30);
-            if (keyboard == 'q' || keyboard == 27) {break;}
-        }
-        ecs_progress(world, 0);
-        //ecs_sleepf(0.1f);
-    }
-
     while(0)
     {
-        ecs_progress(world, 0);
 
         {
             int keyboard = cv::waitKey(30);
@@ -212,7 +203,6 @@ int main(int argc, char* argv[])
     if (video_writer.isOpened()) {video_writer.release();}
 
     
-	ecs_log_set_level(0);
-    ecs_fini(world);
+
     return 0;
 }

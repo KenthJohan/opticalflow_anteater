@@ -23,9 +23,12 @@ ECS_DECLARE(Draw);
 ECS_DECLARE(Visualize);
 ECS_DECLARE(Window);
 ECS_DECLARE(Copy);
+ECS_DECLARE(CopyTo);
+ECS_DECLARE(CopyFrom);
 ECS_DECLARE(Area);
 ECS_DECLARE(Snippet);
 ECS_DECLARE(Capture);
+ECS_DECLARE(Image);
 
 ECS_COMPONENT_DECLARE(Vec2i32);
 ECS_COMPONENT_DECLARE(Vec2f32);
@@ -85,7 +88,10 @@ void EgTypesImport(ecs_world_t *world)
     ECS_ENTITY_DEFINE(world, Capture, EcsAcyclic);
     ECS_ENTITY_DEFINE(world, Uses, EcsAcyclic);
     ECS_ENTITY_DEFINE(world, Copy, EcsAcyclic);
+    ECS_ENTITY_DEFINE(world, CopyTo, EcsAcyclic);
+    ECS_ENTITY_DEFINE(world, CopyFrom, EcsAcyclic);
     ECS_ENTITY_DEFINE(world, Draw, EcsAcyclic);
+    ECS_ENTITY_DEFINE(world, Image, EcsAcyclic);
 
     ECS_TAG_DEFINE(world, Resolution);
     ECS_TAG_DEFINE(world, Position);
@@ -103,6 +109,7 @@ void EgTypesImport(ecs_world_t *world)
     ECS_TAG_DEFINE(world, Window);
     ECS_TAG_DEFINE(world, Area);
     ECS_TAG_DEFINE(world, Snippet);
+    ECS_TAG_DEFINE(world, Image);
 
 
 

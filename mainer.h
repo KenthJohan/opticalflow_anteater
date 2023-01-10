@@ -5,7 +5,7 @@ extern "C" {
 
 #include "flecs.h"
 
-void mainer(ecs_world_t * world);
+void mainer(int argc, char* argv[]);
 
 
 #ifdef __cplusplus

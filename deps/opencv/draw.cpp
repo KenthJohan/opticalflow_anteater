@@ -2,6 +2,7 @@
 #include "common.h"
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
+#include <assert.h>
 
 // For visual purpose only:
 // This draw the direction and speed:
@@ -33,13 +34,25 @@ void draw_show(char const * title, Mat * mat)
 {
     cv::Mat m = cv::Mat(mat->size[0], mat->size[1], mat->type, mat->data);
     cv::imshow(title, m);
+    {
+        int keyboard = cv::waitKey(30);
+        if (keyboard == 'q' || keyboard == 27) {}
+    }
 }
 
 
 void draw_weighed(Mat * mat1, double alpha, Mat * mat2, double beta, double gamma, Mat * dst)
 {
+    cv::Rect r = cv::Rect(0, 0, mat1->size[0], mat1->size[1]);
     cv::Mat s1 = cv::Mat(mat1->size[0], mat1->size[1], mat1->type, mat1->data);
-    cv::Mat s2 = cv::Mat(mat2->size[0], mat2->size[1], mat2->type, mat2->data);
-    cv::Mat d = cv::Mat(dst->size[0], dst->size[1], dst->type, dst->data);
+    cv::Mat s2 = cv::Mat(mat2->size[0], mat2->size[1], mat2->type, mat2->data)(r);
+    cv::Mat d = cv::Mat(dst->size[0], dst->size[1], dst->type, dst->data)(r);
+    assert(s1.rows == s2.rows);
+    assert(s1.cols == s2.cols);
+    assert(s1.type() == s2.type());
+    assert(s1.rows == d.rows);
+    assert(s1.cols == d.cols);
+    assert(s1.type() == d.type());
+    //d += s1;
     cv::addWeighted(s1, alpha, s2, beta, gamma, d);
 }
