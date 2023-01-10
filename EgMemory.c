@@ -11,6 +11,7 @@ void Observer_Mat_EcsOnSet(ecs_iter_t *it)
         printf("Observer_Mat_EcsOnSet: %s\n", name);
         mat[i].type = 16; // OpenCV type: CV_U8C3
         mat[i].step[1] = 3; // Three bytes per pixel
+        mat[i].dims = 2; // Two axises
         int32_t reqsize = mat[i].shape[0] * mat[i].shape[1] * mat[i].step[1];
         if(reqsize <= 0){continue;}
         if(mat[i].size == reqsize){continue;}

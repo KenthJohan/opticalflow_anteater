@@ -10,7 +10,7 @@ void draw_arrow(void * image, int type, Vec2i32 resolution, Vec2i32 rio_pos, Vec
 void draw_rectangle(void * image, int type, Vec2i32 resolution, Vec2i32 pos, Vec2i32 length);
 void draw_show(char const * title, Mat * mat);
 void draw_weighed(Mat * mat1, double alpha, Mat * mat2, double beta, double gamma, Mat * dst);
-
+void draw_weighed1(int32_t type, int32_t shape[], void * mat1, int32_t steps1[], double alpha, void * mat2, int32_t steps2[], double beta, double gamma, void * mat3, int32_t steps3[]);
 
 
 

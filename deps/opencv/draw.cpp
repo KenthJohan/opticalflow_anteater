@@ -41,13 +41,34 @@ void draw_show(char const * title, Mat * mat)
 }
 
 
+
+void draw_weighed1(int32_t type, int32_t shape[], void * mat1, int32_t steps1[], double alpha, void * mat2, int32_t steps2[], double beta, double gamma, void * mat3, int32_t steps3[])
+{
+    size_t ssteps1[] = {steps1[0],steps1[1]};
+    size_t ssteps2[] = {steps2[0],steps2[1]};
+    size_t ssteps3[] = {steps3[0],steps3[1]};
+    cv::Mat m1 = cv::Mat(2, shape, type, mat1, ssteps1);
+    cv::Mat m2 = cv::Mat(2, shape, type, mat2, ssteps2);
+    cv::Mat m3 = cv::Mat(2, shape, type, mat3, ssteps3);
+    cv::addWeighted(m1, alpha, m2, beta, gamma, m3);
+}
+
 void draw_weighed(Mat * mat1, double alpha, Mat * mat2, double beta, double gamma, Mat * dst)
 {
-    cv::Rect r1 = cv::Rect(0, 0, mat1->shape[0], mat1->shape[1]);
-    cv::Rect r2 = cv::Rect(100, 100, mat1->shape[0], mat1->shape[1]);
-    cv::Mat s1 = cv::Mat(mat1->shape[0], mat1->shape[1], mat1->type, mat1->start);
-    cv::Mat s2 = cv::Mat(mat2->shape[0], mat2->shape[1], mat2->type, mat2->start)(r1);
-    cv::Mat d = cv::Mat(dst->shape[0], dst->shape[1], dst->type, dst->start)(r2);
+    //cv::Rect r1 = cv::Rect(0, 0, mat1->shape[0], mat1->shape[1]);
+    //cv::Rect r2 = cv::Rect(100, 100, mat1->shape[0], mat1->shape[1]);
+    int sizes1[] = {mat1->shape[0],mat1->shape[1]};
+    int sizes2[] = {mat2->shape[0],mat2->shape[1]};
+    int sizes3[] = {mat1->shape[0],mat1->shape[1]};
+    size_t steps1[] = {mat1->step[0],mat1->step[1]};
+    size_t steps2[] = {mat2->step[0],mat2->step[1]};
+    size_t steps3[] = {dst->step[0],dst->step[1]};
+    cv::Mat s1 = cv::Mat(mat1->dims, sizes1, mat1->type, mat1->start, steps1);
+    cv::Mat s2 = cv::Mat(mat2->dims, sizes2, mat2->type, mat2->start, steps2);
+    cv::Mat d = cv::Mat(dst->dims, sizes3, dst->type, dst->start, steps3);
+    assert(s1.dims == 2);
+    assert(s2.dims == 2);
+    assert(d.dims == 2);
     assert(s1.rows == s2.rows);
     assert(s1.cols == s2.cols);
     assert(s1.type() == s2.type());
