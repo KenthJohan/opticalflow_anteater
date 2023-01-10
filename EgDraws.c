@@ -4,20 +4,50 @@
 #include "draw.h"
 #include <stdio.h>
 
-void System_Draw(ecs_iter_t *it)
+void System_Show(ecs_iter_t *it)
 {
-    ecs_entity_t e0 = ecs_field_src(it, 1); // Shared
-    Memory *img0 = ecs_field(it, Memory, 1); // Shared
-    Matspec *spec0 = ecs_field(it, Matspec, 2); // Shared
-    if(img0->data == NULL){return;}
+    Mat *mat = ecs_field(it, Mat, 1);
     for(int i = 0; i < it->count; ++i)
     {
-        char const * name0 = ecs_get_name(it->world, e0);
+        if(mat[i].data == NULL){continue;}
         char const * name = ecs_get_name(it->world, it->entities[i]);
-        printf("Draw %s %s %i\n", name0, name, spec0->size[i]);
-		draw_show(name, img0->data, spec0);
+		draw_show(name, mat + i);
     }
 }
+
+void System_Add(ecs_iter_t *it)
+{
+    ecs_entity_t e0 = ecs_field_src(it, 1); // Shared
+    Mat *mat0 = ecs_field(it, Mat, 1); // Shared
+    Mat *mat = ecs_field(it, Mat, 2);
+    if(mat0->data == NULL){return;}
+    for(int i = 0; i < it->count; ++i)
+    {
+        char const * name0 = ecs_get_name(it->world, ecs_field_src(it, 1));
+        char const * name = ecs_get_name(it->world, it->entities[i]);
+        printf("draw_weighed: %s, %s\n", name0, name);
+
+        /*
+        if(mem[i].size != reqsize)
+        {
+            printf("%s: Reqsize %i\n", name, reqsize);
+            //ecs_os_free(mem[i].data);
+            mem[i].data = ecs_os_malloc(reqsize);
+            mem[i].size = reqsize;
+        }
+        printf("%s: Copyfrom %s\n", name, name0);
+        spec[i].type = spec0[0].type;
+        spec[i].dims = spec0[0].dims;
+        spec[i].size[0] = area[i].y;
+        spec[i].size[1] = area[i].x;
+        spec[i].step[0] = area[i].x * spec0[0].step[1];
+        spec[i].step[1] = spec0[0].step[1];
+
+        draw_weighed(img0, spec0, 0.5, img[i].data, spec + i, 0.5, 0.0, img[i].data, spec + i);
+        */
+    }
+}
+
 
 
 void EgDrawsImport(ecs_world_t *world)
@@ -32,17 +62,28 @@ void EgDrawsImport(ecs_world_t *world)
 
     ecs_system(world, {
         .entity = ecs_entity(world, {
-            .name = "System_Draw",
+            .name = "System_Show",
             .add = { ecs_dependson(EcsOnUpdate) }
         }),
         .query.filter.instanced = true,
         .query.filter.terms = {
-            {.id = ecs_id(Memory), .inout = EcsInOut, .src.trav = Draw, .src.flags = EcsUp },
-            {.id = ecs_id(Matspec), .inout = EcsInOut, .src.trav = Draw, .src.flags = EcsUp },
+            {.id = ecs_id(Mat)},
             {.id = ecs_id(Window)}
         },
-        .callback = System_Draw
+        .callback = System_Show
     });
     
-
+    ecs_system(world, {
+        .entity = ecs_entity(world, {
+            .name = "System_Add",
+            .add = { ecs_dependson(EcsOnUpdate) }
+        }),
+        .query.filter.instanced = true,
+        .query.filter.terms = {
+            {.id = ecs_id(Mat), .inout = EcsInOut, .src.trav = Draw, .src.flags = EcsUp },
+            {.id = ecs_id(Mat), .inout = EcsInOut },
+        },
+        .callback = System_Add
+    });
+    
 }

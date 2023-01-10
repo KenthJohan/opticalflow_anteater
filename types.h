@@ -42,20 +42,16 @@ typedef struct
     int32_t frame_count;
 } VideoReader;
 
+
 typedef struct  
 {
     uint8_t * data;
-    int32_t size;
-} Memory;
-
-
-typedef struct  
-{
+    int32_t data_size;
     int32_t type;
     int32_t dims;
     int32_t size[4];
     int32_t step[4];
-} Matspec;
+} Mat;
 
 
 

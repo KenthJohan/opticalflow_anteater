@@ -16,7 +16,7 @@ int VideoReader_create(VideoReader * camera);
 int VideoReader_open(VideoReader * camera, char const * path);
 int VideoReader_close(VideoReader * camera);
 int VideoReader_destroy(VideoReader * camera);
-int VideoReader_read(VideoReader *camera, Memory * mem, Matspec * spec);
+int VideoReader_read(VideoReader *camera, Mat * mat);
 int VideoReader_get_int(VideoReader *camera, int prop);
 void cv_mat_type2str(int type, char * buf, int len);
 

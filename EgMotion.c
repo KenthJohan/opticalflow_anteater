@@ -8,7 +8,7 @@
 
 void System_Test(ecs_iter_t *it)
 {
-    Memory *d = ecs_field(it, Memory, 1);
+    Mat *d = ecs_field(it, Mat, 1);
     VideoReader *c = ecs_field(it, VideoReader, 2);
     for(int i = 0; i < it->count; ++i)
     {
@@ -27,7 +27,7 @@ void System_Motion_Estimation(ecs_iter_t *it)
     Vec2i32 *rio_pos = ecs_field(it, Vec2i32, 2);
     Vec2i32 *rio_len = ecs_field(it, Vec2i32, 3);
     Vec2i32 *vel = ecs_field(it, Vec2i32, 4);
-    Memory *img = ecs_field(it, Memory, 5); // Shared
+    Mat *img = ecs_field(it, Mat, 5); // Shared
     Vec2i32 *res = ecs_field(it, Vec2i32, 6);  // Shared
     for(int i = 0; i < it->count; ++i)
     {
@@ -42,7 +42,7 @@ void System_Motion_Estimation(ecs_iter_t *it)
 void System_Oflow_Create(ecs_iter_t *it)
 {
     Weldvisi_View *v = ecs_field(it, Weldvisi_View, 1);
-    Memory *img = ecs_field(it, Memory, 2); // Shared
+    Mat *img = ecs_field(it, Mat, 2); // Shared
     Vec2i32 *res = ecs_field(it, Vec2i32, 3);  // Shared
     for(int i = 0; i < it->count; ++i)
     {
@@ -85,6 +85,7 @@ void EgMotionImport(ecs_world_t *world)
     ECS_COMPONENT_DEFINE(world, Weldvisi_View);
 
 
+    /*
     ecs_system(world, {
         .entity = ecs_entity(world, {
             .name = "System_Motion_Estimation",
@@ -96,11 +97,12 @@ void EgMotionImport(ecs_world_t *world)
             {.id = ecs_pair(ecs_id(Vec2i32), CropPosition), .inout = EcsIn },
             {.id = ecs_pair(ecs_id(Vec2i32), CropSize), .inout = EcsIn },
             {.id = ecs_pair(ecs_id(Vec2f32), Velocity), .inout = EcsInOut },
-            {.id = ecs_id(Memory), .inout = EcsIn, .src.flags = EcsUp, .src.trav = Uses},
+            {.id = ecs_id(Mat), .inout = EcsIn, .src.flags = EcsUp, .src.trav = Uses},
             {.id = ecs_pair(ecs_id(Vec2i32), Resolution), .inout = EcsIn,.src.flags = EcsUp,.src.trav = Uses}
         },
         .callback = System_Motion_Estimation
     });
+    */
     
     /*
     ECS_SYSTEM(world, System_Motion_Estimation, EcsOnUpdate, 
@@ -114,8 +116,8 @@ void EgMotionImport(ecs_world_t *world)
     */
    
 
-    ECS_OBSERVER(world, System_Oflow_Create, EcsOnAdd, Weldvisi_View, Memory(up(eg.types.Uses)), Vec2i32(up(eg.types.Uses), eg.types.Resolution));
-    ECS_OBSERVER(world, System_Oflow_Destroy, EcsOnRemove, Weldvisi_View);
+    //ECS_OBSERVER(world, System_Oflow_Create, EcsOnAdd, Weldvisi_View, Mat(up(eg.types.Uses)), Vec2i32(up(eg.types.Uses), eg.types.Resolution));
+    //ECS_OBSERVER(world, System_Oflow_Destroy, EcsOnRemove, Weldvisi_View);
 
 
     

@@ -31,7 +31,7 @@ ECS_COMPONENT_DECLARE(Vec2i32);
 ECS_COMPONENT_DECLARE(Vec2f32);
 ECS_COMPONENT_DECLARE(String);
 ECS_COMPONENT_DECLARE(Channels);
-ECS_COMPONENT_DECLARE(Matspec);
+ECS_COMPONENT_DECLARE(Mat);
 
 
 
@@ -111,7 +111,7 @@ void EgTypesImport(ecs_world_t *world)
     ECS_COMPONENT_DEFINE(world, Vec2f32);
     ECS_COMPONENT_DEFINE(world, String);
     ECS_COMPONENT_DEFINE(world, Channels);
-    ECS_COMPONENT_DEFINE(world, Matspec);
+    ECS_COMPONENT_DEFINE(world, Mat);
 
     ecs_set_hooks(world, String, {
     .ctor = ecs_ctor(String),
@@ -154,8 +154,10 @@ void EgTypesImport(ecs_world_t *world)
     });
 
     ecs_struct(world, {
-        .entity = ecs_id(Matspec),
+        .entity = ecs_id(Mat),
         .members = {
+            { .name = "data", .type = ecs_id(ecs_uptr_t) },
+            { .name = "data_size", .type = ecs_id(ecs_i32_t) },
             { .name = "type", .type = ecs_id(ecs_i32_t) },
             { .name = "dims", .type = ecs_id(ecs_i32_t) },
             { .name = "size", .type = ecs_id(ecs_i32_t), .count = 4 },

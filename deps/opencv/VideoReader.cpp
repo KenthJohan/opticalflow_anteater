@@ -58,7 +58,7 @@ void cv_mat_type2str(int type, char * buf, int len)
 }
 
 
-int VideoReader_read(VideoReader *camera, Memory * mem, Matspec * spec)
+int VideoReader_read(VideoReader *camera, Mat * mat)
 {
     vidcapcv_t *c = (vidcapcv_t *)camera->handle;
     c->capture >> c->frame;
@@ -69,14 +69,14 @@ int VideoReader_read(VideoReader *camera, Memory * mem, Matspec * spec)
     if (c->frame.isContinuous() == false){return -1;}
     camera->frame_offset = c->capture.get(cv::CAP_PROP_POS_FRAMES);
     camera->frame_count = c->capture.get(cv::CAP_PROP_FRAME_COUNT);
-    mem->size = c->frame.step[0] * c->frame.rows;
-    mem->data = c->frame.data;
-    spec->dims = c->frame.dims;
-    spec->type = c->frame.type();
-    spec->step[0] = c->frame.step[0];
-    spec->step[1] = c->frame.step[1];
-    spec->size[0] = c->frame.size[0];
-    spec->size[1] = c->frame.size[1];
+    mat->data_size = c->frame.step[0] * c->frame.rows;
+    mat->data = c->frame.data;
+    mat->dims = c->frame.dims;
+    mat->type = c->frame.type();
+    mat->step[0] = c->frame.step[0];
+    mat->step[1] = c->frame.step[1];
+    mat->size[0] = c->frame.size[0];
+    mat->size[1] = c->frame.size[1];
     //printf("step: %i %i\n", spec->step[0], spec->step[1]);
     //printf("dim: %i %i\n", spec->dim[0], spec->dim[1]);
     return 0;

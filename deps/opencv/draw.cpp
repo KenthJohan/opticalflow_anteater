@@ -29,8 +29,17 @@ void draw_rectangle(void * image, int type, Vec2i32 resolution, Vec2i32 pos, Vec
     cv::rectangle(mat, cv::Rect(pos.x, pos.y, length.x, length.y), cv::Scalar(0, 0, 255), 2, cv::LINE_4);
 }
 
-void draw_show(char const * title, void * image, Matspec * spec)
+void draw_show(char const * title, Mat * mat)
 {
-    cv::Mat mat = cv::Mat(spec->size[0], spec->size[1], spec->type, image);
-    cv::imshow(title, mat);
+    cv::Mat m = cv::Mat(mat->size[0], mat->size[1], mat->type, mat->data);
+    cv::imshow(title, m);
+}
+
+
+void draw_weighed(Mat * mat1, double alpha, Mat * mat2, double beta, double gamma, Mat * dst)
+{
+    cv::Mat s1 = cv::Mat(mat1->size[0], mat1->size[1], mat1->type, mat1->data);
+    cv::Mat s2 = cv::Mat(mat2->size[0], mat2->size[1], mat2->type, mat2->data);
+    cv::Mat d = cv::Mat(dst->size[0], dst->size[1], dst->type, dst->data);
+    cv::addWeighted(s1, alpha, s2, beta, gamma, d);
 }

@@ -60,15 +60,14 @@ void System_Camera_Open(ecs_iter_t *it)
         res.y = VideoReader_get_int(c + i, CAMERA_PROP_FRAME_HEIGHT);
         int t = VideoReader_get_int(c + i, CAMERA_CAP_PROP_FORMAT);
         */
-        Memory mem;
-        Matspec spec;
-        VideoReader_read(c + i, &mem, &spec);
-        ecs_set_pair(it->world, it->entities[i], Vec2i32, Resolution, {spec.size[1], spec.size[0]});
+        Mat mat;
+        VideoReader_read(c + i, &mat);
+        ecs_set_pair(it->world, it->entities[i], Vec2i32, Resolution, {mat.size[1], mat.size[0]});
 
         {
             char buf[100] = {0};
-            cv_mat_type2str(spec.type, buf, 100);
-            printf("VideoReader %s: %ix%ix%s\n", name, spec.size[0], spec.size[1], buf);
+            cv_mat_type2str(mat.type, buf, 100);
+            printf("VideoReader %s: %ix%ix%s\n", name, mat.size[0], mat.size[1], buf);
         }
     }
 }
@@ -104,20 +103,19 @@ void System_Camera_Capture(ecs_iter_t *it)
     // TODO: Replace ecs_has_pair with query. Parent Union pair does not work in query for some reason.
     if (ecs_has_pair(it->world, e0, Status, Open) == false) {return;}
     VideoReader *vid0 = ecs_field(it, VideoReader, 1); // Parent
-    Memory *mem = ecs_field(it, Memory, 2);
-    Matspec *spec = ecs_field(it, Matspec, 3);
+    Mat *mat = ecs_field(it, Mat, 2);
     for(int i = 0; i < it->count; ++i)
     {
         char const * name0 = ecs_get_name(it->world, e0);
         char const * name = ecs_get_name(it->world, it->entities[i]);
-        int r = VideoReader_read(vid0, mem + i, spec + i);
+        int r = VideoReader_read(vid0, mat + i);
         printf("VideoReader_read: %s, %s, %i\n", name0, name, r);
         if(r != 0)
         {
-            mem[i].data = NULL;
-            mem[i].size = 0;
-            spec[i].type = 0;
-            spec[i].dims = 0;
+            mat[i].data = NULL;
+            mat[i].data_size = 0;
+            mat[i].type = 0;
+            mat[i].dims = 0;
             printf("Closing: %s %jx\n", name0, e0);
             ecs_add_pair(it->world, e0, Action, Close);
             ecs_enable(it->world, it->entities[i], false);
@@ -153,8 +151,7 @@ void EgVideoImport(ecs_world_t *world)
         .query.filter.instanced = true,
         .query.filter.terms = {
             {.id = ecs_id(VideoReader), .inout = EcsIn, .src.trav = Capture, .src.flags = EcsUp},
-            {.id = ecs_id(Memory), .inout = EcsInOut },
-            {.id = ecs_id(Matspec), .inout = EcsInOut },
+            {.id = ecs_id(Mat), .inout = EcsInOut },
             //{.id = ecs_pair(Status, Open), .src.trav = EcsChildOf, .src.flags = EcsUp}, // Does not work yet, bug in flecs.
         },
         .callback = System_Camera_Capture
