@@ -61,10 +61,18 @@ void mainer(int argc, char* argv[])
 	ecs_set(world, window2, Mat, {.shape = {480,1920,0,0}});
 	//ecs_set_pair(world, window2, Vec2i32, Resolution, {100, 100});
 
+
 	ecs_entity_t drawsnippet1 = ecs_new_entity(world, "DrawSnippet1");
 	ecs_set_pair(world, drawsnippet1, Vec2i32, Position, {0, 0});
 	ecs_add_pair(world, drawsnippet1, EcsIsA, snippet1);
 	ecs_add_pair(world, drawsnippet1, EcsChildOf, window2);
+
+
+	ecs_entity_t drawsnippet2 = ecs_new_entity(world, "DrawSnippet2");
+	ecs_set_pair(world, drawsnippet2, Vec2i32, Position, {200, 200});
+	ecs_add_pair(world, drawsnippet2, EcsIsA, snippet1);
+	ecs_add_pair(world, drawsnippet2, EcsChildOf, window2);
+	
 
 	/*
 

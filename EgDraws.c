@@ -29,15 +29,21 @@ void System_Add(ecs_iter_t *it)
     {
         char const * name0 = ecs_get_name(it->world, ecs_field_src(it, 1));
         char const * name = ecs_get_name(it->world, it->entities[i]);
-        //printf("draw_weighed: %s, %s\n", name0, name);
+        // BUG?: Two entities inheret a same entity. One of component get zero values: 
+        printf("draw_weighed: %s, %s, %i, (%i %i) %i\n", name0, name, it->count, pos[i].x, pos[i].y, mat[i].dims);
         if(mat[i].start == NULL) {continue;}
-        Mat dst = *mat0;
-        int32_t x = EG_CLAMP(pos[i].x, 0, mat0->shape[1] - mat[i].shape[1]);
-        int32_t y = EG_CLAMP(pos[i].y, 0, mat0->shape[0] - mat[i].shape[0]);
-        dst.start += (y * mat0->step[0]) + (x * mat0->step[1]);
-        dst.shape[0] = mat[i].shape[0];
-        dst.shape[1] = mat[i].shape[1];
-        draw_weighed(mat + i, 1.0, &dst, 0.0, 0.0, &dst);
+
+
+        {
+            Mat dst = *mat0;
+            int32_t x = EG_CLAMP(pos[i].x, 0, mat0->shape[1] - mat[i].shape[1]);
+            int32_t y = EG_CLAMP(pos[i].y, 0, mat0->shape[0] - mat[i].shape[0]);
+            dst.start += (y * mat0->step[0]) + (x * mat0->step[1]);
+            dst.shape[0] = mat[i].shape[0];
+            dst.shape[1] = mat[i].shape[1];
+            draw_weighed(mat + i, 1.0, &dst, 0.0, 0.0, &dst);
+        }
+        
     }
 }
 

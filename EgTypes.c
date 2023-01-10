@@ -160,15 +160,28 @@ void EgTypesImport(ecs_world_t *world)
         }
     });
 
+/*
+typedef struct  
+{
+    uint8_t * start;
+    uint8_t * memory;
+    int32_t size;
+    int32_t type;
+    int32_t dims;
+    int32_t shape[4];
+    int32_t step[4];
+} Mat;
+
+*/
     ecs_struct(world, {
         .entity = ecs_id(Mat),
         .members = {
+            { .name = "start", .type = ecs_id(ecs_uptr_t) },
             { .name = "memory", .type = ecs_id(ecs_uptr_t) },
-            { .name = "memory_size", .type = ecs_id(ecs_i32_t) },
-            { .name = "data", .type = ecs_id(ecs_uptr_t) },
+            { .name = "size", .type = ecs_id(ecs_uptr_t) },
             { .name = "type", .type = ecs_id(ecs_i32_t) },
             { .name = "dims", .type = ecs_id(ecs_i32_t) },
-            { .name = "size", .type = ecs_id(ecs_i32_t), .count = 4 },
+            { .name = "shape", .type = ecs_id(ecs_i32_t), .count = 4 },
             { .name = "step", .type = ecs_id(ecs_i32_t), .count = 4 }
         }
     });
