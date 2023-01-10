@@ -5,22 +5,10 @@
 
 
 
-void System_Memory_callback(ecs_iter_t *it)
-{
-    ecs_world_t *world = it->world;
-    ecs_entity_t event = it->event;
-
-    for (int i = 0; i < it->count; i ++) {
-        ecs_entity_t e = it->entities[i];
-        printf("%s: %s\n", ecs_get_name(world, event), ecs_get_name(world, e));
-    }
-}
-
-
 
 void copy1(uint8_t * dst, uint8_t * src, int32_t srcstep[2], int32_t pos[2], int32_t size[2])
 {
-    printf("%p %p, %i %i, %i %i, %i %i\n", dst, src, srcstep[0], srcstep[1], pos[0], pos[1], size[0], size[1]);
+    //printf("%p %p, %i %i, %i %i, %i %i\n", dst, src, srcstep[0], srcstep[1], pos[0], pos[1], size[0], size[1]);
     src += pos[0]*srcstep[0] + pos[1]*srcstep[1];
     for(int32_t i = 0; i < size[0]; ++i)
     {
@@ -33,7 +21,7 @@ void copy1(uint8_t * dst, uint8_t * src, int32_t srcstep[2], int32_t pos[2], int
 
 
 
-void System_Memory_Copy(ecs_iter_t *it)
+void System_Mat_Copy_Region(ecs_iter_t *it)
 {
     //https://docs.opencv.org/2.4/modules/core/doc/basic_structures.html#mat
     Mat *mat0 = ecs_field(it, Mat, 1); //Shared
@@ -48,12 +36,12 @@ void System_Memory_Copy(ecs_iter_t *it)
         int32_t reqsize = area[i].x * area[i].y * mat0->step[1];
         if(mat[i].size != reqsize)
         {
-            printf("%s: Reqsize %i\n", name, reqsize);
-            //ecs_os_free(mem[i].data);
+            //printf("%s: Reqsize %i\n", name, reqsize);
+            ecs_os_free(mat[i].data);
             mat[i].data = ecs_os_malloc(reqsize);
             mat[i].data_size = reqsize;
         }
-        printf("%s: Copyfrom %s\n", name, name0);
+        //printf("%s: Copyfrom %s\n", name, name0);
         mat[i].type = mat0[0].type;
         mat[i].dims = mat0[0].dims;
         mat[i].size[0] = area[i].y;
@@ -71,6 +59,16 @@ void Observer_Mat_EcsOnSet(ecs_iter_t *it)
     {
         char const * name = ecs_get_name(it->world, it->entities[i]);
         printf("Observer_Mat_EcsOnSet: %s\n", name);
+        mat[i].step[1] = 3;
+        int32_t reqsize = mat[i].size[0] * mat[i].size[1] * mat[i].step[1];
+        if(mat[i].size != reqsize)
+        {
+            //printf("%s: Reqsize %i\n", name, reqsize);
+            ecs_os_free(mat[i].data);
+            mat[i].data = ecs_os_malloc(reqsize);
+            mat[i].data_size = reqsize;
+            mat[i].step[0] = mat[i].size[1] * mat[i].step[1];
+        }
     }
 }
 
@@ -82,7 +80,7 @@ void EgMemoryImport(ecs_world_t *world)
 
     ecs_system(world, {
         .entity = ecs_entity(world, {
-            .name = "System_Memory_Copy",
+            .name = "System_Mat_Copy_Region",
             .add = { ecs_dependson(EcsOnUpdate) }
         }),
         .query.filter.instanced = true,
@@ -92,7 +90,7 @@ void EgMemoryImport(ecs_world_t *world)
             {.id = ecs_pair(ecs_id(Vec2i32), Position), .inout = EcsIn },
             {.id = ecs_pair(ecs_id(Vec2i32), Area), .inout = EcsIn }
         },
-        .callback = System_Memory_Copy
+        .callback = System_Mat_Copy_Region
     });
     
     ECS_OBSERVER(world, Observer_Mat_EcsOnSet, EcsOnSet, Mat);

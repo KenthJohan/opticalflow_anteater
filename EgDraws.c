@@ -25,7 +25,7 @@ void System_Add(ecs_iter_t *it)
     {
         char const * name0 = ecs_get_name(it->world, ecs_field_src(it, 1));
         char const * name = ecs_get_name(it->world, it->entities[i]);
-        printf("draw_weighed: %s, %s\n", name0, name);
+        //printf("draw_weighed: %s, %s\n", name0, name);
 
         /*
         if(mem[i].size != reqsize)

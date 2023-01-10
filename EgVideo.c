@@ -109,7 +109,7 @@ void System_Camera_Capture(ecs_iter_t *it)
         char const * name0 = ecs_get_name(it->world, e0);
         char const * name = ecs_get_name(it->world, it->entities[i]);
         int r = VideoReader_read(vid0, mat + i);
-        printf("VideoReader_read: %s, %s, %i\n", name0, name, r);
+        //printf("VideoReader_read: %s, %s, %i\n", name0, name, r);
         if(r != 0)
         {
             mat[i].data = NULL;
