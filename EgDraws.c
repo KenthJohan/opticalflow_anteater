@@ -9,7 +9,7 @@ void System_Show(ecs_iter_t *it)
     Mat *mat = ecs_field(it, Mat, 1);
     for(int i = 0; i < it->count; ++i)
     {
-        if(mat[i].data == NULL){continue;}
+        if(mat[i].start == NULL){continue;}
         char const * name = ecs_get_name(it->world, it->entities[i]);
 		draw_show(name, mat + i);
     }
@@ -20,32 +20,14 @@ void System_Add(ecs_iter_t *it)
     ecs_entity_t e0 = ecs_field_src(it, 1); // Shared
     Mat *mat0 = ecs_field(it, Mat, 1); // Shared
     Mat *mat = ecs_field(it, Mat, 2);
-    if(mat0->data == NULL){return;}
+    if(mat0->start == NULL){return;}
     for(int i = 0; i < it->count; ++i)
     {
         char const * name0 = ecs_get_name(it->world, ecs_field_src(it, 1));
         char const * name = ecs_get_name(it->world, it->entities[i]);
-        printf("draw_weighed: %s, %s\n", name0, name);
-        if(mat[i].data == NULL) {continue;}
-        draw_weighed(mat + i, 0.5, mat0, 0.5, 0.0, mat0);
-
-        /*
-        if(mem[i].size != reqsize)
-        {
-            printf("%s: Reqsize %i\n", name, reqsize);
-            //ecs_os_free(mem[i].data);
-            mem[i].data = ecs_os_malloc(reqsize);
-            mem[i].size = reqsize;
-        }
-        printf("%s: Copyfrom %s\n", name, name0);
-        spec[i].type = spec0[0].type;
-        spec[i].dims = spec0[0].dims;
-        spec[i].size[0] = area[i].y;
-        spec[i].size[1] = area[i].x;
-        spec[i].step[0] = area[i].x * spec0[0].step[1];
-        spec[i].step[1] = spec0[0].step[1];
-
-        */
+        //printf("draw_weighed: %s, %s\n", name0, name);
+        if(mat[i].start == NULL) {continue;}
+        draw_weighed(mat + i, 1.0, mat0, 0.0, 0.0, mat0);
     }
 }
 

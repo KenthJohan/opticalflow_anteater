@@ -11,28 +11,29 @@ void Observer_Mat_EcsOnSet(ecs_iter_t *it)
         printf("Observer_Mat_EcsOnSet: %s\n", name);
         mat[i].type = 16; // OpenCV type: CV_U8C3
         mat[i].step[1] = 3; // Three bytes per pixel
-        int32_t reqsize = mat[i].size[0] * mat[i].size[1] * mat[i].step[1];
+        int32_t reqsize = mat[i].shape[0] * mat[i].shape[1] * mat[i].step[1];
         if(reqsize <= 0){continue;}
         if(mat[i].size == reqsize){continue;}
 
         //printf("%s: Reqsize %i\n", name, reqsize);
-        ecs_os_free(mat[i].data);
-        mat[i].data = ecs_os_malloc(reqsize);
-        mat[i].data_size = reqsize;
-        mat[i].step[0] = mat[i].size[1] * mat[i].step[1];
+        ecs_os_free(mat[i].memory);
+        mat[i].memory = ecs_os_malloc(reqsize);
+        mat[i].start = mat[i].memory;
+        mat[i].size = reqsize;
+        mat[i].step[0] = mat[i].shape[1] * mat[i].step[1];
 
     }
 }
 
-void copy1(uint8_t * dst, uint8_t * src, int32_t srcstep[2], int32_t pos[2], int32_t size[2])
+void copy1(uint8_t * dst, uint8_t * src, int32_t srcstep[2], int32_t pos[2], int32_t shape[2])
 {
     //printf("%p %p, %i %i, %i %i, %i %i\n", dst, src, srcstep[0], srcstep[1], pos[0], pos[1], size[0], size[1]);
     src += pos[0]*srcstep[0] + pos[1]*srcstep[1];
-    for(int32_t i = 0; i < size[0]; ++i)
+    for(int32_t i = 0; i < shape[0]; ++i)
     {
-        ecs_os_memcpy(dst, src, size[1]*srcstep[1]);
+        ecs_os_memcpy(dst, src, shape[1]*srcstep[1]);
         src += srcstep[0];
-        dst += size[1]*srcstep[1];
+        dst += shape[1]*srcstep[1];
     }
 }
 
@@ -42,7 +43,7 @@ void System_Mat_Copy_Instruction(ecs_iter_t *it)
     Mat *matdst = ecs_field(it, Mat, 2); //Shared
     Vec2i32 *pos = ecs_field(it, Vec2i32, 3);
     Vec2i32 *area = ecs_field(it, Vec2i32, 4);
-    if(matsrc->data == NULL) {return;}
+    if(matsrc->start == NULL) {return;}
     char const * name1 = ecs_get_name(it->world, ecs_field_src(it, 1));
     char const * name2 = ecs_get_name(it->world, ecs_field_src(it, 2));
     //printf("Copy: %s %s %i\n", name1, name2, it->count);
@@ -52,18 +53,19 @@ void System_Mat_Copy_Instruction(ecs_iter_t *it)
         if(matdst[i].size != reqsize)
         {
             //printf("%s: Reqsize %i\n", name, reqsize);
-            ecs_os_free(matdst[i].data);
-            matdst[i].data = ecs_os_malloc(reqsize);
-            matdst[i].data_size = reqsize;
+            ecs_os_free(matdst[i].memory);
+            matdst[i].memory = ecs_os_malloc(reqsize);
+            matdst[i].start = matdst[i].memory;
+            matdst[i].size = reqsize;
         }
         //printf("%s: Copyfrom %s\n", name, name0);
         matdst[i].type = matsrc[0].type;
         matdst[i].dims = matsrc[0].dims;
-        matdst[i].size[0] = area[i].y;
-        matdst[i].size[1] = area[i].x;
+        matdst[i].shape[0] = area[i].y;
+        matdst[i].shape[1] = area[i].x;
         matdst[i].step[0] = area[i].x * matsrc->step[1];
         matdst[i].step[1] = matsrc->step[1];
-        copy1(matdst[i].data, matsrc->data, matsrc->step, (int32_t[]){pos[i].y, pos[i].x}, (int32_t[]){area[i].y, area[i].x});
+        copy1(matdst[i].start, matsrc->start, matsrc->step, (int32_t[]){pos[i].y, pos[i].x}, (int32_t[]){area[i].y, area[i].x});
     }
 }
 

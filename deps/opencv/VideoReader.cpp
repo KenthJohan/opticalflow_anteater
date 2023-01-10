@@ -69,14 +69,14 @@ int VideoReader_read(VideoReader *camera, Mat * mat)
     if (c->frame.isContinuous() == false){return -1;}
     camera->frame_offset = c->capture.get(cv::CAP_PROP_POS_FRAMES);
     camera->frame_count = c->capture.get(cv::CAP_PROP_FRAME_COUNT);
-    mat->data_size = c->frame.step[0] * c->frame.rows;
-    mat->data = c->frame.data;
+    mat->size = c->frame.step[0] * c->frame.rows;
+    mat->start = c->frame.data;
     mat->dims = c->frame.dims;
     mat->type = c->frame.type();
     mat->step[0] = c->frame.step[0];
     mat->step[1] = c->frame.step[1];
-    mat->size[0] = c->frame.size[0];
-    mat->size[1] = c->frame.size[1];
+    mat->shape[0] = c->frame.size[0];
+    mat->shape[1] = c->frame.size[1];
     //printf("step: %i %i\n", spec->step[0], spec->step[1]);
     //printf("dim: %i %i\n", spec->dim[0], spec->dim[1]);
     return 0;

@@ -163,8 +163,9 @@ void EgTypesImport(ecs_world_t *world)
     ecs_struct(world, {
         .entity = ecs_id(Mat),
         .members = {
+            { .name = "memory", .type = ecs_id(ecs_uptr_t) },
+            { .name = "memory_size", .type = ecs_id(ecs_i32_t) },
             { .name = "data", .type = ecs_id(ecs_uptr_t) },
-            { .name = "data_size", .type = ecs_id(ecs_i32_t) },
             { .name = "type", .type = ecs_id(ecs_i32_t) },
             { .name = "dims", .type = ecs_id(ecs_i32_t) },
             { .name = "size", .type = ecs_id(ecs_i32_t), .count = 4 },

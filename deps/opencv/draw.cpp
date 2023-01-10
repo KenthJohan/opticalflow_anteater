@@ -32,7 +32,7 @@ void draw_rectangle(void * image, int type, Vec2i32 resolution, Vec2i32 pos, Vec
 
 void draw_show(char const * title, Mat * mat)
 {
-    cv::Mat m = cv::Mat(mat->size[0], mat->size[1], mat->type, mat->data);
+    cv::Mat m = cv::Mat(mat->shape[0], mat->shape[1], mat->type, mat->start);
     cv::imshow(title, m);
     {
         int keyboard = cv::waitKey(30);
@@ -43,10 +43,11 @@ void draw_show(char const * title, Mat * mat)
 
 void draw_weighed(Mat * mat1, double alpha, Mat * mat2, double beta, double gamma, Mat * dst)
 {
-    cv::Rect r = cv::Rect(0, 0, mat1->size[0], mat1->size[1]);
-    cv::Mat s1 = cv::Mat(mat1->size[0], mat1->size[1], mat1->type, mat1->data);
-    cv::Mat s2 = cv::Mat(mat2->size[0], mat2->size[1], mat2->type, mat2->data)(r);
-    cv::Mat d = cv::Mat(dst->size[0], dst->size[1], dst->type, dst->data)(r);
+    cv::Rect r1 = cv::Rect(0, 0, mat1->shape[0], mat1->shape[1]);
+    cv::Rect r2 = cv::Rect(100, 100, mat1->shape[0], mat1->shape[1]);
+    cv::Mat s1 = cv::Mat(mat1->shape[0], mat1->shape[1], mat1->type, mat1->start);
+    cv::Mat s2 = cv::Mat(mat2->shape[0], mat2->shape[1], mat2->type, mat2->start)(r1);
+    cv::Mat d = cv::Mat(dst->shape[0], dst->shape[1], dst->type, dst->start)(r2);
     assert(s1.rows == s2.rows);
     assert(s1.cols == s2.cols);
     assert(s1.type() == s2.type());

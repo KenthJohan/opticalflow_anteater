@@ -58,7 +58,7 @@ void mainer(int argc, char* argv[])
 
 	ecs_entity_t window2 = ecs_new_entity(world, "Window2");
 	ecs_add(world, window2, Window);
-	ecs_set(world, window2, Mat, {.size = {480,1920,0,0}});
+	ecs_set(world, window2, Mat, {.shape = {480,1920,0,0}});
 	//ecs_set_pair(world, window2, Vec2i32, Resolution, {100, 100});
 
 	ecs_entity_t drawsnippet1 = ecs_new_entity(world, "DrawSnippet1");

@@ -62,12 +62,12 @@ void System_Camera_Open(ecs_iter_t *it)
         */
         Mat mat;
         VideoReader_read(c + i, &mat);
-        ecs_set_pair(it->world, it->entities[i], Vec2i32, Resolution, {mat.size[1], mat.size[0]});
+        ecs_set_pair(it->world, it->entities[i], Vec2i32, Resolution, {mat.shape[1], mat.shape[0]});
 
         {
             char buf[100] = {0};
             cv_mat_type2str(mat.type, buf, 100);
-            printf("VideoReader %s: %ix%ix%s\n", name, mat.size[0], mat.size[1], buf);
+            printf("VideoReader %s: %ix%ix%s\n", name, mat.shape[0], mat.shape[1], buf);
         }
     }
 }
@@ -112,10 +112,19 @@ void System_Camera_Capture(ecs_iter_t *it)
         //printf("VideoReader_read: %s, %s, %i\n", name0, name, r);
         if(r != 0)
         {
-            mat[i].data = NULL;
-            mat[i].data_size = 0;
+            mat[i].memory = NULL;
+            mat[i].start = NULL;
+            mat[i].size = 0;
             mat[i].type = 0;
             mat[i].dims = 0;
+            mat[i].shape[0] = 0;
+            mat[i].shape[1] = 0;
+            mat[i].shape[2] = 0;
+            mat[i].shape[3] = 0;
+            mat[i].step[0] = 0;
+            mat[i].step[1] = 0;
+            mat[i].step[2] = 0;
+            mat[i].step[3] = 0;
             printf("Closing: %s %jx\n", name0, e0);
             ecs_add_pair(it->world, e0, Action, Close);
             ecs_enable(it->world, it->entities[i], false);
