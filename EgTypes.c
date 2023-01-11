@@ -178,7 +178,7 @@ typedef struct
         .members = {
             { .name = "start", .type = ecs_id(ecs_uptr_t) },
             { .name = "memory", .type = ecs_id(ecs_uptr_t) },
-            { .name = "size", .type = ecs_id(ecs_uptr_t) },
+            { .name = "size", .type = ecs_id(ecs_i32_t) },
             { .name = "type", .type = ecs_id(ecs_i32_t) },
             { .name = "dims", .type = ecs_id(ecs_i32_t) },
             { .name = "shape", .type = ecs_id(ecs_i32_t), .count = 4 },

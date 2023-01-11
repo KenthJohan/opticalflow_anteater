@@ -103,12 +103,13 @@ void System_Camera_Capture(ecs_iter_t *it)
     // TODO: Replace ecs_has_pair with query. Parent Union pair does not work in query for some reason.
     if (ecs_has_pair(it->world, e0, Status, Open) == false) {return;}
     VideoReader *vid0 = ecs_field(it, VideoReader, 1); // Parent
-    Mat *mat = ecs_field(it, Mat, 2);
+    Mat *mat_field = ecs_field(it, Mat, 2);
     for(int i = 0; i < it->count; ++i)
     {
+        Mat *mat = mat_field + i;
         char const * name0 = ecs_get_name(it->world, e0);
         char const * name = ecs_get_name(it->world, it->entities[i]);
-        int r = VideoReader_read(vid0, mat + i);
+        int r = VideoReader_read(vid0, mat);
         //printf("VideoReader_read: %s, %s, %i\n", name0, name, r);
         if(r != 0)
         {

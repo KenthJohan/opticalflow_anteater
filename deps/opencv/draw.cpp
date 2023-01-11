@@ -59,7 +59,7 @@ void draw_weighed(Mat * mat1, double alpha, Mat * mat2, double beta, double gamm
     //cv::Rect r2 = cv::Rect(100, 100, mat1->shape[0], mat1->shape[1]);
     int sizes1[] = {mat1->shape[0],mat1->shape[1]};
     int sizes2[] = {mat2->shape[0],mat2->shape[1]};
-    int sizes3[] = {mat1->shape[0],mat1->shape[1]};
+    int sizes3[] = {dst->shape[0],dst->shape[1]};
     size_t steps1[] = {mat1->step[0],mat1->step[1]};
     size_t steps2[] = {mat2->step[0],mat2->step[1]};
     size_t steps3[] = {dst->step[0],dst->step[1]};
@@ -77,4 +77,5 @@ void draw_weighed(Mat * mat1, double alpha, Mat * mat2, double beta, double gamm
     assert(s1.type() == d.type());
     //d += s1;
     cv::addWeighted(s1, alpha, s2, beta, gamma, d);
+    return;
 }

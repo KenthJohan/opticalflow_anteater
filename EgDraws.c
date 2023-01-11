@@ -36,9 +36,12 @@ void System_Add(ecs_iter_t *it)
         //char const * fi_name = ecs_get_name(it->world, it->entities[i]);
         //printf("draw_weighed: %s, %s, %i, (%i %i) %i\n", f1_name, fi_name, it->count, pos[i].x, pos[i].y, src_mat->dims);
         if(src_mat->start == NULL) {continue;}
-        Mat dst_mat_rio; // Matrix region of interest
-        mat_roi(src_mat, pos + i, dst_mat, &dst_mat_rio);
-        draw_weighed(src_mat, 1.0, &dst_mat_rio, 0.0, 0.0, &dst_mat_rio);
+        Mat dst_mat_rio = *dst_mat; // Matrix region of interest
+        Mat src_mat_rio = *src_mat; // Matrix region of interest
+        mat_roi_offset(&dst_mat_rio, pos + i);
+        mat_roi_fit(&dst_mat_rio, &src_mat_rio);
+        //mat_roi(&src_mat_rio, pos + i, dst_mat, &dst_mat_rio);
+        draw_weighed(&src_mat_rio, 1.0, &dst_mat_rio, 0.0, 0.0, &dst_mat_rio);
     }
 }
 

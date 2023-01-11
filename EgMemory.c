@@ -3,6 +3,13 @@
 #include "mat.h"
 #include <stdio.h>
 
+
+void Observer_Mat_EcsOnAdd(ecs_iter_t *it)
+{
+    Mat *mat = ecs_field(it, Mat, 1);
+    ecs_os_memset_n(mat, 0, Mat, it->count);
+}
+
 void Observer_Mat_EcsOnSet(ecs_iter_t *it)
 {
     Mat *mat = ecs_field(it, Mat, 1);
@@ -30,17 +37,21 @@ void Observer_Mat_EcsOnSet(ecs_iter_t *it)
 
 void System_Mat_Copy_Instruction(ecs_iter_t *it)
 {
-    Mat *matsrc = ecs_field(it, Mat, 1); //Shared
-    Mat *matdst = ecs_field(it, Mat, 2); //Shared
-    Vec2i32 *pos = ecs_field(it, Vec2i32, 3);
-    Vec2i32 *area = ecs_field(it, Vec2i32, 4);
-    if(matsrc->start == NULL) {return;}
+    Mat           * src         = ecs_field(it, Mat, 1); //Shared
+    Mat           * dst         = ecs_field(it, Mat, 2); //Shared
+    Vec2i32 const * pos_field   = ecs_field(it, Vec2i32, 3); //Shared?
+    int             pos_self    = ecs_field_is_self(it, 3); // Shared?
+    Vec2i32 const * area_field  = ecs_field(it, Vec2i32, 4); //Shared?
+    int             area_self   = ecs_field_is_self(it, 4); // Shared?
+    if(src->start == NULL) {return;}
     char const * name1 = ecs_get_name(it->world, ecs_field_src(it, 1));
     char const * name2 = ecs_get_name(it->world, ecs_field_src(it, 2));
     //printf("Copy: %s %s %i\n", name1, name2, it->count);
     for(int i = 0; i < it->count; ++i)
     {
-        mat_copy_region_auto_allocation(matsrc, matdst + i, pos + i, area + i);
+        Vec2i32 const *pos = pos_field + i*pos_self;
+        Vec2i32 const *area = area_field + i*area_self;
+        mat_copy_region_auto_allocation(src, dst, pos, area);
     }
 }
 
@@ -59,6 +70,7 @@ void EgMemoryImport(ecs_world_t *world)
 
 
     ECS_OBSERVER(world, Observer_Mat_EcsOnSet, EcsOnSet, Mat);
+    ECS_OBSERVER(world, Observer_Mat_EcsOnAdd, EcsOnAdd, Mat);
 
     
     ecs_system(world, {
