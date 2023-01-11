@@ -28,7 +28,7 @@ oflow ?= oflow_default.cpp
 #SRCS := main.cpp oflow_farneback.cpp
 #SRCS := main.cpp oflow_lucaskanade.cpp
 #SRCS := main.cpp oflow_phasecorr.cpp
-SRCS := main.cpp flecs.c mainer.c EgMotion.c EgMemory.c EgVideo.c EgTypes.c EgDraws.c deps/opencv/draw.cpp deps/opencv/VideoReader.cpp $(oflow)
+SRCS := main.cpp flecs.c mainer.c EgMotion.c EgMemory.c EgVideo.c EgTypes.c EgDraws.c mat.c deps/opencv/draw.cpp deps/opencv/VideoReader.cpp $(oflow)
 
 
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
