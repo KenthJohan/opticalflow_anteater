@@ -23,7 +23,7 @@ void System_Show(ecs_iter_t *it)
 
 void System_Add(ecs_iter_t *it)
 {
-    ecs_entity_t   dst_ent        = ecs_field_src(it, 1); // Shared
+    //ecs_entity_t   dst_ent        = ecs_field_src(it, 1); // Shared
     Mat          * dst_mat        = ecs_field(it, Mat, 1); // Shared
     Mat          * src_mat_field  = ecs_field(it, Mat, 2); // Shared?
     int            src_mat_self   = ecs_field_is_self(it, 2); // Shared?
@@ -32,9 +32,9 @@ void System_Add(ecs_iter_t *it)
     for(int i = 0; i < it->count; ++i)
     {
         Mat *src_mat = src_mat_field + src_mat_self*i;
-        char const * f1_name = ecs_get_name(it->world, dst_ent);
-        char const * fi_name = ecs_get_name(it->world, it->entities[i]);
-        printf("draw_weighed: %s, %s, %i, (%i %i) %i\n", f1_name, fi_name, it->count, pos[i].x, pos[i].y, src_mat->dims);
+        //char const * f1_name = ecs_get_name(it->world, dst_ent);
+        //char const * fi_name = ecs_get_name(it->world, it->entities[i]);
+        //printf("draw_weighed: %s, %s, %i, (%i %i) %i\n", f1_name, fi_name, it->count, pos[i].x, pos[i].y, src_mat->dims);
         if(src_mat->start == NULL) {continue;}
         Mat dst_mat_rio; // Matrix region of interest
         mat_roi(src_mat, pos + i, dst_mat, &dst_mat_rio);

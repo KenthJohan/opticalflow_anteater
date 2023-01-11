@@ -1,5 +1,6 @@
 #include "EgMemory.h"
 #include "EgTypes.h"
+#include "mat.h"
 #include <stdio.h>
 
 void Observer_Mat_EcsOnSet(ecs_iter_t *it)
@@ -26,17 +27,6 @@ void Observer_Mat_EcsOnSet(ecs_iter_t *it)
     }
 }
 
-void copy1(uint8_t * dst, uint8_t * src, int32_t srcstep[2], int32_t pos[2], int32_t shape[2])
-{
-    //printf("%p %p, %i %i, %i %i, %i %i\n", dst, src, srcstep[0], srcstep[1], pos[0], pos[1], size[0], size[1]);
-    src += pos[0]*srcstep[0] + pos[1]*srcstep[1];
-    for(int32_t i = 0; i < shape[0]; ++i)
-    {
-        ecs_os_memcpy(dst, src, shape[1]*srcstep[1]);
-        src += srcstep[0];
-        dst += shape[1]*srcstep[1];
-    }
-}
 
 void System_Mat_Copy_Instruction(ecs_iter_t *it)
 {
@@ -50,23 +40,7 @@ void System_Mat_Copy_Instruction(ecs_iter_t *it)
     //printf("Copy: %s %s %i\n", name1, name2, it->count);
     for(int i = 0; i < it->count; ++i)
     {
-        int32_t reqsize = area[i].x * area[i].y * matsrc->step[1];
-        if(matdst[i].size != reqsize)
-        {
-            //printf("%s: Reqsize %i\n", name, reqsize);
-            ecs_os_free(matdst[i].memory);
-            matdst[i].memory = ecs_os_malloc(reqsize);
-            matdst[i].start = matdst[i].memory;
-            matdst[i].size = reqsize;
-        }
-        //printf("%s: Copyfrom %s\n", name, name0);
-        matdst[i].type = matsrc[0].type;
-        matdst[i].dims = matsrc[0].dims;
-        matdst[i].shape[0] = area[i].y;
-        matdst[i].shape[1] = area[i].x;
-        matdst[i].step[0] = area[i].x * matsrc->step[1];
-        matdst[i].step[1] = matsrc->step[1];
-        copy1(matdst[i].start, matsrc->start, matsrc->step, (int32_t[]){pos[i].y, pos[i].x}, (int32_t[]){area[i].y, area[i].x});
+        mat_copy_region_auto_allocation(matsrc, matdst + i, pos + i, area + i);
     }
 }
 
