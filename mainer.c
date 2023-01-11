@@ -103,9 +103,17 @@ void mainer(int argc, char* argv[])
 	ecs_add_pair(world, drawvid, EcsIsA, cap1);
 	ecs_add_pair(world, drawvid, EcsChildOf, window1);
 	
+	ecs_entity_t drawrect1 = ecs_new_entity(world, "drawrect1");
+	ecs_add_pair(world, drawrect1, EcsIsA, roi1);
+	ecs_add_pair(world, drawrect1, EcsChildOf, window1);
 
+	ecs_entity_t drawrect2 = ecs_new_entity(world, "drawrect2");
+	ecs_add_pair(world, drawrect2, EcsIsA, roi2);
+	ecs_add_pair(world, drawrect2, EcsChildOf, window1);
 
-
+	ecs_entity_t drawrect3 = ecs_new_entity(world, "drawrect3");
+	ecs_add_pair(world, drawrect3, EcsIsA, roi3);
+	ecs_add_pair(world, drawrect3, EcsChildOf, window1);
 
 	/*
 

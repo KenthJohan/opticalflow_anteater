@@ -24,10 +24,18 @@ void draw_arrow(void * image, int type, Vec2i32 resolution, Vec2i32 rio_pos, Vec
 }
 
 
-void draw_rectangle(void * image, int type, Vec2i32 resolution, Vec2i32 pos, Vec2i32 length)
+cv::Mat get_cv_mat(Mat * mat)
 {
-    cv::Mat mat = cv::Mat(resolution.y, resolution.x, type, image);
-    cv::rectangle(mat, cv::Rect(pos.x, pos.y, length.x, length.y), cv::Scalar(0, 0, 255), 2, cv::LINE_4);
+    int sizes[] = {(int)mat->shape[0], (int)mat->shape[1]};
+    size_t steps[] = {(size_t)mat->step[0], (size_t)mat->step[1]};
+    cv::Mat m = cv::Mat(mat->dims, sizes, mat->type, mat->start, steps);
+    return m;
+}
+
+void draw_rectangle(Mat * mat, Vec2i32 const * pos, Vec2i32 const * length)
+{
+    cv::Mat m = get_cv_mat(mat);
+    cv::rectangle(m, cv::Rect(pos->x, pos->y, length->x, length->y), cv::Scalar(0, 0, 255), 2, cv::LINE_4);
 }
 
 void draw_show(char const * title, Mat * mat)

@@ -46,6 +46,24 @@ void System_Add(ecs_iter_t *it)
 }
 
 
+void System_Draw_Rectangle(ecs_iter_t *it)
+{
+    Mat           * dst = ecs_field(it, Mat, 1); // Shared
+    Vec2i32 const * pos = ecs_field(it, Vec2i32, 2); // Shared?
+    Vec2i32 const * rec = ecs_field(it, Vec2i32, 3); // Shared?
+    int             pos_self = ecs_field_is_self(it, 2); // Shared?
+    int             rec_self = ecs_field_is_self(it, 3); // Shared?
+    if(dst->start == NULL){return;}
+    for(int i = 0; i < it->count; ++i)
+    {
+        Vec2i32 const * p = pos + i * pos_self;
+        Vec2i32 const * r = rec + i * rec_self;
+        draw_rectangle(dst, p, r);
+    }
+}
+
+
+
 
 void EgDrawsImport(ecs_world_t *world)
 {
@@ -83,5 +101,19 @@ void EgDrawsImport(ecs_world_t *world)
         },
         .callback = System_Add
     });
-    
+
+
+    ecs_system(world, {
+        .entity = ecs_entity(world, {
+            .name = "System_Draw_Rectangle",
+            .add = { ecs_dependson(EcsOnUpdate) }
+        }),
+        .query.filter.instanced = true,
+        .query.filter.terms = {
+            {.id = ecs_id(Mat), .inout = EcsInOut, .src.trav = EcsChildOf, .src.flags = EcsUp },
+            {.id = ecs_pair(ecs_id(Vec2i32), Position), .inout = EcsIn },
+            {.id = ecs_pair(ecs_id(Vec2i32), Area), .inout = EcsIn }
+        },
+        .callback = System_Draw_Rectangle
+    });
 }

@@ -180,7 +180,7 @@ int main(int argc, char* argv[])
                 Vec2i32 rect_pos = {views[i].x, views[i].y};
                 Vec2i32 rect_len = {views[i].width, views[i].height};
                 // Developer feedback, Draw rectangle to visuale the views area for:
-                draw_rectangle(raw.data, raw.type(), resolution, rect_pos, rect_len);
+                //draw_rectangle(raw.data, raw.type(), &resolution, &rect_pos, rect_len);
                 // Developer feedback, Draw arrow for developer feedback:
                 draw_arrow(raw.data, raw.type(), resolution, crop_pos, crop_size, direction[i], visual_direction_gain[i]);
             }
