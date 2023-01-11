@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
                 // Developer feedback, Draw rectangle to visuale the views area for:
                 //draw_rectangle(raw.data, raw.type(), &resolution, &rect_pos, rect_len);
                 // Developer feedback, Draw arrow for developer feedback:
-                draw_arrow(raw.data, raw.type(), resolution, crop_pos, crop_size, direction[i], visual_direction_gain[i]);
+                //draw_arrow(raw.data, raw.type(), resolution, crop_pos, crop_size, direction[i], visual_direction_gain[i]);
             }
 
             // Developer feedback:
