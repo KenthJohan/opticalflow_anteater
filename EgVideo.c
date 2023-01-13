@@ -47,12 +47,17 @@ void System_Camera_Open(ecs_iter_t *it)
         int r = VideoReader_open(c + i, d[i].path);
         if(r != 0)
         {
-            ecs_remove_pair(it->world, it->entities[i], Action, Open);
+            printf("VideoReader_open Error\n");
+            //ecs_remove_pair(it->world, it->entities[i], Action, Open);
+            ecs_add_pair(it->world, it->entities[i], Action, Action);
             ecs_add_pair(it->world, it->entities[i], Status, OpenError);
             continue;
         }
 
-        ecs_remove_pair(it->world, it->entities[i], Action, Open);
+        
+        //TODO: Why is removing pair causing (fatal: flecs.c: 5884: assert: tr != NULL INTERNAL_ERROR) ?
+        //ecs_remove_pair(it->world, it->entities[i], Action, Open);
+        ecs_add_pair(it->world, it->entities[i], Action, Action);
         ecs_add_pair(it->world, it->entities[i], Status, Open);
         
         /*
@@ -84,12 +89,15 @@ void System_Camera_Close(ecs_iter_t *it)
         printf("VideoReader_close: %p, %i\n", c[i].handle, r);
         if(r == 0)
         {
-            ecs_remove_pair(it->world, it->entities[i], Action, Close);
+            //TODO: Why is removing pair causing (fatal: flecs.c: 5884: assert: tr != NULL INTERNAL_ERROR) ?
+            //ecs_remove_pair(it->world, it->entities[i], Action, Close);
+            ecs_add_pair(it->world, it->entities[i], Action, Action);
             ecs_add_pair(it->world, it->entities[i], Status, Close);
         }
         else
         {
-            ecs_remove_pair(it->world, it->entities[i], Action, Close);
+            //ecs_remove_pair(it->world, it->entities[i], Action, Close);
+            ecs_remove_pair(it->world, it->entities[i], Action, Action);
             ecs_add_pair(it->world, it->entities[i], Status, CloseError);
         }
     }
@@ -99,16 +107,17 @@ void System_Camera_Close(ecs_iter_t *it)
 
 void System_Camera_Capture(ecs_iter_t *it)
 {
-    VideoReader *vid = ecs_field(it, VideoReader, 1);
+    VideoReader *vid_field = ecs_field(it, VideoReader, 1);
     Mat *mat_field = ecs_field(it, Mat, 2);
     int mat_self = ecs_field_is_self(it, 2);
     for(int i = 0; i < it->count; ++i)
     {
         if (ecs_has_pair(it->world, it->entities[i], Status, Open) == false) {return;}
         Mat *m = mat_field + i * mat_self;
+        VideoReader *v = vid_field + i;
         //char const * name0 = ecs_get_name(it->world, e0);
         //char const * name = ecs_get_name(it->world, it->entities[i]);
-        int r = VideoReader_read(vid, m);
+        int r = VideoReader_read(v, m);
         //printf("VideoReader_read: %s, %s, %i\n", name0, name, r);
         if(r != 0)
         {

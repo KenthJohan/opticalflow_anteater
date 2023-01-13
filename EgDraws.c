@@ -8,7 +8,7 @@
 
 
 
-void System_Show(ecs_iter_t *it)
+void System_Window_Show(ecs_iter_t *it)
 {
     Mat *mat = ecs_field(it, Mat, 1);
     for(int i = 0; i < it->count; ++i)
@@ -21,7 +21,7 @@ void System_Show(ecs_iter_t *it)
 
 
 
-void System_Add(ecs_iter_t *it)
+void System_Draw_Image(ecs_iter_t *it)
 {
     //ecs_entity_t   dst_ent        = ecs_field_src(it, 1); // Shared
     Mat          * dst_mat        = ecs_field(it, Mat, 1); // Shared
@@ -91,7 +91,7 @@ void EgDrawsImport(ecs_world_t *world)
 
     ecs_system(world, {
         .entity = ecs_entity(world, {
-            .name = "System_Show",
+            .name = "System_Window_Show",
             .add = { ecs_dependson(EcsOnUpdate) }
         }),
         .query.filter.instanced = true,
@@ -99,12 +99,12 @@ void EgDrawsImport(ecs_world_t *world)
             {.id = ecs_id(Mat)},
             {.id = ecs_id(Window)}
         },
-        .callback = System_Show
+        .callback = System_Window_Show
     });
     
     ecs_system(world, {
         .entity = ecs_entity(world, {
-            .name = "System_Add",
+            .name = "System_Draw_Image",
             .add = { ecs_dependson(EcsOnUpdate) }
         }),
         .query.filter.instanced = true,
@@ -113,7 +113,7 @@ void EgDrawsImport(ecs_world_t *world)
             {.id = ecs_id(Mat), .inout = EcsIn },
             {.id = ecs_pair(ecs_id(Vec2i32), Position), .inout = EcsIn }
         },
-        .callback = System_Add
+        .callback = System_Draw_Image
     });
 
 
