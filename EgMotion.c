@@ -3,7 +3,14 @@
 #include "VideoReader.h"
 #include "EgMemory.h"
 #include "EgTypes.h"
+
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <stdio.h>
+
+
+
+ECS_COMPONENT_DECLARE(MotionEstimator);
 
 
 void System_Test(ecs_iter_t *it)
@@ -23,7 +30,7 @@ void System_Test(ecs_iter_t *it)
 void System_Motion_Estimation(ecs_iter_t *it)
 {
     //printf("System_Motion_Estimation %i\n", it->count);
-    Weldvisi_View *v = ecs_field(it, Weldvisi_View, 1);
+    MotionEstimator *v = ecs_field(it, MotionEstimator, 1);
     Vec2i32 *rio_pos = ecs_field(it, Vec2i32, 2);
     Vec2i32 *rio_len = ecs_field(it, Vec2i32, 3);
     Vec2i32 *vel = ecs_field(it, Vec2i32, 4);
@@ -41,7 +48,7 @@ void System_Motion_Estimation(ecs_iter_t *it)
 
 void System_Oflow_Create(ecs_iter_t *it)
 {
-    Weldvisi_View *v = ecs_field(it, Weldvisi_View, 1);
+    MotionEstimator *v = ecs_field(it, MotionEstimator, 1);
     Mat *img = ecs_field(it, Mat, 2); // Shared
     Vec2i32 *res = ecs_field(it, Vec2i32, 3);  // Shared
     for(int i = 0; i < it->count; ++i)
@@ -53,7 +60,7 @@ void System_Oflow_Create(ecs_iter_t *it)
 
 void System_Oflow_Destroy(ecs_iter_t *it)
 {
-    Weldvisi_View *v = ecs_field(it, Weldvisi_View, 1);
+    MotionEstimator *v = ecs_field(it, MotionEstimator, 1);
     for(int i = 0; i < it->count; ++i)
     {
         printf("Destroy oflow %s\n", ecs_get_name(it->world, it->entities[i]));
@@ -61,19 +68,24 @@ void System_Oflow_Destroy(ecs_iter_t *it)
 }
 
 
+void mul(Vec2f32 * a, Vec2f32 * b, Vec2f32 * r)
+{
+    Vec2f32 q = {a->x * b->x - a->y * b->y, a->x * b->y + a->y * b->x};
+    *r = q;
+}
 
 
+void System_Spinner(ecs_iter_t *it)
+{
+    Vec2f32 *v = ecs_field(it, Vec2f32, 1);
+    float a = (2*M_PI) / 360.0;
+    Vec2f32 const r = {cos(a), sin(a)};
+    for(int i = 0; i < it->count; ++i)
+    {
+        mul(v+i, &r, v+i);
+    }
+}
 
-
-
-
-
-
-
-
-
-
-ECS_COMPONENT_DECLARE(Weldvisi_View);
 
 void EgMotionImport(ecs_world_t *world)
 {
@@ -82,8 +94,9 @@ void EgMotionImport(ecs_world_t *world)
     ECS_IMPORT(world, EgMemory);
 
 
-    ECS_COMPONENT_DEFINE(world, Weldvisi_View);
+    ECS_COMPONENT_DEFINE(world, MotionEstimator);
 
+    ECS_SYSTEM(world, System_Spinner, EcsOnUpdate, (Vec2f32, eg.types.Velocity));
 
     /*
     ecs_system(world, {

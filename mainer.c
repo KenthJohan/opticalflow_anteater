@@ -117,7 +117,7 @@ void mainer(int argc, char* argv[])
 
 	ecs_entity_t drawarrow1 = ecs_new_entity(world, "drawarrow1");
 	ecs_set_pair(world, drawarrow1, Vec2i32, Position, {640*0 + 640/2, 480/2});
-	ecs_set_pair(world, drawarrow1, Vec2i32, Velocity, {100, 100});
+	ecs_set_pair(world, drawarrow1, Vec2f32, Velocity, {100, 100});
 	ecs_add_pair(world, drawarrow1, EcsChildOf, window1);
 
 	/*

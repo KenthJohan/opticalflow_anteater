@@ -7,10 +7,7 @@ extern "C" {
 #endif
 
 
-
-
-
-extern ECS_COMPONENT_DECLARE(Weldvisi_View);
+extern ECS_COMPONENT_DECLARE(MotionEstimator);
 
 void EgMotionImport(ecs_world_t *world);
 

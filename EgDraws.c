@@ -66,15 +66,15 @@ void System_Draw_Direction(ecs_iter_t *it)
 {
     Mat           * dst = ecs_field(it, Mat, 1); // Shared
     Vec2i32 const * pos = ecs_field(it, Vec2i32, 2); // Shared?
-    Vec2i32 const * dir = ecs_field(it, Vec2i32, 3); // Shared?
+    Vec2f32 const * dir = ecs_field(it, Vec2f32, 3); // Shared?
     int             pos_self = ecs_field_is_self(it, 2); // Shared?
     int             dir_self = ecs_field_is_self(it, 3); // Shared?
     if(dst->start == NULL){return;}
     for(int i = 0; i < it->count; ++i)
     {
         Vec2i32 const * p = pos + i * pos_self;
-        Vec2i32 const * d = dir + i * dir_self;
-        draw_arrow(dst, p, d, 1.0);
+        Vec2f32 const * d = dir + i * dir_self;
+        draw_arrow(dst, p, &(Vec2i32){d->x, d->y}, 1.0);
     }
 }
 
@@ -140,7 +140,7 @@ void EgDrawsImport(ecs_world_t *world)
         .query.filter.terms = {
             {.id = ecs_id(Mat), .inout = EcsInOut, .src.trav = EcsChildOf, .src.flags = EcsUp },
             {.id = ecs_pair(ecs_id(Vec2i32), Position), .inout = EcsIn },
-            {.id = ecs_pair(ecs_id(Vec2i32), Velocity), .inout = EcsIn }
+            {.id = ecs_pair(ecs_id(Vec2f32), Velocity), .inout = EcsIn }
         },
         .callback = System_Draw_Direction
     });

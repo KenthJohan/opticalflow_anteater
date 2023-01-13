@@ -11,7 +11,7 @@ typedef struct
 {
     int dummy;
     struct oflow_context context;
-} Weldvisi_View;
+} MotionEstimator;
 
 typedef struct 
 {
