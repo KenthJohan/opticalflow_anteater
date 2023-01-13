@@ -7,6 +7,32 @@
 // https://github.com/opencv/opencv/blob/9390c56831270a94af6480feb4cc330e4aa2ee5e/modules/core/src/matrix.cpp#L798
 // https://github.com/opencv/opencv/blob/d9a444ca1a97740f9d092816a0ad0a523482911f/modules/core/include/opencv2/core/mat.hpp#L2622
 
+void mat_allocate(Mat * mat, int32_t w, int32_t h)
+{
+    mat->type = 16; // OpenCV type: CV_U8C3
+    mat->dims = 2; // Two axises
+
+    mat->shape[0] = h;
+    mat->shape[1] = w;
+
+    mat->step[1] = 3; // Three bytes per pixel
+    mat->step[0] = mat->shape[1] * mat->step[1]; // Bytes per row
+
+    int32_t reqsize = mat->shape[0] * mat->shape[1] * mat->step[1];
+
+    printf("Reqsize %i\n", reqsize);
+
+    if(mat->size != reqsize)
+    {
+        ecs_os_free(mat->memory);
+        mat->memory = ecs_os_malloc(reqsize);
+        mat->start = mat->memory;
+    }
+    
+    mat->size = reqsize;
+}
+
+
 void mat_roi_fit(Mat * a, Mat * b)
 {
     a->shape[0] = EG_CLAMP(a->shape[0], 0, b->shape[0]);
@@ -42,8 +68,8 @@ void mat_copy_region_auto_allocation(Mat const * src, Mat * dst, Vec2i32 const *
     int32_t reqsize = area->x * area->y * src->step[1];
     if(dst->size != reqsize)
     {
-        //printf("%s: Reqsize %i\n", name, reqsize);
         ecs_os_free(dst->memory);
+        printf("Allocate %i\n", reqsize);
         dst->memory = ecs_os_malloc(reqsize);
         dst->start = dst->memory;
         dst->size = reqsize;

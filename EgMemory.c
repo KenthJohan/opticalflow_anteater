@@ -34,6 +34,15 @@ void Observer_Mat_EcsOnSet(ecs_iter_t *it)
     }
 }
 
+void Observer_MatResolution_EcsOnSet(ecs_iter_t *it)
+{
+    Vec2i32 *res = ecs_field(it, Vec2i32, 1);
+    for(int i = 0; i < it->count; ++i)
+    {
+        Mat * mat = ecs_get(it->world, it->entities[i], Mat);
+        mat_allocate(mat, res->x, res->y);
+    }
+}
 
 void System_Mat_Copy_Instruction(ecs_iter_t *it)
 {
@@ -69,6 +78,7 @@ void EgMemoryImport(ecs_world_t *world)
     ECS_IMPORT(world, EgTypes);
 
 
+    ECS_OBSERVER(world, Observer_MatResolution_EcsOnSet, EcsOnSet, (Vec2i32, eg.types.Resolution), eg.types.Window);
     ECS_OBSERVER(world, Observer_Mat_EcsOnSet, EcsOnSet, Mat);
     ECS_OBSERVER(world, Observer_Mat_EcsOnAdd, EcsOnAdd, Mat);
 

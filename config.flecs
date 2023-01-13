@@ -1,0 +1,113 @@
+	//ecs_entity_t roi1 = ecs_new_entity(world, "roi1");
+	//ecs_set_pair(world, roi1, Vec2i32, Position, {640*0, 0});
+	//ecs_set_pair(world, roi1, Vec2i32, Area, {640, 400});
+	//ecs_entity_t roi2 = ecs_new_entity(world, "roi2");
+	//ecs_set_pair(world, roi2, Vec2i32, Position, {640*1, 0});
+	//ecs_set_pair(world, roi2, Vec2i32, Area, {640, 400});
+	//ecs_entity_t roi3 = ecs_new_entity(world, "roi3");
+	//ecs_set_pair(world, roi3, Vec2i32, Position, {640*2, 0});
+	//ecs_set_pair(world, roi3, Vec2i32, Area, {640, 400});
+
+using eg.types
+using eg.video
+
+ROI1
+{
+- (Vec2i32, Position){640*0, 0}
+- (Vec2i32, Area){640, 400}
+}
+
+ROI2
+{
+- (Vec2i32, Position){640*1, 0}
+- (Vec2i32, Area){640, 400}
+}
+
+ROI3
+{
+- (Vec2i32, Position){640*2, 0}
+- (Vec2i32, Area){640, 400}
+}
+
+ImageCap
+{
+  - Mat
+}
+
+Image1
+{
+  - Mat
+}
+
+Image2
+{
+  - Mat
+}
+
+Image3
+{
+  - Mat
+}
+
+Vid1 : ImageCap
+{
+  - Device{"2022-12-15_14-56-29.mp4"}
+  - VideoReader
+  - (Action, Open)
+}
+
+
+
+
+
+Copy1 : ROI1
+{
+- (CopyFrom, ImageCap)
+- (CopyTo, Image1)
+}
+Copy2 : ROI2
+{
+- (CopyFrom, ImageCap)
+- (CopyTo, Image2)
+}
+Copy3 : ROI3
+{
+- (CopyFrom, ImageCap)
+- (CopyTo, Image3)
+}
+
+
+
+
+
+
+
+Window1
+{
+  - Window
+  - Mat
+  - (Vec2i32, Resolution){1920, 400}
+  DrawVid1 : ImageCap
+  {
+    - (Vec2i32, Position){0,0}
+  }
+  DrawROI1 : ROI1
+  DrawROI2 : ROI2
+  DrawROI3 : ROI3
+  DrawArrow1
+  {
+    - (Vec2i32, Position){640*0 + 640/2, 480/2}
+    - (Vec2f32, Velocity){100, 100}
+  }
+  DrawArrow2
+  {
+    - (Vec2i32, Position){640*1 + 640/2, 480/2}
+    - (Vec2f32, Velocity){100, 100}
+  }
+  DrawArrow3
+  {
+    - (Vec2i32, Position){640*2 + 640/2, 480/2}
+    - (Vec2f32, Velocity){100, 100}
+  }
+}
+

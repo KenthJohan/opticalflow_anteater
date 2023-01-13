@@ -99,39 +99,38 @@ void System_Camera_Close(ecs_iter_t *it)
 
 void System_Camera_Capture(ecs_iter_t *it)
 {
-    ecs_entity_t e0 = ecs_field_src(it, 1); // Parent
-    // TODO: Replace ecs_has_pair with query. Parent Union pair does not work in query for some reason.
-    if (ecs_has_pair(it->world, e0, Status, Open) == false) {return;}
-    VideoReader *vid0 = ecs_field(it, VideoReader, 1); // Parent
+    VideoReader *vid = ecs_field(it, VideoReader, 1);
     Mat *mat_field = ecs_field(it, Mat, 2);
+    int mat_self = ecs_field_is_self(it, 2);
     for(int i = 0; i < it->count; ++i)
     {
-        Mat *mat = mat_field + i;
-        char const * name0 = ecs_get_name(it->world, e0);
-        char const * name = ecs_get_name(it->world, it->entities[i]);
-        int r = VideoReader_read(vid0, mat);
+        if (ecs_has_pair(it->world, it->entities[i], Status, Open) == false) {return;}
+        Mat *m = mat_field + i * mat_self;
+        //char const * name0 = ecs_get_name(it->world, e0);
+        //char const * name = ecs_get_name(it->world, it->entities[i]);
+        int r = VideoReader_read(vid, m);
         //printf("VideoReader_read: %s, %s, %i\n", name0, name, r);
         if(r != 0)
         {
-            mat[i].memory = NULL;
-            mat[i].start = NULL;
-            mat[i].size = 0;
-            mat[i].type = 0;
-            mat[i].dims = 0;
-            mat[i].shape[0] = 0;
-            mat[i].shape[1] = 0;
-            mat[i].shape[2] = 0;
-            mat[i].shape[3] = 0;
-            mat[i].step[0] = 0;
-            mat[i].step[1] = 0;
-            mat[i].step[2] = 0;
-            mat[i].step[3] = 0;
-            printf("Closing: %s %jx\n", name0, e0);
-            ecs_add_pair(it->world, e0, Action, Close);
-            ecs_enable(it->world, it->entities[i], false);
+            m[i].memory = NULL;
+            m[i].start = NULL;
+            m[i].size = 0;
+            m[i].type = 0;
+            m[i].dims = 0;
+            m[i].shape[0] = 0;
+            m[i].shape[1] = 0;
+            m[i].shape[2] = 0;
+            m[i].shape[3] = 0;
+            m[i].step[0] = 0;
+            m[i].step[1] = 0;
+            m[i].step[2] = 0;
+            m[i].step[3] = 0;
+            //printf("Closing: %s %jx\n", name0, e0);
+            ecs_add_pair(it->world, it->entities[i], Action, Close);
         }
         //printf("Capture %s %ix%i %i %p\n", ecs_get_name(it->world, it->entities[i]), res[i].x, res[i].y, img[i].type, img[i].data);
     }
+
 }
 
 
@@ -160,9 +159,8 @@ void EgVideoImport(ecs_world_t *world)
         }),
         .query.filter.instanced = true,
         .query.filter.terms = {
-            {.id = ecs_id(VideoReader), .inout = EcsIn, .src.trav = Capture, .src.flags = EcsUp},
-            {.id = ecs_id(Mat), .inout = EcsInOut },
-            //{.id = ecs_pair(Status, Open), .src.trav = EcsChildOf, .src.flags = EcsUp}, // Does not work yet, bug in flecs.
+            {.id = ecs_id(VideoReader), .inout = EcsIn},
+            {.id = ecs_id(Mat), .inout = EcsOut },
         },
         .callback = System_Camera_Capture
     });
