@@ -1,6 +1,6 @@
 #include "mainer.h"
 #include "EgMotion.h"
-#include "EgMemory.h"
+#include "EgMats.h"
 #include "EgVideo.h"
 #include "EgTypes.h"
 #include "EgDraws.h"
@@ -24,7 +24,7 @@ void mainer(int argc, char* argv[])
 
 	ecs_log_set_level(1);
     ECS_IMPORT(world, EgMotion);
-    ECS_IMPORT(world, EgMemory);
+    ECS_IMPORT(world, EgMats);
     ECS_IMPORT(world, EgVideo);
     ECS_IMPORT(world, EgTypes);
     ECS_IMPORT(world, EgDraws);

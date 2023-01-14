@@ -1,4 +1,4 @@
-#include "EgMemory.h"
+#include "EgMats.h"
 #include "EgTypes.h"
 #include "mat.h"
 #include <stdio.h>
@@ -72,9 +72,9 @@ void System_Mat_Copy_Instruction(ecs_iter_t *it)
 
 
 
-void EgMemoryImport(ecs_world_t *world)
+void EgMatsImport(ecs_world_t *world)
 {
-    ECS_MODULE(world, EgMemory);
+    ECS_MODULE(world, EgMats);
     ECS_IMPORT(world, EgTypes);
 
 

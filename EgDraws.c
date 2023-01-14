@@ -1,6 +1,6 @@
 #include "EgDraws.h"
 #include "EgTypes.h"
-#include "EgMemory.h"
+#include "EgMats.h"
 #include "draw.h"
 #include "common.h"
 #include "mat.h"
@@ -83,7 +83,7 @@ void EgDrawsImport(ecs_world_t *world)
 {
     ECS_MODULE(world, EgDraws);
     ECS_IMPORT(world, EgTypes);
-    ECS_IMPORT(world, EgMemory);
+    ECS_IMPORT(world, EgMats);
 
 	
     //ECS_SYSTEM(world, System_Draw, EcsOnUpdate, Memory, Matspec, eg.types.Window);

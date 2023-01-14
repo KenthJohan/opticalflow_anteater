@@ -1,7 +1,7 @@
 #include "EgMotion.h"
 #include "oflow.h"
 #include "VideoReader.h"
-#include "EgMemory.h"
+#include "EgMats.h"
 #include "EgTypes.h"
 
 #define _USE_MATH_DEFINES
@@ -91,7 +91,7 @@ void EgMotionImport(ecs_world_t *world)
 {
     ECS_MODULE(world, EgMotion);
     ECS_IMPORT(world, EgTypes);
-    ECS_IMPORT(world, EgMemory);
+    ECS_IMPORT(world, EgMats);
 
 
     ECS_COMPONENT_DEFINE(world, MotionEstimator);
