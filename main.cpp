@@ -33,6 +33,7 @@
 
 
 // Make rectangles in a grid of rows and columns:
+/*
 void rect_grid(cv::Rect r[], int n, int rows, int cols, int w, int h)
 {
     for(int y = 0; y < rows; ++y)
@@ -48,6 +49,7 @@ void rect_grid(cv::Rect r[], int n, int rows, int cols, int w, int h)
         }
     }
 }
+*/
 
 
 
@@ -66,7 +68,7 @@ int main(int argc, char* argv[])
     mainer(argc, argv);
     return 0;
 
-
+    /*
     cv::CommandLineParser parser(argc, argv, ASSETS_ARG_KEYS);
 
     // Video capture from the anteater:
@@ -201,6 +203,7 @@ int main(int argc, char* argv[])
     printf("Anteater exited successfully!\n");
     if (video_capture.isOpened()){video_capture.release();}   
     if (video_writer.isOpened()) {video_writer.release();}
+    */
 
     
 

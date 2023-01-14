@@ -2,6 +2,7 @@
 #include "common.h"
 #include "flecs.h"
 #include <assert.h>
+#include <stdio.h>
 
 
 // Region of interest:

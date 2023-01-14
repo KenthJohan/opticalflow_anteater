@@ -101,3 +101,12 @@ Window1
   }
 }
 
+
+
+
+
+MotionDetector1 : Image1
+{
+  - eg.motion.MotionEstimator
+  - (Vec2f32, Velocity){0,0}
+}

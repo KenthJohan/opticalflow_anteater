@@ -13,67 +13,53 @@
 ECS_COMPONENT_DECLARE(MotionEstimator);
 
 
-void System_Test(ecs_iter_t *it)
-{
-    Mat *d = ecs_field(it, Mat, 1);
-    VideoReader *c = ecs_field(it, VideoReader, 2);
-    for(int i = 0; i < it->count; ++i)
-    {
-        printf("Read from camera %s %s\n", 
-        ecs_get_name(it->world, it->entities[i]),
-        ecs_get_name(it->world, ecs_field_src(it, 2))
-        );
-    }
-}
 
 
-void System_Motion_Estimation(ecs_iter_t *it)
+void System_Motionest_Estimate(ecs_iter_t *it)
 {
-    //printf("System_Motion_Estimation %i\n", it->count);
-    MotionEstimator *v = ecs_field(it, MotionEstimator, 1);
-    Vec2i32 *rio_pos = ecs_field(it, Vec2i32, 2);
-    Vec2i32 *rio_len = ecs_field(it, Vec2i32, 3);
-    Vec2i32 *vel = ecs_field(it, Vec2i32, 4);
-    Mat *img = ecs_field(it, Mat, 5); // Shared
-    Vec2i32 *res = ecs_field(it, Vec2i32, 6);  // Shared
+    printf("System_Motionest_Estimate %i\n", it->count);
+    MotionEstimator *mot_field = ecs_field(it, MotionEstimator, 1);
+    Mat             *mat_field = ecs_field(it, Mat, 2);
+    Vec2f32         *vel_field = ecs_field(it, Vec2f32, 3);
     for(int i = 0; i < it->count; ++i)
     {
         //printf("%s:\n", ecs_get_name(it->world, it->entities[i]));
         //printf("%s: %i %i\n", ecs_get_name(it->world, it->entities[i]), res[i].x, res[i].y);
-        float alpha = 0.1f;
+        //float alpha = 0.1f;
         //oflow_run(&v[i].context, img[0].data, img[0].type, res[0], vel + i, alpha, rio_pos[i], rio_len[i]);
     }
 }
 
 
-void System_Oflow_Create(ecs_iter_t *it)
+void Observer_Motionest_Create(ecs_iter_t *it)
 {
-    MotionEstimator *v = ecs_field(it, MotionEstimator, 1);
-    Mat *img = ecs_field(it, Mat, 2); // Shared
-    Vec2i32 *res = ecs_field(it, Vec2i32, 3);  // Shared
+    MotionEstimator *mot_field = ecs_field(it, MotionEstimator, 1);
+    Mat             *img_field = ecs_field(it, Mat, 2); 
+    int              img_self = ecs_field_is_self(it, 2);
     for(int i = 0; i < it->count; ++i)
     {
-        printf("oflow_init %s\n", ecs_get_name(it->world, it->entities[i]));
-        //oflow_init(&v[i].context, img[0].data, img[0].type, res[0]);
+        Mat             *img = img_field + i * img_self;
+        MotionEstimator *mot = mot_field + i;
+        printf("Observer_Motionest_Create %s\n", ecs_get_name(it->world, it->entities[i]));
+        //oflow_init(&mot->context, img);
     }
 }
 
-void System_Oflow_Destroy(ecs_iter_t *it)
+void Observer_Motionest_Destroy(ecs_iter_t *it)
 {
     MotionEstimator *v = ecs_field(it, MotionEstimator, 1);
     for(int i = 0; i < it->count; ++i)
     {
-        printf("Destroy oflow %s\n", ecs_get_name(it->world, it->entities[i]));
+        printf("Observer_Motionest_Destroy %s\n", ecs_get_name(it->world, it->entities[i]));
     }
 }
 
 
-void mul(Vec2f32 * a, Vec2f32 * b, Vec2f32 * r)
+void mul(Vec2f32 const * a, Vec2f32 const* b, Vec2f32 * r)
 {
     Vec2f32 q = {a->x * b->x - a->y * b->y, a->x * b->y + a->y * b->x};
     *r = q;
 }
-
 
 void System_Spinner(ecs_iter_t *it)
 {
@@ -97,6 +83,9 @@ void EgMotionImport(ecs_world_t *world)
     ECS_COMPONENT_DEFINE(world, MotionEstimator);
 
     ECS_SYSTEM(world, System_Spinner, EcsOnUpdate, (Vec2f32, eg.types.Velocity));
+    ECS_SYSTEM(world, System_Motionest_Estimate, EcsOnUpdate, MotionEstimator, Mat, (Vec2f32, eg.types.Velocity));
+    ECS_OBSERVER(world, Observer_Motionest_Create, EcsOnAdd, MotionEstimator, Mat);
+    ECS_OBSERVER(world, Observer_Motionest_Destroy, EcsOnRemove, MotionEstimator);
 
     /*
     ecs_system(world, {
@@ -129,8 +118,7 @@ void EgMotionImport(ecs_world_t *world)
     */
    
 
-    //ECS_OBSERVER(world, System_Oflow_Create, EcsOnAdd, Weldvisi_View, Mat(up(eg.types.Uses)), Vec2i32(up(eg.types.Uses), eg.types.Resolution));
-    //ECS_OBSERVER(world, System_Oflow_Destroy, EcsOnRemove, Weldvisi_View);
+
 
 
     

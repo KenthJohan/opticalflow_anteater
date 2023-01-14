@@ -3,14 +3,9 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 #include <assert.h>
+#include "cvmats.hpp"
 
-cv::Mat mat2cvmat(Mat * mat)
-{
-    int sizes[] = {(int)mat->shape[0], (int)mat->shape[1]};
-    size_t steps[] = {(size_t)mat->step[0], (size_t)mat->step[1]};
-    cv::Mat m = cv::Mat(mat->dims, sizes, mat->type, mat->start, steps);
-    return m;
-}
+
 
 
 // For visual purpose only:
