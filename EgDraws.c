@@ -65,16 +65,18 @@ void System_Draw_Rectangle(ecs_iter_t *it)
 void System_Draw_Direction(ecs_iter_t *it)
 {
     Mat           * dst = ecs_field(it, Mat, 1); // Shared
-    Vec2i32 const * pos = ecs_field(it, Vec2i32, 2); // Shared?
-    Vec2f32 const * dir = ecs_field(it, Vec2f32, 3); // Shared?
+    Vec2i32 const * pos_field = ecs_field(it, Vec2i32, 2); // Shared?
+    Vec2f32 const * dir_field = ecs_field(it, Vec2f32, 3); // Shared?
     int             pos_self = ecs_field_is_self(it, 2); // Shared?
     int             dir_self = ecs_field_is_self(it, 3); // Shared?
     if(dst->start == NULL){return;}
     for(int i = 0; i < it->count; ++i)
     {
-        Vec2i32 const * p = pos + i * pos_self;
-        Vec2f32 const * d = dir + i * dir_self;
-        draw_arrow(dst, p, &(Vec2i32){d->x, d->y}, 100.0);
+        Vec2i32 const * pos = pos_field + i * pos_self;
+        Vec2f32 const * dir = dir_field + i * dir_self;
+        float gain = 100.0f;
+        Vec2i32 d = {dir->x*gain, dir->y*gain};
+        draw_arrow(dst, pos, &d);
     }
 }
 

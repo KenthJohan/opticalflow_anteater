@@ -1,6 +1,8 @@
 using eg.types
 using eg.video
 
+// Configure region of interest here.
+// We can then do motion detection in a small region of the video.
 ROI1
 {
 - (Vec2i32, Position){640*0, 0}
@@ -19,11 +21,19 @@ ROI3
 - (Vec2i32, Area){640, 400}
 }
 
+
+
+
+// Video capture input
 ImageCap
 {
   - Mat
 }
 
+
+
+
+// Regions of interest new images:
 Image1
 {
   - Mat
@@ -39,6 +49,10 @@ Image3
   - Mat
 }
 
+
+
+
+// Configure Video source:
 Vid1 : ImageCap
 {
   - Device{"2022-12-15_14-56-29.mp4"}
@@ -49,7 +63,7 @@ Vid1 : ImageCap
 
 
 
-
+// Add copy commands to copy regions of intersest into new images:
 Copy1 : ROI1
 {
 - (CopyFrom, ImageCap)
@@ -72,6 +86,14 @@ Direction1
 {
   - (Vec2f32, Velocity){0,0}
 }
+Direction2
+{
+  - (Vec2f32, Velocity){0,0}
+}
+Direction3
+{
+  - (Vec2f32, Velocity){0,0}
+}
 
 
 MotionEstimator1 : Image1, Direction1
@@ -79,10 +101,19 @@ MotionEstimator1 : Image1, Direction1
   - eg.motion.MotionEstimator
 }
 
+MotionEstimator2 : Image2, Direction2
+{
+  - eg.motion.MotionEstimator
+}
+
+MotionEstimator3 : Image3, Direction3
+{
+  - eg.motion.MotionEstimator
+}
 
 
 
-
+// Setup a visual confirmation by drawing on a window:
 Window1
 {
   - Window
@@ -99,15 +130,13 @@ Window1
   {
     - (Vec2i32, Position){640*0 + 640/2, 480/2}
   }
-  DrawArrow2
+  DrawArrow2 : Direction2
   {
     - (Vec2i32, Position){640*1 + 640/2, 480/2}
-    - (Vec2f32, Velocity){1, 1}
   }
-  DrawArrow3
+  DrawArrow3 : Direction3
   {
     - (Vec2i32, Position){640*2 + 640/2, 480/2}
-    - (Vec2f32, Velocity){1, 1}
   }
 }
 

@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 
-void draw_arrow(Mat * mat, Vec2i32 const * pos, Vec2i32 const * direction, int32_t gain);
+void draw_arrow(Mat * mat, Vec2i32 const * pos, Vec2i32 const * direction);
 void draw_rectangle(Mat * mat, Vec2i32 const * pos, Vec2i32 const * length);
 void draw_show(char const * title, Mat * mat);
 void draw_weighed(Mat * mat1, double alpha, Mat * mat2, double beta, double gamma, Mat * dst);

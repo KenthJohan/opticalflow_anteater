@@ -10,11 +10,11 @@
 
 // For visual purpose only:
 // This draw the direction and speed:
-void draw_arrow(Mat * mat, Vec2i32 const * pos, Vec2i32 const * direction, int32_t gain)
+void draw_arrow(Mat * mat, Vec2i32 const * pos, Vec2i32 const * direction)
 {
     cv::Mat m = mat2cvmat(mat);
     cv::Point2f c(pos->x, pos->y);
-    cv::Point2f cd = c + cv::Point2f(direction->x*gain, direction->y*gain);
+    cv::Point2f cd = c + cv::Point2f(direction->x, direction->y);
     arrowedLine(m, c, cd, cv::Scalar(255, 255, 255), 2, cv::LINE_4, 0, 0.5);
     //char buf[100];
     //float speed = HYPOT_F32(direction.x, direction.y);
