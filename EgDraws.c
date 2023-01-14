@@ -74,7 +74,7 @@ void System_Draw_Direction(ecs_iter_t *it)
     {
         Vec2i32 const * p = pos + i * pos_self;
         Vec2f32 const * d = dir + i * dir_self;
-        draw_arrow(dst, p, &(Vec2i32){d->x, d->y}, 1.0);
+        draw_arrow(dst, p, &(Vec2i32){d->x, d->y}, 100.0);
     }
 }
 

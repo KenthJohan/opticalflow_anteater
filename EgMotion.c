@@ -1,5 +1,6 @@
 #include "EgMotion.h"
 #include "oflow.h"
+#include "draw.h"
 #include "VideoReader.h"
 #include "EgMats.h"
 #include "EgTypes.h"
@@ -17,16 +18,23 @@ ECS_COMPONENT_DECLARE(MotionEstimator);
 
 void System_Motionest_Estimate(ecs_iter_t *it)
 {
-    printf("System_Motionest_Estimate %i\n", it->count);
+    //printf("System_Motionest_Estimate %i\n", it->count);
     MotionEstimator *mot_field = ecs_field(it, MotionEstimator, 1);
-    Mat             *mat_field = ecs_field(it, Mat, 2);
+    Mat             *img_field = ecs_field(it, Mat, 2);
+    int              img_self = ecs_field_is_self(it, 2);
     Vec2f32         *vel_field = ecs_field(it, Vec2f32, 3);
+    int              vel_self = ecs_field_is_self(it, 3);
     for(int i = 0; i < it->count; ++i)
     {
-        //printf("%s:\n", ecs_get_name(it->world, it->entities[i]));
-        //printf("%s: %i %i\n", ecs_get_name(it->world, it->entities[i]), res[i].x, res[i].y);
-        //float alpha = 0.1f;
-        //oflow_run(&v[i].context, img[0].data, img[0].type, res[0], vel + i, alpha, rio_pos[i], rio_len[i]);
+        Mat             *img = img_field + i * img_self;
+        MotionEstimator *mot = mot_field + i;
+        Vec2f32         *vel = vel_field + i * vel_self;
+
+        //printf("Mat: %i\n", img->size);
+        if(img->start == NULL) {continue;}
+
+        float alpha = 0.1f;
+        oflow_run(&mot->context, img, vel, alpha);
     }
 }
 
@@ -40,8 +48,10 @@ void Observer_Motionest_Create(ecs_iter_t *it)
     {
         Mat             *img = img_field + i * img_self;
         MotionEstimator *mot = mot_field + i;
+        //printf("Mat: %i\n", img->size);
+        //if(img->start == NULL) {continue;}
         printf("Observer_Motionest_Create %s\n", ecs_get_name(it->world, it->entities[i]));
-        //oflow_init(&mot->context, img);
+        oflow_init(&mot->context, img);
     }
 }
 
@@ -82,7 +92,7 @@ void EgMotionImport(ecs_world_t *world)
 
     ECS_COMPONENT_DEFINE(world, MotionEstimator);
 
-    ECS_SYSTEM(world, System_Spinner, EcsOnUpdate, (Vec2f32, eg.types.Velocity));
+    //ECS_SYSTEM(world, System_Spinner, EcsOnUpdate, (Vec2f32, eg.types.Velocity));
     ECS_SYSTEM(world, System_Motionest_Estimate, EcsOnUpdate, MotionEstimator, Mat, (Vec2f32, eg.types.Velocity));
     ECS_OBSERVER(world, Observer_Motionest_Create, EcsOnAdd, MotionEstimator, Mat);
     ECS_OBSERVER(world, Observer_Motionest_Destroy, EcsOnRemove, MotionEstimator);

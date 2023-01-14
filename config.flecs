@@ -68,6 +68,17 @@ Copy3 : ROI3
 
 
 
+Direction1
+{
+  - (Vec2f32, Velocity){0,0}
+}
+
+
+MotionEstimator1 : Image1, Direction1
+{
+  - eg.motion.MotionEstimator
+}
+
 
 
 
@@ -84,20 +95,19 @@ Window1
   DrawROI1 : ROI1
   DrawROI2 : ROI2
   DrawROI3 : ROI3
-  DrawArrow1
+  DrawArrow1 : Direction1
   {
     - (Vec2i32, Position){640*0 + 640/2, 480/2}
-    - (Vec2f32, Velocity){10, 10}
   }
   DrawArrow2
   {
     - (Vec2i32, Position){640*1 + 640/2, 480/2}
-    - (Vec2f32, Velocity){100, 100}
+    - (Vec2f32, Velocity){1, 1}
   }
   DrawArrow3
   {
     - (Vec2i32, Position){640*2 + 640/2, 480/2}
-    - (Vec2f32, Velocity){100, 100}
+    - (Vec2f32, Velocity){1, 1}
   }
 }
 
@@ -105,8 +115,3 @@ Window1
 
 
 
-MotionDetector1 : Image1
-{
-  - eg.motion.MotionEstimator
-  - (Vec2f32, Velocity){0,0}
-}
