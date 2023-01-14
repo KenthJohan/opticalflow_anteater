@@ -1,4 +1,3 @@
-#include "mainer.h"
 #include "EgMotion.h"
 #include "EgMats.h"
 #include "EgVideo.h"
@@ -13,7 +12,7 @@ void my_abort(void)
 }
 
 
-void mainer(int argc, char* argv[])
+void main(int argc, char* argv[])
 {
 	ecs_os_set_api_defaults();
     ecs_os_api_t os_api = ecs_os_api;
