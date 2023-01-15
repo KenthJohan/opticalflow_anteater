@@ -23,7 +23,13 @@ else
 	LDFLAGS := `pkg-config opencv4 --libs`
 endif
 
-SRCS := main.c flecs.c EgMotion.c EgMats.c EgVideo.c EgTypes.c EgDraws.c mat.c deps/opencv/cvmats.cpp deps/opencv/draw.cpp deps/opencv/VideoReader.cpp deps/opencv/oflow.cpp
+SRCS_CV := deps/opencv/cvmats.cpp \
+           deps/opencv/draw.cpp \
+		   deps/opencv/VideoReader.cpp \
+		   deps/opencv/motionest_phasecorr.cpp \
+		   deps/opencv/motionest_lucaskanade.cpp
+
+SRCS := main.c flecs.c EgMotion.c EgMats.c EgVideo.c EgTypes.c EgDraws.c mat.c $(SRCS_CV)
 
 
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)

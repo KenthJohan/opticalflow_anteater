@@ -20,7 +20,7 @@ void main(int argc, char* argv[])
     ecs_os_set_api(&os_api);
 
     ecs_world_t *world = ecs_init_w_args(argc, argv);
-
+    
 	ecs_log_set_level(1);
     ECS_IMPORT(world, EgMotion);
     ECS_IMPORT(world, EgMats);

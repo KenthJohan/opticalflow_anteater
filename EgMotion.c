@@ -1,5 +1,5 @@
 #include "EgMotion.h"
-#include "oflow.h"
+#include "deps/opencv/motionest_phasecorr.h"
 #include "draw.h"
 #include "VideoReader.h"
 #include "EgMats.h"
@@ -34,7 +34,7 @@ void System_Motionest_Estimate(ecs_iter_t *it)
         if(img->start == NULL) {continue;}
 
         float alpha = 0.1f;
-        oflow_run(&mot->context, img, vel, alpha);
+        motionest_phasecorr_run(&mot->context, img, vel, alpha);
     }
 }
 
@@ -51,7 +51,7 @@ void Observer_Motionest_Create(ecs_iter_t *it)
         //printf("Mat: %i\n", img->size);
         //if(img->start == NULL) {continue;}
         printf("Observer_Motionest_Create %s\n", ecs_get_name(it->world, it->entities[i]));
-        oflow_init(&mot->context, img);
+        motionest_phasecorr_init(&mot->context, img);
     }
 }
 
@@ -91,6 +91,26 @@ void EgMotionImport(ecs_world_t *world)
 
 
     ECS_COMPONENT_DEFINE(world, MotionEstimator);
+
+
+    ecs_struct(world, {
+        .entity = ecs_id(MotionEstimator),
+        .members = {
+            { .name = "dummy", .type = ecs_id(ecs_i32_t) },
+            { .name = "context", .type = ecs_id(ecs_uptr_t) }
+        }
+    });
+
+
+
+
+
+
+
+
+
+
+
 
     //ECS_SYSTEM(world, System_Spinner, EcsOnUpdate, (Vec2f32, eg.types.Velocity));
     ECS_SYSTEM(world, System_Motionest_Estimate, EcsOnUpdate, MotionEstimator, Mat, (Vec2f32, eg.types.Velocity));
