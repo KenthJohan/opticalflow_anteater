@@ -1,19 +1,18 @@
-#include "oflow.h"
+#include "motionest_farneback.h"
 #include <opencv2/imgproc.hpp>
 #include <opencv2/video.hpp>
 
-using namespace cv;
 
 
 struct oflow_farneback_context
 {
-    Mat prvs;
+    cv::Mat prvs;
 };
 
 
-void go_with_the_flow(InputOutputArray frame2, Mat next, Mat prvs, float alpha, Point2f& direction_fir)
+void go_with_the_flow(cv::InputOutputArray frame2, cv::Mat next, cv::Mat prvs, float alpha, cv::Point2f& direction_fir)
 {
-    Mat flow(prvs.size(), CV_32FC2);
+    cv::Mat flow(prvs.size(), CV_32FC2);
     double pyr_scale = 0.5;
     int levels = 3;
     int winsize = 15;
@@ -23,30 +22,30 @@ void go_with_the_flow(InputOutputArray frame2, Mat next, Mat prvs, float alpha, 
     int flags = 0;
     
     //printf("rows:%i cols:%i\n", next.rows, next.cols);
-    calcOpticalFlowFarneback(prvs, next, flow, pyr_scale, levels, winsize, iterations, poly_n, poly_sigma, flags);
+    cv::calcOpticalFlowFarneback(prvs, next, flow, pyr_scale, levels, winsize, iterations, poly_n, poly_sigma, flags);
     // visualization
-    Mat flowp[2];
-    split(flow, flowp);
-    Mat magnitude, angle, magn_norm;
-    cartToPolar(flowp[0], flowp[1], magnitude, angle, true);
-    normalize(magnitude, magn_norm, 0.0f, 1.0f, NORM_MINMAX);
+    cv::Mat flowp[2];
+    cv::split(flow, flowp);
+    cv::Mat magnitude, angle, magn_norm;
+    cv::cartToPolar(flowp[0], flowp[1], magnitude, angle, true);
+    cv::normalize(magnitude, magn_norm, 0.0f, 1.0f, cv::NORM_MINMAX);
     angle *= ((1.f / 360.f) * (180.f / 255.f));
     //build hsv image
-    Mat _hsv[3], hsv, hsv8, bgr;
+    cv::Mat _hsv[3], hsv, hsv8, bgr;
     _hsv[0] = angle;
-    _hsv[1] = Mat::ones(angle.size(), CV_32F);
+    _hsv[1] = cv::Mat::ones(angle.size(), CV_32F);
     _hsv[2] = magn_norm;
-    merge(_hsv, 3, hsv);
+    cv::merge(_hsv, 3, hsv);
     hsv.convertTo(hsv8, CV_8U, 255.0);
-    cvtColor(hsv8, bgr, COLOR_HSV2BGR);
+    cv::cvtColor(hsv8, bgr, cv::COLOR_HSV2BGR);
     
     
     
     //Mat overlay;
-    addWeighted(bgr, 0.5, frame2, 0.5, 0.0, frame2);
+    cv::addWeighted(bgr, 0.5, frame2, 0.5, 0.0, frame2);
     {
         // Direction average calculation:
-        Point2f direction = Point2f(0,0);
+        cv::Point2f direction = cv::Point2f(0,0);
         for(int j = 0;j < flow.cols;j++){
             for(int i = 0;i < flow.rows;i++){
                 direction.x += flowp[0].at<float>(i,j);
@@ -67,19 +66,19 @@ void go_with_the_flow(InputOutputArray frame2, Mat next, Mat prvs, float alpha, 
 
 
 
-void oflow_init(struct oflow_context * context, InputArray raw)
+void oflow_init(struct oflow_context * context, cv::InputArray raw)
 {
     context->internal = calloc(1, sizeof(oflow_farneback_context));
     oflow_farneback_context * internal = (oflow_farneback_context *)context->internal;
-    cvtColor(raw, internal->prvs, COLOR_BGR2GRAY);
+    cvtColor(raw, internal->prvs, cv::COLOR_BGR2GRAY);
 }
 
 
-void oflow_run(struct oflow_context * context, InputOutputArray raw, Point2f& direction, float alpha)
+void oflow_run(struct oflow_context * context, cv::InputOutputArray raw, cv::Point2f& direction, float alpha)
 {
     oflow_farneback_context * internal = (oflow_farneback_context *)context->internal;
-    Mat next;
-    cvtColor(raw, next, COLOR_BGR2GRAY);
+    cv::Mat next;
+    cv::cvtColor(raw, next, cv::COLOR_BGR2GRAY);
     go_with_the_flow(raw, next, internal->prvs, alpha, direction);
     internal->prvs = next;
 }

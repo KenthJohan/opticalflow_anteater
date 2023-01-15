@@ -108,13 +108,13 @@ void System_Camera_Close(ecs_iter_t *it)
 void System_Camera_Capture(ecs_iter_t *it)
 {
     VideoReader *vid_field = ecs_field(it, VideoReader, 1);
-    Mat *mat_field = ecs_field(it, Mat, 2);
-    int mat_self = ecs_field_is_self(it, 2);
+    Mat         *mat_field = ecs_field(it, Mat, 2);
+    int          mat_self = ecs_field_is_self(it, 2);
     for(int i = 0; i < it->count; ++i)
     {
         if (ecs_has_pair(it->world, it->entities[i], Status, Open) == false) {return;}
-        Mat *m = mat_field + i * mat_self;
         VideoReader *v = vid_field + i;
+        Mat         *m = mat_field + i * mat_self;
         //char const * name0 = ecs_get_name(it->world, e0);
         //char const * name = ecs_get_name(it->world, it->entities[i]);
         int r = VideoReader_read(v, m);
