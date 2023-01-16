@@ -1,6 +1,6 @@
 #include "EgMats.h"
 #include "EgTypes.h"
-#include "mat.h"
+#include "tensor.h"
 #include <stdio.h>
 
 

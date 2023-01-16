@@ -1,4 +1,4 @@
-#include "mat.h"
+#include "tensor.h"
 #include "common.h"
 #include "flecs.h"
 #include <assert.h>

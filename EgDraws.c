@@ -3,7 +3,7 @@
 #include "EgMats.h"
 #include "draw.h"
 #include "common.h"
-#include "mat.h"
+#include "tensor.h"
 #include <stdio.h>
 
 
