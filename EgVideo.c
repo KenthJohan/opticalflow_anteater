@@ -1,6 +1,6 @@
 #include "EgVideo.h"
 #include "EgTypes.h"
-#include "EgMats.h"
+#include "EgTensors.h"
 #include "VideoReader.h"
 #include <stdio.h>
 

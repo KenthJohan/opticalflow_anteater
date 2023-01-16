@@ -2,7 +2,7 @@
 #include "deps/opencv/motionest_phasecorr.h"
 #include "draw.h"
 #include "VideoReader.h"
-#include "EgMats.h"
+#include "EgTensors.h"
 #include "EgTypes.h"
 
 #define _USE_MATH_DEFINES
@@ -20,7 +20,7 @@ void System_Motionest_Estimate(ecs_iter_t *it)
 {
     //printf("System_Motionest_Estimate %i\n", it->count);
     MotionEstimator *mot_field = ecs_field(it, MotionEstimator, 1);
-    Tensor2_U8C3             *img_field = ecs_field(it, Tensor2_U8C3, 2);
+    Tensor2_U8C3    *img_field = ecs_field(it, Tensor2_U8C3, 2);
     int              img_self = ecs_field_is_self(it, 2);
     Vec2f32         *vel_field = ecs_field(it, Vec2f32, 3);
     int              vel_self = ecs_field_is_self(it, 3);
@@ -87,7 +87,7 @@ void EgMotionImport(ecs_world_t *world)
 {
     ECS_MODULE(world, EgMotion);
     ECS_IMPORT(world, EgTypes);
-    ECS_IMPORT(world, EgMats);
+    ECS_IMPORT(world, EgTensors);
 
 
     ECS_COMPONENT_DEFINE(world, MotionEstimator);

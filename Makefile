@@ -29,7 +29,7 @@ SRCS_CV := deps/opencv/cvmats.cpp \
 		   deps/opencv/motionest_phasecorr.cpp \
 		   deps/opencv/motionest_lucaskanade.cpp
 
-SRCS := main.c flecs.c EgMotion.c EgMats.c EgVideo.c EgTypes.c EgDraws.c tensor.c $(SRCS_CV)
+SRCS := main.c flecs.c EgMotion.c EgTensors.c EgVideo.c EgTypes.c EgDraws.c tensor.c $(SRCS_CV)
 
 
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)

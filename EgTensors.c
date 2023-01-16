@@ -1,4 +1,4 @@
-#include "EgMats.h"
+#include "EgTensors.h"
 #include "EgTypes.h"
 #include "tensor.h"
 #include <stdio.h>
@@ -72,9 +72,9 @@ void System_Mat_Copy_Instruction(ecs_iter_t *it)
 
 
 
-void EgMatsImport(ecs_world_t *world)
+void EgTensorsImport(ecs_world_t *world)
 {
-    ECS_MODULE(world, EgMats);
+    ECS_MODULE(world, EgTensors);
     ECS_IMPORT(world, EgTypes);
 
 
