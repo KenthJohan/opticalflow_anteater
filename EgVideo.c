@@ -22,6 +22,7 @@ void System_Camera_Create(ecs_iter_t *it)
     {
         printf("Create camera %s\n", ecs_get_name(it->world, it->entities[i]));
         VideoReader_create(c+i);
+        ecs_add_pair(it->world, it->entities[i], Status, Close);
     }
 }
 
@@ -105,7 +106,7 @@ void System_Camera_Close(ecs_iter_t *it)
 
 
 
-void System_Camera_Capture(ecs_iter_t *it)
+void System_Camera_Reader(ecs_iter_t *it)
 {
     VideoReader *vid_field = ecs_field(it, VideoReader, 1);
     Mat         *mat_field = ecs_field(it, Mat, 2);
@@ -163,7 +164,7 @@ void EgVideoImport(ecs_world_t *world)
     
     ecs_system(world, {
         .entity = ecs_entity(world, {
-            .name = "System_Camera_Capture",
+            .name = "System_Camera_Reader",
             .add = { ecs_dependson(EcsOnUpdate) }
         }),
         .query.filter.instanced = true,
@@ -171,13 +172,10 @@ void EgVideoImport(ecs_world_t *world)
             {.id = ecs_id(VideoReader), .inout = EcsIn},
             {.id = ecs_id(Mat), .inout = EcsOut },
         },
-        .callback = System_Camera_Capture
+        .callback = System_Camera_Reader
     });
 
-
-
-    //ECS_SYSTEM(world, System_Camera_Capture, EcsOnUpdate, VideoReader(parent), (eg.types.Status(parent), eg.types.Open), Memory, Matspec, eg.types.Capture);
-    ECS_SYSTEM(world, System_Camera_Open, EcsOnUpdate, Device, VideoReader, (eg.types.Action, eg.types.Open));
+    ECS_SYSTEM(world, System_Camera_Open, EcsOnUpdate, Device, VideoReader, (eg.types.Status, eg.types.Close), (eg.types.Action, eg.types.Open));
     ECS_SYSTEM(world, System_Camera_Close, EcsOnUpdate, VideoReader, (eg.types.Status, eg.types.Open), (eg.types.Action, eg.types.Close));
     ECS_OBSERVER(world, System_Camera_Create, EcsOnAdd, VideoReader);
     ECS_OBSERVER(world, System_Camera_Destroy, EcsOnRemove, VideoReader);

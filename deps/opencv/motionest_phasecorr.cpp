@@ -36,7 +36,10 @@ void motionest_phasecorr_run(struct oflow_context * context, Mat * mat, Vec2f32 
     next.convertTo(next, CV_32FC1, 1.0/255.0);
     //return;
     //TODO: Fix this
-    if (internal->prvs.type() != next.type())
+    if (
+        (internal->prvs.type() != next.type()) ||
+        (internal->prvs.size != next.size)
+    )
     {
         printf("Fixing prvs\n");
         internal->prvs = next;
