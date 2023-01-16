@@ -34,7 +34,7 @@ ECS_COMPONENT_DECLARE(Vec2i32);
 ECS_COMPONENT_DECLARE(Vec2f32);
 ECS_COMPONENT_DECLARE(String);
 ECS_COMPONENT_DECLARE(Channels);
-ECS_COMPONENT_DECLARE(Mat);
+ECS_COMPONENT_DECLARE(Tensor2_U8C3);
 
 
 
@@ -118,7 +118,7 @@ void EgTypesImport(ecs_world_t *world)
     ECS_COMPONENT_DEFINE(world, Vec2f32);
     ECS_COMPONENT_DEFINE(world, String);
     ECS_COMPONENT_DEFINE(world, Channels);
-    ECS_COMPONENT_DEFINE(world, Mat);
+    ECS_COMPONENT_DEFINE(world, Tensor2_U8C3);
 
     ecs_set_hooks(world, String, {
     .ctor = ecs_ctor(String),
@@ -174,15 +174,15 @@ typedef struct
 
 */
     ecs_struct(world, {
-        .entity = ecs_id(Mat),
+        .entity = ecs_id(Tensor2_U8C3),
         .members = {
             { .name = "start", .type = ecs_id(ecs_uptr_t) },
             { .name = "memory", .type = ecs_id(ecs_uptr_t) },
             { .name = "size", .type = ecs_id(ecs_i32_t) },
             { .name = "type", .type = ecs_id(ecs_i32_t) },
             { .name = "dims", .type = ecs_id(ecs_i32_t) },
-            { .name = "shape", .type = ecs_id(ecs_i32_t), .count = 4 },
-            { .name = "step", .type = ecs_id(ecs_i32_t), .count = 4 }
+            { .name = "shape", .type = ecs_id(ecs_i32_t), .count = 2 },
+            { .name = "step", .type = ecs_id(ecs_i32_t), .count = 2 }
         }
     });
 

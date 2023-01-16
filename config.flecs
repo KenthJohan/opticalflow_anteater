@@ -27,7 +27,7 @@ ROI3
 // Video capture input
 ImageCap
 {
-  - Mat
+  - Tensor2_U8C3
 }
 
 
@@ -36,17 +36,17 @@ ImageCap
 // Regions of interest new images:
 Image1
 {
-  - Mat
+  - Tensor2_U8C3
 }
 
 Image2
 {
-  - Mat
+  - Tensor2_U8C3
 }
 
 Image3
 {
-  - Mat
+  - Tensor2_U8C3
 }
 
 
@@ -117,7 +117,7 @@ MotionEstimator3 : Image3, Direction3
 Window1
 {
   - Window
-  - Mat
+  - Tensor2_U8C3
   - (Vec2i32, Resolution){1920, 400}
   DrawVid1 : ImageCap
   {

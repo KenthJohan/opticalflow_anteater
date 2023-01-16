@@ -58,7 +58,7 @@ void cv_mat_type2str(int type, char * buf, int len)
 }
 
 
-int VideoReader_read(VideoReader *camera, Mat * mat)
+int VideoReader_read(VideoReader *camera, Tensor2_U8C3 * mat)
 {
     vidcapcv_t *c = (vidcapcv_t *)camera->handle;
     c->capture >> c->frame;

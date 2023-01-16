@@ -4,4 +4,4 @@
 
 
 
-cv::Mat mat2cvmat(Mat * mat);
+cv::Mat mat2cvmat(Tensor2_U8C3 * mat);

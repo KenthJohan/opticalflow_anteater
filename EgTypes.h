@@ -33,6 +33,6 @@ extern ECS_COMPONENT_DECLARE(Vec2i32);
 extern ECS_COMPONENT_DECLARE(Vec2f32);
 extern ECS_COMPONENT_DECLARE(String);
 extern ECS_COMPONENT_DECLARE(Channels);
-extern ECS_COMPONENT_DECLARE(Mat);
+extern ECS_COMPONENT_DECLARE(Tensor2_U8C3);
 
 void EgTypesImport(ecs_world_t *world);

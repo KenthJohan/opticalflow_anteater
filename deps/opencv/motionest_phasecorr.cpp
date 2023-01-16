@@ -14,7 +14,7 @@ struct motionest_phasecorr_context
 };
 
 
-void motionest_phasecorr_init(struct oflow_context * context, Mat* mat)
+void motionest_phasecorr_init(struct oflow_context * context, Tensor2_U8C3* mat)
 {
     assert(context);
     assert(mat);
@@ -27,7 +27,7 @@ void motionest_phasecorr_init(struct oflow_context * context, Mat* mat)
     //internal->prvs.convertTo(internal->prvs, CV_32FC1, 1.0/255.0);
 }
 
-void motionest_phasecorr_run(struct oflow_context * context, Mat * mat, Vec2f32 * vel, float alpha)
+void motionest_phasecorr_run(struct oflow_context * context, Tensor2_U8C3 * mat, Vec2f32 * vel, float alpha)
 {
     motionest_phasecorr_context * internal = (motionest_phasecorr_context *)context->internal;
     cv::Mat cvraw = mat2cvmat(mat);

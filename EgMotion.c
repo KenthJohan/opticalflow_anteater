@@ -20,17 +20,17 @@ void System_Motionest_Estimate(ecs_iter_t *it)
 {
     //printf("System_Motionest_Estimate %i\n", it->count);
     MotionEstimator *mot_field = ecs_field(it, MotionEstimator, 1);
-    Mat             *img_field = ecs_field(it, Mat, 2);
+    Tensor2_U8C3             *img_field = ecs_field(it, Tensor2_U8C3, 2);
     int              img_self = ecs_field_is_self(it, 2);
     Vec2f32         *vel_field = ecs_field(it, Vec2f32, 3);
     int              vel_self = ecs_field_is_self(it, 3);
     for(int i = 0; i < it->count; ++i)
     {
-        Mat             *img = img_field + i * img_self;
+        Tensor2_U8C3             *img = img_field + i * img_self;
         MotionEstimator *mot = mot_field + i;
         Vec2f32         *vel = vel_field + i * vel_self;
 
-        //printf("Mat: %i\n", img->size);
+        //printf("Tensor2_U8C3: %i\n", img->size);
         if(img->start == NULL) {continue;}
 
         float alpha = 0.1f;
@@ -42,13 +42,13 @@ void System_Motionest_Estimate(ecs_iter_t *it)
 void Observer_Motionest_Create(ecs_iter_t *it)
 {
     MotionEstimator *mot_field = ecs_field(it, MotionEstimator, 1);
-    Mat             *img_field = ecs_field(it, Mat, 2); 
+    Tensor2_U8C3             *img_field = ecs_field(it, Tensor2_U8C3, 2); 
     int              img_self = ecs_field_is_self(it, 2);
     for(int i = 0; i < it->count; ++i)
     {
-        Mat             *img = img_field + i * img_self;
+        Tensor2_U8C3             *img = img_field + i * img_self;
         MotionEstimator *mot = mot_field + i;
-        //printf("Mat: %i\n", img->size);
+        //printf("Tensor2_U8C3: %i\n", img->size);
         //if(img->start == NULL) {continue;}
         printf("Observer_Motionest_Create %s\n", ecs_get_name(it->world, it->entities[i]));
         motionest_phasecorr_init(&mot->context, img);
@@ -113,8 +113,8 @@ void EgMotionImport(ecs_world_t *world)
 
 
     //ECS_SYSTEM(world, System_Spinner, EcsOnUpdate, (Vec2f32, eg.types.Velocity));
-    ECS_SYSTEM(world, System_Motionest_Estimate, EcsOnUpdate, MotionEstimator, Mat, (Vec2f32, eg.types.Velocity));
-    ECS_OBSERVER(world, Observer_Motionest_Create, EcsOnAdd, MotionEstimator, Mat);
+    ECS_SYSTEM(world, System_Motionest_Estimate, EcsOnUpdate, MotionEstimator, Tensor2_U8C3, (Vec2f32, eg.types.Velocity));
+    ECS_OBSERVER(world, Observer_Motionest_Create, EcsOnAdd, MotionEstimator, Tensor2_U8C3);
     ECS_OBSERVER(world, Observer_Motionest_Destroy, EcsOnRemove, MotionEstimator);
 
     /*
@@ -129,7 +129,7 @@ void EgMotionImport(ecs_world_t *world)
             {.id = ecs_pair(ecs_id(Vec2i32), CropPosition), .inout = EcsIn },
             {.id = ecs_pair(ecs_id(Vec2i32), CropSize), .inout = EcsIn },
             {.id = ecs_pair(ecs_id(Vec2f32), Velocity), .inout = EcsInOut },
-            {.id = ecs_id(Mat), .inout = EcsIn, .src.flags = EcsUp, .src.trav = Uses},
+            {.id = ecs_id(Tensor2_U8C3), .inout = EcsIn, .src.flags = EcsUp, .src.trav = Uses},
             {.id = ecs_pair(ecs_id(Vec2i32), Resolution), .inout = EcsIn,.src.flags = EcsUp,.src.trav = Uses}
         },
         .callback = System_Motion_Estimation

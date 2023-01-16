@@ -6,13 +6,13 @@
 
 void Observer_Mat_EcsOnAdd(ecs_iter_t *it)
 {
-    Mat *mat = ecs_field(it, Mat, 1);
-    ecs_os_memset_n(mat, 0, Mat, it->count);
+    Tensor2_U8C3 *mat = ecs_field(it, Tensor2_U8C3, 1);
+    ecs_os_memset_n(mat, 0, Tensor2_U8C3, it->count);
 }
 
 void Observer_Mat_EcsOnSet(ecs_iter_t *it)
 {
-    Mat *mat = ecs_field(it, Mat, 1);
+    Tensor2_U8C3 *mat = ecs_field(it, Tensor2_U8C3, 1);
     for(int i = 0; i < it->count; ++i)
     {
         char const * name = ecs_get_name(it->world, it->entities[i]);
@@ -39,15 +39,15 @@ void Observer_MatResolution_EcsOnSet(ecs_iter_t *it)
     Vec2i32 *res = ecs_field(it, Vec2i32, 1);
     for(int i = 0; i < it->count; ++i)
     {
-        Mat * mat = ecs_get(it->world, it->entities[i], Mat);
+        Tensor2_U8C3 * mat = ecs_get(it->world, it->entities[i], Tensor2_U8C3);
         mat_allocate(mat, res->x, res->y);
     }
 }
 
 void System_Mat_Copy_Instruction(ecs_iter_t *it)
 {
-    Mat           * src         = ecs_field(it, Mat, 1); //Shared
-    Mat           * dst         = ecs_field(it, Mat, 2); //Shared
+    Tensor2_U8C3           * src         = ecs_field(it, Tensor2_U8C3, 1); //Shared
+    Tensor2_U8C3           * dst         = ecs_field(it, Tensor2_U8C3, 2); //Shared
     Vec2i32 const * pos_field   = ecs_field(it, Vec2i32, 3); //Shared?
     int             pos_self    = ecs_field_is_self(it, 3); // Shared?
     Vec2i32 const * area_field  = ecs_field(it, Vec2i32, 4); //Shared?
@@ -79,8 +79,8 @@ void EgMatsImport(ecs_world_t *world)
 
 
     ECS_OBSERVER(world, Observer_MatResolution_EcsOnSet, EcsOnSet, (Vec2i32, eg.types.Resolution), eg.types.Window);
-    ECS_OBSERVER(world, Observer_Mat_EcsOnSet, EcsOnSet, Mat);
-    ECS_OBSERVER(world, Observer_Mat_EcsOnAdd, EcsOnAdd, Mat);
+    ECS_OBSERVER(world, Observer_Mat_EcsOnSet, EcsOnSet, Tensor2_U8C3);
+    ECS_OBSERVER(world, Observer_Mat_EcsOnAdd, EcsOnAdd, Tensor2_U8C3);
 
     
     ecs_system(world, {
@@ -90,8 +90,8 @@ void EgMatsImport(ecs_world_t *world)
         }),
         .query.filter.instanced = true,
         .query.filter.terms = {
-            {.id = ecs_id(Mat), .inout = EcsIn, .src.flags = EcsUp, .src.trav = CopyFrom},
-            {.id = ecs_id(Mat), .inout = EcsInOut, .src.flags = EcsUp, .src.trav = CopyTo},
+            {.id = ecs_id(Tensor2_U8C3), .inout = EcsIn, .src.flags = EcsUp, .src.trav = CopyFrom},
+            {.id = ecs_id(Tensor2_U8C3), .inout = EcsInOut, .src.flags = EcsUp, .src.trav = CopyTo},
             {.id = ecs_pair(ecs_id(Vec2i32), Position), .inout = EcsIn },
             {.id = ecs_pair(ecs_id(Vec2i32), Area), .inout = EcsIn }
         },

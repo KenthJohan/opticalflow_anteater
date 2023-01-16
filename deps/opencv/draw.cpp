@@ -10,7 +10,7 @@
 
 // For visual purpose only:
 // This draw the direction and speed:
-void draw_arrow(Mat * mat, Vec2i32 const * pos, Vec2i32 const * direction)
+void draw_arrow(Tensor2_U8C3 * mat, Vec2i32 const * pos, Vec2i32 const * direction)
 {
     cv::Mat m = mat2cvmat(mat);
     cv::Point2f c(pos->x, pos->y);
@@ -27,13 +27,13 @@ void draw_arrow(Mat * mat, Vec2i32 const * pos, Vec2i32 const * direction)
 
 
 
-void draw_rectangle(Mat * mat, Vec2i32 const * pos, Vec2i32 const * length)
+void draw_rectangle(Tensor2_U8C3 * mat, Vec2i32 const * pos, Vec2i32 const * length)
 {
     cv::Mat m = mat2cvmat(mat);
     cv::rectangle(m, cv::Rect(pos->x, pos->y, length->x, length->y), cv::Scalar(0, 0, 255), 2, cv::LINE_4);
 }
 
-void draw_show(char const * title, Mat * mat)
+void draw_show(char const * title, Tensor2_U8C3 * mat)
 {
     cv::Mat m = mat2cvmat(mat);
     cv::imshow(title, m);
@@ -57,7 +57,7 @@ void draw_weighed1(int32_t type, int32_t shape[], void * mat1, int32_t steps1[],
 }
 */
 
-void draw_weighed(Mat * mat1, double alpha, Mat * mat2, double beta, double gamma, Mat * dst)
+void draw_weighed(Tensor2_U8C3 * mat1, double alpha, Tensor2_U8C3 * mat2, double beta, double gamma, Tensor2_U8C3 * dst)
 {
     cv::Mat s1 = mat2cvmat(mat1);
     cv::Mat s2 = mat2cvmat(mat2);

@@ -66,7 +66,7 @@ void System_Camera_Open(ecs_iter_t *it)
         res.y = VideoReader_get_int(c + i, CAMERA_PROP_FRAME_HEIGHT);
         int t = VideoReader_get_int(c + i, CAMERA_CAP_PROP_FORMAT);
         */
-        Mat mat;
+        Tensor2_U8C3 mat;
         VideoReader_read(c + i, &mat);
         ecs_set_pair(it->world, it->entities[i], Vec2i32, Resolution, {mat.shape[1], mat.shape[0]});
 
@@ -108,14 +108,14 @@ void System_Camera_Close(ecs_iter_t *it)
 
 void System_Camera_Reader(ecs_iter_t *it)
 {
-    VideoReader *vid_field = ecs_field(it, VideoReader, 1);
-    Mat         *mat_field = ecs_field(it, Mat, 2);
-    int          mat_self = ecs_field_is_self(it, 2);
+    VideoReader  *vid_field = ecs_field(it, VideoReader, 1);
+    Tensor2_U8C3 *mat_field = ecs_field(it, Tensor2_U8C3, 2);
+    int           mat_self = ecs_field_is_self(it, 2);
     for(int i = 0; i < it->count; ++i)
     {
         if (ecs_has_pair(it->world, it->entities[i], Status, Open) == false) {return;}
-        VideoReader *v = vid_field + i;
-        Mat         *m = mat_field + i * mat_self;
+        VideoReader  *v = vid_field + i;
+        Tensor2_U8C3 *m = mat_field + i * mat_self;
         //char const * name0 = ecs_get_name(it->world, e0);
         //char const * name = ecs_get_name(it->world, it->entities[i]);
         int r = VideoReader_read(v, m);
@@ -170,7 +170,7 @@ void EgVideoImport(ecs_world_t *world)
         .query.filter.instanced = true,
         .query.filter.terms = {
             {.id = ecs_id(VideoReader), .inout = EcsIn},
-            {.id = ecs_id(Mat), .inout = EcsOut },
+            {.id = ecs_id(Tensor2_U8C3), .inout = EcsOut },
         },
         .callback = System_Camera_Reader
     });

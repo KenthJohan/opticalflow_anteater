@@ -14,7 +14,7 @@ struct oflow_lucaskanade_context
     int time;
 };
 
-void motionest_lucaskanade_init(struct oflow_context * context, Mat * raw)
+void motionest_lucaskanade_init(struct oflow_context * context, Tensor2_U8C3 * raw)
 {
     //cv::Mat cvraw = mat2cvmat(raw);
     context->internal = calloc(1, sizeof(oflow_lucaskanade_context));
@@ -37,7 +37,7 @@ void motionest_lucaskanade_init(struct oflow_context * context, Mat * raw)
 }
 
 
-void motionest_lucaskanade_run(struct oflow_context * context, Mat * raw, Vec2f32 * vel, float alpha)
+void motionest_lucaskanade_run(struct oflow_context * context, Tensor2_U8C3 * raw, Vec2f32 * vel, float alpha)
 {
     cv::Mat cvraw = mat2cvmat(raw);
     oflow_lucaskanade_context * internal = (oflow_lucaskanade_context *)context->internal;

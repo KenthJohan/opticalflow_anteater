@@ -52,7 +52,7 @@ typedef struct
     int32_t dims;
     int32_t shape[4];
     int32_t step[4];
-} Mat;
+} Tensor2_U8C3;
 
 
 
