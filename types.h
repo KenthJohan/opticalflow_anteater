@@ -48,13 +48,23 @@ typedef struct
     uint8_t * start;
     uint8_t * memory;
     int32_t size;
-    int32_t type;
-    int32_t dims;
-    int32_t shape[4];
-    int32_t step[4];
+    int32_t shape[2];
+    int32_t step[2];
 } Tensor2_U8C3;
 
+typedef struct  
+{
+    uint8_t * start;
+    uint8_t * memory;
+    int32_t size;
+    int32_t shape[3];
+    int32_t step[3];
+} Tensor3_U8C3;
 
+typedef struct  
+{
+    int32_t delay;
+} Tensor_TimeDelay;
 
 typedef struct
 {

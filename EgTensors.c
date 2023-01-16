@@ -17,9 +17,7 @@ void Observer_Mat_EcsOnSet(ecs_iter_t *it)
     {
         char const * name = ecs_get_name(it->world, it->entities[i]);
         printf("Observer_Mat_EcsOnSet: %s\n", name);
-        mat[i].type = 16; // OpenCV type: CV_U8C3
         mat[i].step[1] = 3; // Three bytes per pixel
-        mat[i].dims = 2; // Two axises
         int32_t reqsize = mat[i].shape[0] * mat[i].shape[1] * mat[i].step[1];
         if(reqsize <= 0){continue;}
         if(mat[i].size == reqsize){continue;}
@@ -46,8 +44,8 @@ void Observer_MatResolution_EcsOnSet(ecs_iter_t *it)
 
 void System_Mat_Copy_Instruction(ecs_iter_t *it)
 {
-    Tensor2_U8C3           * src         = ecs_field(it, Tensor2_U8C3, 1); //Shared
-    Tensor2_U8C3           * dst         = ecs_field(it, Tensor2_U8C3, 2); //Shared
+    Tensor2_U8C3  * src         = ecs_field(it, Tensor2_U8C3, 1); //Shared
+    Tensor2_U8C3  * dst         = ecs_field(it, Tensor2_U8C3, 2); //Shared
     Vec2i32 const * pos_field   = ecs_field(it, Vec2i32, 3); //Shared?
     int             pos_self    = ecs_field_is_self(it, 3); // Shared?
     Vec2i32 const * area_field  = ecs_field(it, Vec2i32, 4); //Shared?

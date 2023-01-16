@@ -17,9 +17,6 @@ void mat_allocate(Tensor2_U8C3 * mat, int32_t w, int32_t h)
     assert(w < 4000*4000*4);
     assert(h < 4000*4000*4);
 
-    mat->type = 16; // OpenCV type: CV_U8C3
-    mat->dims = 2; // Two axises
-
     mat->shape[0] = h;
     mat->shape[1] = w;
 
@@ -95,8 +92,6 @@ void mat_copy_region_auto_allocation(Tensor2_U8C3 const * src, Tensor2_U8C3 * ds
         dst->start = dst->memory;
         dst->size = reqsize;
     }
-    dst->type = src->type;
-    dst->dims = src->dims;
     dst->shape[0] = area->y;
     dst->shape[1] = area->x;
     dst->step[0] = area->x * src->step[1];

@@ -71,8 +71,6 @@ int VideoReader_read(VideoReader *camera, Tensor2_U8C3 * mat)
     camera->frame_count = c->capture.get(cv::CAP_PROP_FRAME_COUNT);
     mat->size = c->frame.step[0] * c->frame.rows;
     mat->start = c->frame.data;
-    mat->dims = c->frame.dims;
-    mat->type = c->frame.type();
     mat->step[0] = c->frame.step[0];
     mat->step[1] = c->frame.step[1];
     mat->shape[0] = c->frame.size[0];
