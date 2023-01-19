@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+    "tasks": [
+      {
+        "type": "shell",
+        "label": "mingw64 build",
+        "command": "",
+        "args": ["C:/msys64/mingw64/bin/mingw32-make.exe -f Makefile oflow=oflow_phasecorr.cpp"],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "shell": {
+            "executable": "C:/msys64/msys2_shell.cmd",
+            "args": ["-defterm", "-mingw64", "-no-start", "-here", "-shell bash -c"]
+          }
+        }
+      }
+    ]
+  }
+  

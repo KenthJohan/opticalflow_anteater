@@ -12,7 +12,15 @@
         }
     },
     "files.associations": {
-        "*.h": "c"
+        "*.h": "c",
+        "iostream": "cpp",
+        "stop_token": "cpp",
+        "*.tcc": "cpp",
+        "istream": "cpp",
+        "array": "cpp",
+        "tuple": "cpp",
+        "utility": "cpp",
+        "numbers": "c"
     },
 
 }
