@@ -21,7 +21,12 @@
         "tuple": "cpp",
         "utility": "cpp",
         "numbers": "c",
-        "complex": "cpp"
+        "complex": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "deque": "cpp",
+        "string": "cpp",
+        "vector": "cpp"
     },
 
 }
