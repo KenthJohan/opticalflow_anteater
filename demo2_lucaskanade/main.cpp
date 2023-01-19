@@ -191,6 +191,11 @@ int main(int argc, char **argv)
     // Create a mask image for drawing purposes
     Mat mask = Mat::zeros(frame.size(), frame.type());
     static int frame_index = 0;
+
+
+    VideoWriter videowriter("Out.mp4", capture.get(CAP_PROP_FOURCC), capture.get(CAP_PROP_FPS), Size(capture.get(CAP_PROP_FRAME_WIDTH), capture.get(CAP_PROP_FRAME_HEIGHT)));
+
+
     while(true)
     {
         {
@@ -210,7 +215,7 @@ int main(int argc, char **argv)
         {
             printf("Video ended!\n");
             capture.set(CAP_PROP_POS_FRAMES, 250);
-            continue;
+            break;
         }
         
         Mat f2;
@@ -250,6 +255,7 @@ int main(int argc, char **argv)
         Mat img;
         add(frame, mask, img);
         imshow("Frame", img);
+        videowriter.write(img);
 
 
         // Now update the previous frame and previous points
