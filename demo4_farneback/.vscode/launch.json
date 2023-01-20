@@ -6,7 +6,7 @@
         "type": "cppdbg", // Is this also for C debugging?
         "request": "launch",
         "program": "${workspaceFolder}/build/demo1.exe",
-        "args": ["../2022-12-15_14-56-29.mp4"],
+        "args": [" 2023-01-17_15-47-44.mp4"],
         "stopAtEntry": false,
         "cwd": "${workspaceFolder}",
         "environment": [],

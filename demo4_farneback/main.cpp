@@ -37,6 +37,22 @@ Point2f get_direction(Mat m)
 }
 
 
+
+void histo2(Point2f p, Mat out)
+{
+    Point2f q = p;
+    q.x *= 50.0f;
+    q.y *= 50.0f;
+    q.x += out.cols/2;
+    q.y += out.rows/2;
+    if(q.x >= out.cols) {return;}
+    if(q.y >= out.rows) {return;}
+    if(q.x < 0) {return;}
+    if(q.y < 0) {return;}
+    out.at<float>(q) += 0.1f;
+}
+
+
 void histo(Mat m, Mat out)
 {
     float dx = 0;
@@ -51,17 +67,11 @@ void histo(Mat m, Mat out)
         if (isnanf(y)){continue;}
         if (isinf(x)){continue;}
         if (isinf(y)){continue;}
-        x *= 1000.0f;
-        y *= 1000.0f;
-        x += out.cols/2;
-        y += out.rows/2;
-        if(x >= out.cols) {continue;}
-        if(y >= out.rows) {continue;}
-        if(x < 0) {continue;}
-        if(y < 0) {continue;}
-        out.at<float>(x, y) += 1.0f;
+        histo2(Point2f(x, y), out);
     }
 }
+
+
 
 
 typedef struct
@@ -75,7 +85,8 @@ typedef struct
 
 void motionest_init(motionest_state_t &state, InputArray f1)
 {
-    state.h = Mat(Size(500, 500), CV_32F);
+    state.h = Mat(Size(200, 200), CV_32F);
+    state.h.setTo(0);
     state.flow = Mat(f1.size(), CV_32FC2);
     state.dir_fir = Point2f(0,0);
     int n = state.flow.rows * state.flow.cols;
@@ -85,12 +96,11 @@ void motionest_init(motionest_state_t &state, InputArray f1)
 
 void motionest_progress(motionest_state_t &state, InputArray f1, InputArray f2)
 {
-    state.h.setTo(0);
     state.flow.setTo(Scalar(0.0, 0.0));
     calcOpticalFlowFarneback(f1, f2, state.flow, 0.5, 3, 15, 3, 5, 1.2, 0);
-    histo(state.flow, state.h);
-    imshow("Hist", state.h);
+    //histo(state.flow, state.h);
 
+    /*
     {
         double vmax;
         double vmin;
@@ -101,23 +111,24 @@ void motionest_progress(motionest_state_t &state, InputArray f1, InputArray f2)
         imax.y -= state.h.rows / 2;
         printf("%f, %i, %i\n", vmax, imax.x, imax.y);
     }
+    */
 
 
 
     /**/
     state.dir = get_direction(state.flow);
     state.dir *= state.flow_factor;
-    float alpha = 0.4f;
+    float alpha = 0.1f;
     state.dir_fir = state.dir_fir * (1.0f - alpha) + (state.dir * alpha);
-    // compute sum of positive matrix elements
-    // (assuming that M isa double-precision matrix)
 
-
-
-    // visualization
-
-    printf("flow_parts\n");
-
+    
+    //state.h.setTo(0);
+    histo2(state.dir_fir, state.h);
+    {
+        Mat m;
+        resize(state.h, m, Size(1000, 1000), 0.5, 0.5, INTER_NEAREST);
+        imshow("Hist", m);
+    }
 
 }
 
