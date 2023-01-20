@@ -24,14 +24,8 @@ void draw_direction(Mat m, Point2f dir)
 
 Point2f get_direction(Mat m)
 {
-    float *v = (float*)(m.data);
-    int cn = m.channels();
     float dx = 0;
     float dy = 0;
-    int nnan = 0;
-    int ninf = 0;
-    int nbig = 0;
-
     for (MatIterator_<Vec2f> it = m.begin<Vec2f>(); it != m.end<Vec2f>(); ++it)
     {
         float dx0 = (*it)[0];
@@ -39,8 +33,34 @@ Point2f get_direction(Mat m)
         dx += dx0;
         dy += dy0;
     }
-    //printf("%i %i %f %f\n", nnan, ninf, dx, dy);
     return Point2f(dx, dy);
+}
+
+
+void histo(Mat m, Mat out)
+{
+    float dx = 0;
+    float dy = 0;
+    for (MatIterator_<Vec2f> it = m.begin<Vec2f>(); it != m.end<Vec2f>(); ++it)
+    {
+        float x = (*it)[0];
+        float y = (*it)[1];
+        if (x == 0){continue;}
+        if (y == 0){continue;}
+        if (isnanf(x)){continue;}
+        if (isnanf(y)){continue;}
+        if (isinf(x)){continue;}
+        if (isinf(y)){continue;}
+        x *= 1000.0f;
+        y *= 1000.0f;
+        x += out.cols/2;
+        y += out.rows/2;
+        if(x >= out.cols) {continue;}
+        if(y >= out.rows) {continue;}
+        if(x < 0) {continue;}
+        if(y < 0) {continue;}
+        out.at<float>(x, y) += 1.0f;
+    }
 }
 
 
@@ -50,11 +70,12 @@ typedef struct
     Point2f dir;
     Point2f dir_fir;
     float flow_factor;
-    Mat bgr;
+    Mat h;
 } motionest_state_t;
 
 void motionest_init(motionest_state_t &state, InputArray f1)
 {
+    state.h = Mat(Size(500, 500), CV_32F);
     state.flow = Mat(f1.size(), CV_32FC2);
     state.dir_fir = Point2f(0,0);
     int n = state.flow.rows * state.flow.cols;
@@ -64,8 +85,26 @@ void motionest_init(motionest_state_t &state, InputArray f1)
 
 void motionest_progress(motionest_state_t &state, InputArray f1, InputArray f2)
 {
+    state.h.setTo(0);
     state.flow.setTo(Scalar(0.0, 0.0));
     calcOpticalFlowFarneback(f1, f2, state.flow, 0.5, 3, 15, 3, 5, 1.2, 0);
+    histo(state.flow, state.h);
+    imshow("Hist", state.h);
+
+    {
+        double vmax;
+        double vmin;
+        Point imax;
+        Point imin;
+        minMaxLoc(state.h, &vmin, &vmax, &imin, &imax);
+        imax.x -= state.h.cols / 2;
+        imax.y -= state.h.rows / 2;
+        printf("%f, %i, %i\n", vmax, imax.x, imax.y);
+    }
+
+
+
+    /**/
     state.dir = get_direction(state.flow);
     state.dir *= state.flow_factor;
     float alpha = 0.4f;
@@ -79,26 +118,28 @@ void motionest_progress(motionest_state_t &state, InputArray f1, InputArray f2)
 
     printf("flow_parts\n");
 
+
+}
+
+
+void show_flow(Mat flow)
+{
+    Mat bgr; //Visual
+    Mat _hsv[3], hsv, hsv8;
     Mat flow_parts[2];
-    split(state.flow, flow_parts);
     Mat magnitude, angle, magn_norm;
+    split(flow, flow_parts);
     cartToPolar(flow_parts[0], flow_parts[1], magnitude, angle, true);
     normalize(magnitude, magn_norm, 0.0f, 1.0f, NORM_MINMAX);
     angle *= ((1.f / 360.f) * (180.f / 255.f));
-    //build hsv image
-    Mat _hsv[3], hsv, hsv8, bgr;
     _hsv[0] = angle;
     _hsv[1] = Mat::ones(angle.size(), CV_32F);
     _hsv[2] = magn_norm;
     merge(_hsv, 3, hsv);
     hsv.convertTo(hsv8, CV_8U, 255.0);
-    cvtColor(hsv8, state.bgr, COLOR_HSV2BGR);
-    printf("%i %i %i\n", bgr.rows, bgr.cols, bgr.type());
-    /*
-    */
+    cvtColor(hsv8, bgr, COLOR_HSV2BGR);
+    imshow("flow", bgr);
 }
-
-
 
 
 
@@ -209,8 +250,8 @@ int main(int argc, char **argv)
         }
 
         imshow("Frame", frame);
+        show_flow(motest[0].flow);
         
-        imshow("flow", motest[0].bgr);
         
         //videowriter.write(img);
 
