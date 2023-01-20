@@ -189,12 +189,16 @@ int main(int argc, char **argv)
     capture >> frame;
     cvtColor(frame, f1, COLOR_BGR2GRAY);
     // Create a mask image for drawing purposes
-    Mat mask = Mat::zeros(frame.size(), frame.type());
-    static int frame_index = 0;
+    Mat mask = Mat::zeros(Size(frame.cols, 600), CV_32F);
+    int frame_index = 0;
+    int repeat = 0;
 
 
-    VideoWriter videowriter("Out.mp4", capture.get(CAP_PROP_FOURCC), capture.get(CAP_PROP_FPS), Size(capture.get(CAP_PROP_FRAME_WIDTH), capture.get(CAP_PROP_FRAME_HEIGHT)));
+    Mat heatmap = Mat::zeros(Size(frame.cols, 600), frame.type());
+    Mat window;
+    vconcat(frame, heatmap, window);
 
+    VideoWriter videowriter("out_" + filename, capture.get(CAP_PROP_FOURCC), capture.get(CAP_PROP_FPS), Size(window.cols, window.rows));
 
     while(true)
     {
@@ -213,9 +217,12 @@ int main(int argc, char **argv)
         //printf("CAP_PROP_POS_FRAMES %i!\n", (int)capture.get(CAP_PROP_POS_FRAMES));
         if (frame.empty())
         {
-            printf("Video ended!\n");
+            printf("Video ended %i times\n", repeat);
             capture.set(CAP_PROP_POS_FRAMES, 250);
-            break;
+            //heatmap = Mat::zeros(Size(1000,1000), CV_32F);
+            repeat++;
+            if (repeat > 4){break;}
+            continue;
         }
         
         Mat f2;
@@ -252,10 +259,43 @@ int main(int argc, char **argv)
         }
 
 
-        Mat img;
-        add(frame, mask, img);
-        imshow("Frame", img);
-        videowriter.write(img);
+        for(int i = 0; i < MOTEST_COUNT; ++i)
+        {
+            for(int j = 0; j < motest[i].good_new_dir.size(); ++j)
+            {
+                Point2f p = motest[i].good_new_dir[j];
+                p.x *= 100.0f;
+                p.y *= 100.0f;
+                p.x += heatmap.cols*0.5;
+                p.y += heatmap.rows*0.5;
+                if(p.x >= heatmap.cols){continue;}
+                if(p.y >= heatmap.rows){continue;}
+                if(p.x < 0){continue;}
+                if(p.y < 0){continue;}
+                unsigned char * pix = heatmap.ptr((int)p.y, (int)p.x);
+                pix[0] = MIN(pix[0]+30, 254);
+                pix[1] = MIN(pix[1]+30, 254);
+                pix[2] = MIN(pix[2]+30, 254);
+            }
+        }
+
+        
+
+
+        //Mat img;
+        //add(frame, mask, img);
+        //imshow("Frame", img);
+
+        //Mat heatmap_rgb;
+        //applyColorMap(heatmap, heatmap_rgb, COLORMAP_JET);
+        //imshow("Heatmap", heatmap);
+        //videowriter.write(img);
+
+
+
+        vconcat(frame, heatmap, window);
+        imshow("Demo", window);
+        videowriter.write(window);
 
 
         // Now update the previous frame and previous points
