@@ -1,0 +1,32 @@
+{
+	"terminal.integrated.defaultProfile.windows": "mingw64",
+    "terminal.integrated.profiles.windows": {
+        "mingw64": {
+            "path": "C:/msys64/msys2_shell.cmd",
+            "args": [
+                "-defterm",
+                "-here",
+                "-no-start",
+                "-mingw64"
+            ]
+        }
+    },
+    "files.associations": {
+        "*.h": "c",
+        "iostream": "cpp",
+        "stop_token": "cpp",
+        "*.tcc": "cpp",
+        "istream": "cpp",
+        "array": "cpp",
+        "tuple": "cpp",
+        "utility": "cpp",
+        "numbers": "c",
+        "complex": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "deque": "cpp",
+        "string": "cpp",
+        "vector": "cpp"
+    },
+
+}

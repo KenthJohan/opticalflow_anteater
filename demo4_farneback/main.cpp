@@ -1,0 +1,223 @@
+#include <iostream>
+#include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/videoio.hpp>
+#include <opencv2/video.hpp>
+#include <assert.h>
+using namespace cv;
+using namespace std;
+
+
+#define CAM_WIDTH 1280
+#define CAM_HEIGHT 720
+#define MOTEST_COUNT 1
+#define MOTEST_COUNT_MAX 3
+
+
+void draw_direction(Mat m, Point2f dir)
+{
+    Point2f o1 = Point2f(m.cols / 2, m.rows / 2);
+    Point2f o2 = o1 + dir;
+    arrowedLine(m, o1, o2, Scalar(255, 0, 0), 2);
+}
+
+Point2f get_direction(Mat m)
+{
+    float *v = (float*)(m.data);
+    int cn = m.channels();
+    float dx = 0;
+    float dy = 0;
+    int nnan = 0;
+    int ninf = 0;
+    int nbig = 0;
+
+    for (MatIterator_<Vec2f> it = m.begin<Vec2f>(); it != m.end<Vec2f>(); ++it)
+    {
+        float dx0 = (*it)[0];
+        float dy0 = (*it)[1];
+        dx += dx0;
+        dy += dy0;
+    }
+    //printf("%i %i %f %f\n", nnan, ninf, dx, dy);
+    return Point2f(dx, dy);
+}
+
+
+typedef struct
+{
+    Mat flow;
+    Point2f dir;
+    Point2f dir_fir;
+    float flow_factor;
+    Mat bgr;
+} motionest_state_t;
+
+void motionest_init(motionest_state_t &state, InputArray f1)
+{
+    state.flow = Mat(f1.size(), CV_32FC2);
+    state.dir_fir = Point2f(0,0);
+    int n = state.flow.rows * state.flow.cols;
+    state.flow_factor = 1.0f / ((float)n);
+}
+
+
+void motionest_progress(motionest_state_t &state, InputArray f1, InputArray f2)
+{
+    state.flow.setTo(Scalar(0.0, 0.0));
+    calcOpticalFlowFarneback(f1, f2, state.flow, 0.5, 3, 15, 3, 5, 1.2, 0);
+    state.dir = get_direction(state.flow);
+    state.dir *= state.flow_factor;
+    float alpha = 0.4f;
+    state.dir_fir = state.dir_fir * (1.0f - alpha) + (state.dir * alpha);
+    // compute sum of positive matrix elements
+    // (assuming that M isa double-precision matrix)
+
+
+
+    // visualization
+
+    printf("flow_parts\n");
+
+    Mat flow_parts[2];
+    split(state.flow, flow_parts);
+    Mat magnitude, angle, magn_norm;
+    cartToPolar(flow_parts[0], flow_parts[1], magnitude, angle, true);
+    normalize(magnitude, magn_norm, 0.0f, 1.0f, NORM_MINMAX);
+    angle *= ((1.f / 360.f) * (180.f / 255.f));
+    //build hsv image
+    Mat _hsv[3], hsv, hsv8, bgr;
+    _hsv[0] = angle;
+    _hsv[1] = Mat::ones(angle.size(), CV_32F);
+    _hsv[2] = magn_norm;
+    merge(_hsv, 3, hsv);
+    hsv.convertTo(hsv8, CV_8U, 255.0);
+    cvtColor(hsv8, state.bgr, COLOR_HSV2BGR);
+    printf("%i %i %i\n", bgr.rows, bgr.cols, bgr.type());
+    /*
+    */
+}
+
+
+
+
+
+int main(int argc, char **argv)
+{
+    setbuf(stdout, NULL);
+    const string about =
+        "This sample demonstrates Lucas-Kanade Optical Flow calculation.\n"
+        "The example file can be downloaded from:\n"
+        "  https://www.bogotobogo.com/python/OpenCV_Python/images/mean_shift_tracking/slow_traffic_small.mp4";
+    const string keys =
+        "{ h help |      | print this help message }"
+        "{ @image | vtest.avi | path to image file }";
+    CommandLineParser parser(argc, argv, keys);
+    parser.about(about);
+    if (parser.has("help"))
+    {
+        parser.printMessage();
+        return 0;
+    }
+    string filename = samples::findFile(parser.get<string>("@image"));
+    if (!parser.check())
+    {
+        parser.printErrors();
+        return 0;
+    }
+    VideoCapture capture(filename);
+    capture.set(CAP_PROP_POS_FRAMES, 250);
+    printf("CAP_PROP_FRAME_WIDTH  : %i\n", (int)capture.get(CAP_PROP_FRAME_WIDTH));
+    printf("CAP_PROP_FRAME_HEIGHT : %i\n", (int)capture.get(CAP_PROP_FRAME_HEIGHT));
+
+    if (!capture.isOpened())
+    {
+        //error in opening the video input
+        cerr << "Unable to open file!" << endl;
+        return 0;
+    }
+    // Create some random colors
+
+
+
+    motionest_state_t motest[MOTEST_COUNT_MAX];
+    Rect roi[MOTEST_COUNT_MAX];
+
+    roi[0] = Rect(400, 400, 200, 100);
+    //roi[0] = Rect(0, 0, 400, 200);
+    roi[1] = Rect(1400, 50, 400, CAM_HEIGHT-150);
+    roi[2] = Rect(1810, 50, 400, CAM_HEIGHT-200);
+
+
+    
+
+
+    Mat frame;
+    Mat f1;
+    Mat f2;
+    static int frame_index = 0;
+
+
+    capture >> frame;
+    cvtColor(frame, f1, COLOR_BGR2GRAY);
+    cvtColor(frame, f2, COLOR_BGR2GRAY);
+
+    for(int i = 0; i < MOTEST_COUNT; ++i)
+    {
+        motionest_init(motest[i], f1(roi[i]));
+    }
+
+
+    //VideoWriter videowriter("Out.mp4", capture.get(CAP_PROP_FOURCC), capture.get(CAP_PROP_FPS), Size(capture.get(CAP_PROP_FRAME_WIDTH), capture.get(CAP_PROP_FRAME_HEIGHT)));
+
+
+    while(true)
+    {
+        {
+            int keyboard = waitKey(30);
+            if (keyboard == 'q' || keyboard == 27)
+                break;
+        }
+
+        frame_index++;
+
+
+
+
+        capture >> frame;
+        //printf("CAP_PROP_POS_FRAMES %i!\n", (int)capture.get(CAP_PROP_POS_FRAMES));
+        if (frame.empty())
+        {
+            printf("Video ended!\n");
+            capture.set(CAP_PROP_POS_FRAMES, 270);
+            continue;;
+        }
+        
+        cvtColor(frame, f2, COLOR_BGR2GRAY);
+
+        for(int i = 0; i < MOTEST_COUNT; ++i)
+        {
+            // calculate optical flow
+            motionest_progress(motest[i], f1(roi[i]), f2(roi[i]));
+        }
+
+
+        for(int i = 0; i < MOTEST_COUNT; ++i)
+        {
+            draw_direction(frame(roi[i]), motest[i].dir_fir * 50.0f);
+            rectangle(frame, roi[i], Scalar(0, 0, 255), 4);
+        }
+
+        imshow("Frame", frame);
+        
+        imshow("flow", motest[0].bgr);
+        
+        //videowriter.write(img);
+
+
+        // Now update the previous frame and previous points
+        f1 = f2.clone();
+        
+        
+    }
+}
