@@ -38,18 +38,14 @@ Point2f get_direction(Mat m)
 
 
 
-void histo2(Point2f p, Mat out)
+void histo_store(Point2f p, Mat out)
 {
     Point2f q = p;
-    q.x *= 10.0f;
-    q.y *= 10.0f;
-    q.x += out.cols/2;
-    q.y += out.rows/2;
     if(q.x >= out.cols) {return;}
     if(q.y >= out.rows) {return;}
     if(q.x < 0) {return;}
     if(q.y < 0) {return;}
-    out.at<float>(q) += 0.01f;
+    out.at<float>(q) += 0.001f;
 }
 
 
@@ -57,6 +53,7 @@ void histo(Mat m, Mat out)
 {
     float dx = 0;
     float dy = 0;
+
     for (MatIterator_<Vec2f> it = m.begin<Vec2f>(); it != m.end<Vec2f>(); ++it)
     {
         float x = (*it)[0];
@@ -67,10 +64,40 @@ void histo(Mat m, Mat out)
         if (isnanf(y)){continue;}
         if (isinf(x)){continue;}
         if (isinf(y)){continue;}
-        histo2(Point2f(x, y), out);
+        x *= 10.0f;
+        y *= 10.0f;
+        x += out.cols/2;
+        y += out.rows/2;
+        histo_store(Point2f(x, y), out);
     }
 }
 
+void histo_polar(Mat m, Mat out)
+{
+    float dx = 0;
+    float dy = 0;
+
+    for (MatIterator_<Vec2f> it = m.begin<Vec2f>(); it != m.end<Vec2f>(); ++it)
+    {
+        float x = (*it)[0];
+        float y = (*it)[1];
+        if (x == 0){continue;}
+        if (y == 0){continue;}
+        if (isnanf(x)){continue;}
+        if (isnanf(y)){continue;}
+        if (isinf(x)){continue;}
+        if (isinf(y)){continue;}
+        
+        float angle = atan2f(y, x);
+        float radius = sqrtf(x*x + y*y);
+        
+        angle += M_PI;
+        x = (angle) / (2.0f*M_PI);
+        x *= out.cols;
+        y = radius + (out.rows / 2);
+        histo_store(Point2f(x, y), out);
+    }
+}
 
 
 
@@ -85,7 +112,7 @@ typedef struct
 
 void motionest_init(motionest_state_t &state, InputArray f1)
 {
-    state.h = Mat(Size(100, 100), CV_32F);
+    state.h = Mat(Size(100, 50), CV_32F);
     state.h.setTo(0);
     state.flow = Mat(f1.size(), CV_32FC2);
     state.dir_fir = Point2f(0,0);
@@ -124,10 +151,10 @@ void motionest_progress(motionest_state_t &state, InputArray f1, InputArray f2)
     
     state.h.setTo(0);
     //histo2(state.dir_fir, state.h);
-    histo(state.flow, state.h);
+    histo_polar(state.flow, state.h);
     {
         Mat m;
-        resize(state.h, m, Size(1000, 1000), 0.5, 0.5, INTER_NEAREST);
+        resize(state.h, m, state.h.size()*10, 0.1, 0.1, INTER_NEAREST);
         imshow("Hist", m);
     }
 
