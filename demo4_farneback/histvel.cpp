@@ -119,8 +119,9 @@ void histvel_add_flow(histvel_state_t &state, Mat flow)
 
     //printf("%f %f\n", state.stddev[0], state.stddev[1]);
     histo_cartisan(flow, state.histogram);
-    //histo_polar(state.flow, state.h);
-    //GaussianBlur(state.h, state.h, Size(3, 3), 0);
+    //histo_polar(flow, state.histogram);
+
+    //GaussianBlur(state.histogram, state.histogram, Size(3, 3), 0);
 
 }
 
