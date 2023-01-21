@@ -14,7 +14,7 @@ void draw_direction(cv::Mat m, cv::Point2f dir)
 {
     cv::Point2f o1 = cv::Point2f(m.cols / 2, m.rows / 2);
     cv::Point2f o2 = o1 + dir;
-    cv::arrowedLine(m, o1, o2, cv::Scalar(255, 0, 0), 2);
+    cv::arrowedLine(m, o1, o2, cv::Scalar(200, 10, 50), 2);
 }
 
 
@@ -37,11 +37,15 @@ void show_flow(cv::Mat flow)
     cv::imshow("flow", bgr);
 }
 
-void draw_window(const cv::String &winname, cv::Mat m)
+void draw_resize(cv::InputArray src, cv::OutputArray out, int scale)
 {
-    cv::Mat a;
-    cv::resize(m, a, m.size()*6, 0.1, 0.1, cv::INTER_NEAREST);
-    draw_crosshair(m);
-    cv::imshow(winname, a);
+    cv::resize(src, out, src.size()*scale, 0.1, 0.1, cv::INTER_NEAREST);
+}
+
+
+void draw_circle_center(cv::Mat m, float r)
+{
+    cv::Point center = cv::Point(m.cols / 2, m.rows / 2);
+    cv::circle(m, center, r, cv::Scalar(0,0,255), 1);
 }
 
