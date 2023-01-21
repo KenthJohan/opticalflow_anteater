@@ -4,9 +4,18 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/video.hpp>
+#include <opencv2/features2d.hpp>
 #include <assert.h>
+
+#include "mest.hpp"
+#include "draw.hpp"
+
+
 using namespace cv;
 using namespace std;
+
+
+
 
 
 #define CAM_WIDTH 1280
@@ -15,169 +24,6 @@ using namespace std;
 #define MOTEST_COUNT_MAX 3
 
 
-void draw_direction(Mat m, Point2f dir)
-{
-    Point2f o1 = Point2f(m.cols / 2, m.rows / 2);
-    Point2f o2 = o1 + dir;
-    arrowedLine(m, o1, o2, Scalar(255, 0, 0), 2);
-}
-
-Point2f get_direction(Mat m)
-{
-    float dx = 0;
-    float dy = 0;
-    for (MatIterator_<Vec2f> it = m.begin<Vec2f>(); it != m.end<Vec2f>(); ++it)
-    {
-        float dx0 = (*it)[0];
-        float dy0 = (*it)[1];
-        dx += dx0;
-        dy += dy0;
-    }
-    return Point2f(dx, dy);
-}
-
-
-
-void histo_store(Point2f p, Mat out, float val)
-{
-    Point q = Point((int)p.x, (int)p.y);
-    if(q.x >= out.cols) {return;}
-    if(q.y >= out.rows) {return;}
-    if(q.x < 0) {return;}
-    if(q.y < 0) {return;}
-    out.at<float>(q) += val;
-}
-
-
-void histo_cartisan(Mat m, Mat out)
-{
-    for (MatIterator_<Vec2f> it = m.begin<Vec2f>(); it != m.end<Vec2f>(); ++it)
-    {
-        float x = (*it)[0];
-        float y = (*it)[1];
-        if (x == 0){continue;}
-        if (y == 0){continue;}
-        if (isnanf(x)){continue;}
-        if (isnanf(y)){continue;}
-        if (isinf(x)){continue;}
-        if (isinf(y)){continue;}
-        x *= 10.0f;
-        y *= 10.0f;
-        x += out.cols/2;
-        y += out.rows/2;
-        histo_store(Point2f(x, y), out, 0.005f);
-    }
-}
-
-void histo_polar(Mat m, Mat out)
-{
-    for (MatIterator_<Vec2f> it = m.begin<Vec2f>(); it != m.end<Vec2f>(); ++it)
-    {
-        float x = (*it)[0];
-        float y = (*it)[1];
-        if (x == 0){continue;}
-        if (y == 0){continue;}
-        if (isnanf(x)){continue;}
-        if (isnanf(y)){continue;}
-        if (isinf(x)){continue;}
-        if (isinf(y)){continue;}
-        float angle = atan2f(y, x);
-        float radius = sqrtf(x*x + y*y);
-        angle += M_PI;
-        x = (angle) / (2.0f*M_PI);
-        x *= out.cols;
-        y = radius + (out.rows / 2);
-        histo_store(Point2f(x, y), out, 0.0001f);
-    }
-}
-
-
-
-typedef struct
-{
-    Mat flow;
-    Point2f dir;
-    Point2f dir_fir;
-    float flow_factor;
-    Mat h;
-
-    Ptr<BackgroundSubtractor> pBackSub;
-    Mat fgMask;
-} motionest_state_t;
-
-void motionest_init(motionest_state_t &state, InputArray f1)
-{
-    state.h = Mat(Size(200, 200), CV_32F);
-    state.h.setTo(0);
-    state.flow = Mat(f1.size(), CV_32FC2);
-    state.dir_fir = Point2f(0,0);
-    int n = state.flow.rows * state.flow.cols;
-    state.flow_factor = 1.0f / ((float)n);
-    state.pBackSub = createBackgroundSubtractorMOG2(3, 10);
-}
-
-
-void motionest_progress(motionest_state_t &state, InputArray f1, InputArray f2)
-{
-    state.flow.setTo(Scalar(0.0, 0.0));
-    calcOpticalFlowFarneback(f1, f2, state.flow, 0.5, 3, 15, 3, 5, 1.2, 0);
-    
-
-    /*
-    {
-        double vmax;
-        double vmin;
-        Point imax;
-        Point imin;
-        minMaxLoc(state.h, &vmin, &vmax, &imin, &imax);
-        imax.x -= state.h.cols / 2;
-        imax.y -= state.h.rows / 2;
-        printf("%f, %i, %i\n", vmax, imax.x, imax.y);
-    }
-    */
-
-
-
-    /**/
-    state.dir = get_direction(state.flow);
-    state.dir *= state.flow_factor;
-    float alpha = 0.1f;
-    state.dir_fir = state.dir_fir * (1.0f - alpha) + (state.dir * alpha);
-
-    
-    state.h.setTo(0);
-    histo_cartisan(state.flow, state.h);
-    //histo_polar(state.flow, state.h);
-    {
-        //state.pBackSub->apply(state.h, state.fgMask);
-        //Mat bgMask;
-        //state.pBackSub->getBackgroundImage(bgMask);
-        Mat m;
-        resize(state.h, m, state.h.size()*6, 0.1, 0.1, INTER_NEAREST);
-        imshow("Hist", m);
-    }
-
-}
-
-
-void show_flow(Mat flow)
-{
-    Mat bgr; //Visual
-    Mat _hsv[3], hsv, hsv8;
-    Mat flow_parts[2];
-    Mat magnitude, angle, magn_norm;
-    split(flow, flow_parts);
-    cartToPolar(flow_parts[0], flow_parts[1], magnitude, angle, true);
-    normalize(magnitude, magn_norm, 0.0f, 1.0f, NORM_MINMAX);
-    angle *= ((1.f / 360.f) * (180.f / 255.f));
-    _hsv[0] = angle;
-    _hsv[1] = Mat::ones(angle.size(), CV_32F);
-    _hsv[2] = magn_norm;
-    merge(_hsv, 3, hsv);
-    hsv.convertTo(hsv8, CV_8U, 255.0);
-    cvtColor(hsv8, bgr, COLOR_HSV2BGR);
-    imshow("flow", bgr);
-}
 
 
 

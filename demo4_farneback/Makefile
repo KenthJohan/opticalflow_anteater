@@ -24,7 +24,7 @@ else
 endif
 
 
-SRCS := main.cpp
+SRCS := main.cpp mest.cpp draw.cpp
 
 
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
