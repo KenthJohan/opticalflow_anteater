@@ -103,35 +103,38 @@ void histvel_init(histvel_state_t &state)
 
 
 
-
-
-
-
-
-void histvel_progress(histvel_state_t &state, Mat flow)
+void histvel_add_flow(histvel_state_t &state, Mat flow)
 {
     histo_cartisan(flow, state.histogram);
-    //GaussianBlur(state.h, state.h, Size(3, 3), 0);
-    state.detector->detect(state.histogram, state.keypoints);
     //histo_polar(state.flow, state.h);
-    {
-        printf("%i\n", state.keypoints.size());
-        Mat im;
-        drawKeypoints(state.histogram, state.keypoints, im, Scalar(0, 0, 100), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-        //state.pBackSub->apply(state.h, state.fgMask);
-        //Mat bgMask;
-        //state.pBackSub->getBackgroundImage(bgMask);
-        Mat m;
-        resize(im, m, im.size()*6, 0.1, 0.1, INTER_NEAREST);
-        draw_crosshair(m);
-        imshow("Hist", m);
-    }
-
+    //GaussianBlur(state.h, state.h, Size(3, 3), 0);
 }
 
 
 
 
+void histvel_progress(histvel_state_t &state)
+{
+    state.detector->detect(state.histogram, state.keypoints);
+
+    {
+
+    }
+}
+
+
+
+
+void histvel_draw(histvel_state_t &state)
+{
+    printf("%i\n", state.keypoints.size());
+    Mat im;
+    drawKeypoints(state.histogram, state.keypoints, im, Scalar(0, 0, 100), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+    //state.pBackSub->apply(state.h, state.fgMask);
+    //Mat bgMask;
+    //state.pBackSub->getBackgroundImage(bgMask);
+    draw_window("VelocitiesHistgram", im);
+}
 
 
 

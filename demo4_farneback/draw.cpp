@@ -36,3 +36,12 @@ void show_flow(cv::Mat flow)
     cv::cvtColor(hsv8, bgr, cv::COLOR_HSV2BGR);
     cv::imshow("flow", bgr);
 }
+
+void draw_window(const cv::String &winname, cv::Mat m)
+{
+    cv::Mat a;
+    cv::resize(m, a, m.size()*6, 0.1, 0.1, cv::INTER_NEAREST);
+    draw_crosshair(m);
+    cv::imshow(winname, a);
+}
+

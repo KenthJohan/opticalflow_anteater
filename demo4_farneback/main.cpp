@@ -21,7 +21,7 @@ using namespace std;
 
 #define CAM_WIDTH 1280
 #define CAM_HEIGHT 720
-#define MOTEST_COUNT 1
+#define MOTEST_COUNT 3
 #define MOTEST_COUNT_MAX 3
 
 
@@ -70,9 +70,12 @@ int main(int argc, char **argv)
     Rect roi[MOTEST_COUNT_MAX];
 
     roi[0] = Rect(400, 400, 200, 100);
+    roi[1] = Rect(1400, 400, 200, 100);
+    roi[2] = Rect(1810, 400, 200, 100);
+
     //roi[0] = Rect(0, 0, 400, 200);
-    roi[1] = Rect(1400, 50, 400, CAM_HEIGHT-150);
-    roi[2] = Rect(1810, 50, 400, CAM_HEIGHT-200);
+    //roi[1] = Rect(1400, 50, 400, CAM_HEIGHT-150);
+    //roi[2] = Rect(1810, 50, 400, CAM_HEIGHT-200);
 
 
     histvel_state_t histvel;
@@ -131,8 +134,11 @@ int main(int argc, char **argv)
         {
             // calculate optical flow
             motionest_progress(motest[i], f1(roi[i]), f2(roi[i]));
-            histvel_progress(histvel, motest[i].flow);
+            histvel_add_flow(histvel, motest[i].flow);
         }
+        
+        histvel_progress(histvel);
+        histvel_draw(histvel);
 
 
         for(int i = 0; i < MOTEST_COUNT; ++i)
