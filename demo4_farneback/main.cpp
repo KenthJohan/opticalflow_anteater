@@ -9,6 +9,7 @@
 
 #include "mest.hpp"
 #include "draw.hpp"
+#include "histvel.hpp"
 
 
 using namespace cv;
@@ -74,7 +75,10 @@ int main(int argc, char **argv)
     roi[2] = Rect(1810, 50, 400, CAM_HEIGHT-200);
 
 
-    
+    histvel_state_t histvel;
+    histvel_init(histvel);
+
+
 
 
     Mat frame;
@@ -120,10 +124,14 @@ int main(int argc, char **argv)
         
         cvtColor(frame, f2, COLOR_BGR2GRAY);
 
+
+        
+        histvel.histogram.setTo(0);
         for(int i = 0; i < MOTEST_COUNT; ++i)
         {
             // calculate optical flow
             motionest_progress(motest[i], f1(roi[i]), f2(roi[i]));
+            histvel_progress(histvel, motest[i].flow);
         }
 
 
