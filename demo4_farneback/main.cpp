@@ -65,7 +65,7 @@ void histo_cartisan(Mat m, Mat out)
         y *= 10.0f;
         x += out.cols/2;
         y += out.rows/2;
-        histo_store(Point2f(x, y), out, 0.05f);
+        histo_store(Point2f(x, y), out, 0.005f);
     }
 }
 
@@ -100,6 +100,9 @@ typedef struct
     Point2f dir_fir;
     float flow_factor;
     Mat h;
+
+    Ptr<BackgroundSubtractor> pBackSub;
+    Mat fgMask;
 } motionest_state_t;
 
 void motionest_init(motionest_state_t &state, InputArray f1)
@@ -110,6 +113,7 @@ void motionest_init(motionest_state_t &state, InputArray f1)
     state.dir_fir = Point2f(0,0);
     int n = state.flow.rows * state.flow.cols;
     state.flow_factor = 1.0f / ((float)n);
+    state.pBackSub = createBackgroundSubtractorMOG2(3, 10);
 }
 
 
@@ -145,8 +149,11 @@ void motionest_progress(motionest_state_t &state, InputArray f1, InputArray f2)
     histo_cartisan(state.flow, state.h);
     //histo_polar(state.flow, state.h);
     {
+        //state.pBackSub->apply(state.h, state.fgMask);
+        //Mat bgMask;
+        //state.pBackSub->getBackgroundImage(bgMask);
         Mat m;
-        resize(state.h, m, state.h.size()*2, 0.1, 0.1, INTER_NEAREST);
+        resize(state.h, m, state.h.size()*6, 0.1, 0.1, INTER_NEAREST);
         imshow("Hist", m);
     }
 
