@@ -143,7 +143,7 @@ int main(int argc, char **argv)
 
         for(int i = 0; i < MOTEST_COUNT; ++i)
         {
-            draw_direction(frame(roi[i]), motest[i].dir_fir * 50.0f);
+            draw_direction(frame(roi[i]), motest[i].dir_fir * 50.0f, cv::Scalar(200, 10, 50));
             rectangle(frame, roi[i], Scalar(0, 0, 255), 4);
         }
 

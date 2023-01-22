@@ -74,7 +74,7 @@ void histo_polar(Mat m, Mat out)
 
 void histvel_init(histvel_state_t &state)
 {
-    state.histogram = Mat(Size(200, 200), CV_8U);
+    state.histogram = Mat(Size(150, 150), CV_8U);
     state.histogram.setTo(0);
     state.pBackSub = createBackgroundSubtractorMOG2(3, 10);
     SimpleBlobDetector::Params params;
@@ -149,13 +149,20 @@ void histvel_progress(histvel_state_t &state)
         max_point -= c;
         Point2f dir = max_point;
         dir /= HVEL_GAIN;
-        float alpha = 0.7f;
-        state.dir = (state.dir * (1.0f - alpha)) + (dir * alpha);
+        float alpha1 = 1.0f;
+        float alpha2 = 0.5f;
+        float alpha3 = 0.1f;
+        state.dir[0] = (state.dir[0] * (1.0f - alpha1)) + (dir * alpha1);
+        state.dir[1] = (state.dir[1] * (1.0f - alpha2)) + (dir * alpha2);
+        state.dir[2] = (state.dir[2] * (1.0f - alpha3)) + (dir * alpha3);
     }
 }
 
 
 #define UPSCALE 6
+
+
+#define NORM(x,y) sqrtf(x*x + y*y)
 
 void histvel_draw(histvel_state_t &state)
 {
@@ -165,6 +172,7 @@ void histvel_draw(histvel_state_t &state)
     //state.pBackSub->apply(state.h, state.fgMask);
     //Mat bgMask;
     //state.pBackSub->getBackgroundImage(bgMask);
+    state.histogram *= 2;
     Mat bgr;
     cvtColor(state.histogram, bgr, COLOR_GRAY2BGR);
 
@@ -174,8 +182,16 @@ void histvel_draw(histvel_state_t &state)
     Mat big;
     draw_resize(bgr, big, UPSCALE);
     draw_crosshair(big);
-    draw_direction(big, state.dir*UPSCALE*HVEL_GAIN);
+    draw_direction(big, state.dir[0]*UPSCALE*HVEL_GAIN, cv::Scalar(255, 0, 0));
+    draw_direction(big, state.dir[1]*UPSCALE*HVEL_GAIN, cv::Scalar(0, 255, 0));
+    draw_direction(big, state.dir[2]*UPSCALE*HVEL_GAIN, cv::Scalar(0, 0, 255));
     draw_circle_center(big, state.ignore_radius*UPSCALE);
+    float mag1 = NORM(state.dir[0].x, state.dir[0].y);
+    float mag2 = NORM(state.dir[1].x, state.dir[1].y);
+    float mag3 = NORM(state.dir[2].x, state.dir[2].y);
+    draw_text_float(big, cv::Point(big.cols - 200, 200+40), mag1);
+    draw_text_float(big, cv::Point(big.cols - 200, 200+70), mag2);
+    draw_text_float(big, cv::Point(big.cols - 200, 200+100), mag3);
     cv::imshow("VelocitiesHistgram", big);
 }
 

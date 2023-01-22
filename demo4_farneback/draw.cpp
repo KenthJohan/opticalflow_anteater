@@ -10,11 +10,11 @@ void draw_crosshair(cv::Mat m)
     cv::line(m, cv::Point(0, y), cv::Point(m.rows, y), cv::Scalar(100,100,0), 1);
 }
 
-void draw_direction(cv::Mat m, cv::Point2f dir)
+void draw_direction(cv::Mat m, cv::Point2f dir, const cv::Scalar& color)
 {
     cv::Point2f o1 = cv::Point2f(m.cols / 2, m.rows / 2);
     cv::Point2f o2 = o1 + dir;
-    cv::arrowedLine(m, o1, o2, cv::Scalar(200, 10, 50), 2);
+    cv::arrowedLine(m, o1, o2, color, 2);
 }
 
 
@@ -46,6 +46,31 @@ void draw_resize(cv::InputArray src, cv::OutputArray out, int scale)
 void draw_circle_center(cv::Mat m, float r)
 {
     cv::Point center = cv::Point(m.cols / 2, m.rows / 2);
-    cv::circle(m, center, r, cv::Scalar(0,0,255), 1);
+    cv::circle(m, center, r, cv::Scalar(10,10,200), 2);
 }
 
+
+void draw_text(cv::Mat img, const cv::String &text)
+{
+cv::putText(img,
+            text,
+            cv::Point(10, img.rows / 2), //top-left position
+            cv::FONT_HERSHEY_DUPLEX,
+            1.0,
+            CV_RGB(118, 185, 0), //font color
+            2);
+}
+
+
+void draw_text_float(cv::Mat img, cv::Point pos, float value)
+{
+    char buf[100];
+    snprintf(buf, 100, "%f", value);
+    cv::putText(img,
+            buf,
+           pos,
+            cv::FONT_HERSHEY_DUPLEX,
+            1.0,
+            CV_RGB(118, 185, 0), //font color
+            2);
+}

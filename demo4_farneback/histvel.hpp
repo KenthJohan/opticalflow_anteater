@@ -12,7 +12,7 @@ typedef struct
     cv::Mat fgMask;
     std::vector<cv::KeyPoint> keypoints;
     cv::Ptr<cv::SimpleBlobDetector> detector;
-    cv::Point2f dir;
+    cv::Point2f dir[3];
     
     cv::Point2f mean;
     cv::Point2f stddev;
