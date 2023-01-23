@@ -95,6 +95,10 @@ void histvel_init(histvel_state_t &state)
     params.filterByInertia = false;
     params.minInertiaRatio = 0.01;
     state.detector = SimpleBlobDetector::create(params);
+
+
+    state.speed_n = 0;
+    state.speed_sum = 0;
 }
 
 
@@ -164,6 +168,14 @@ void histvel_progress(histvel_state_t &state)
 
 #define EUCLIDEAN_NORM(x,y) sqrtf(x*x + y*y)
 
+// Temorary stuff:
+#define MATERIAL_LENGTH 0.25
+#define WELDING_DURATION 12.0
+#define WELD_SPEED (MATERIAL_LENGTH/WELDING_DURATION)
+#define WELD_PIX_AVG_SPEED 2.7
+#define THE_FACTOR (WELD_SPEED / WELD_PIX_AVG_SPEED)
+
+
 void histvel_draw(histvel_state_t &state)
 {
     //printf("%i\n", state.keypoints.size());
@@ -182,17 +194,19 @@ void histvel_draw(histvel_state_t &state)
     Mat big;
     draw_resize(bgr, big, UPSCALE);
     draw_crosshair(big);
-    draw_direction(big, state.dir[0]*UPSCALE*HVEL_GAIN, cv::Scalar(255, 0, 0));
-    draw_direction(big, state.dir[1]*UPSCALE*HVEL_GAIN, cv::Scalar(0, 255, 0));
-    draw_direction(big, state.dir[2]*UPSCALE*HVEL_GAIN, cv::Scalar(0, 0, 255));
+    draw_direction(big, state.dir[0]*UPSCALE*HVEL_GAIN, CV_RGB(255, 0, 0));
+    draw_direction(big, state.dir[1]*UPSCALE*HVEL_GAIN, CV_RGB(0, 255, 0));
+    draw_direction(big, state.dir[2]*UPSCALE*HVEL_GAIN, CV_RGB(0, 0, 255));
     draw_circle_center(big, state.ignore_radius*UPSCALE);
     float mag1 = EUCLIDEAN_NORM(state.dir[0].x, state.dir[0].y);
     float mag2 = EUCLIDEAN_NORM(state.dir[1].x, state.dir[1].y);
     float mag3 = EUCLIDEAN_NORM(state.dir[2].x, state.dir[2].y);
-    draw_text_float(big, cv::Point(big.cols - 200, 200+40), mag1);
-    draw_text_float(big, cv::Point(big.cols - 200, 200+70), mag2);
-    draw_text_float(big, cv::Point(big.cols - 200, 200+100), mag3);
-    cv::imshow("VelocitiesHistgram", big);
+    state.speed_sum += mag1;
+    state.speed_n += 1;
+    draw_text_float(big, cv::Point(big.cols - 300, 200+10), CV_RGB(255, 255, 255), "ref %7.4f m/s", WELD_SPEED);
+    draw_text_float(big, cv::Point(big.cols - 300, 200+40), CV_RGB(255, 0, 0), " f0 %7.4f m/s", mag1*THE_FACTOR);
+    draw_text_float(big, cv::Point(big.cols - 300, 200+70), CV_RGB(0, 255, 0), " f1 %7.4f m/s", mag2*THE_FACTOR);
+    draw_text_float(big, cv::Point(big.cols - 300, 200+100), CV_RGB(0, 0, 255), " f2 %7.4f m/s", mag3*THE_FACTOR);    cv::imshow("VelocitiesHistgram", big);
 }
 
 

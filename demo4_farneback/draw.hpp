@@ -8,4 +8,4 @@ void draw_circle_center(cv::Mat m, float r);
 
 void draw_resize(cv::InputArray src, cv::OutputArray out, int scale);
 void draw_text(cv::Mat img, const cv::String &text);
-void draw_text_float(cv::Mat img, cv::Point pos, float value);
+void draw_text_float(cv::Mat img, cv::Point pos, cv::Scalar color, char const * fmt, float value);

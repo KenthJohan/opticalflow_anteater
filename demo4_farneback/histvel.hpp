@@ -17,6 +17,9 @@ typedef struct
     cv::Point2f mean;
     cv::Point2f stddev;
     float ignore_radius;
+
+    float speed_sum;
+    float speed_n;
 } histvel_state_t;
 
 

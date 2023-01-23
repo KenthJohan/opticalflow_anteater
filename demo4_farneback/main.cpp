@@ -52,7 +52,7 @@ int main(int argc, char **argv)
         return 0;
     }
     VideoCapture capture(filename);
-    capture.set(CAP_PROP_POS_FRAMES, 250);
+    capture.set(CAP_PROP_POS_FRAMES, 220);
     printf("CAP_PROP_FRAME_WIDTH  : %i\n", (int)capture.get(CAP_PROP_FRAME_WIDTH));
     printf("CAP_PROP_FRAME_HEIGHT : %i\n", (int)capture.get(CAP_PROP_FRAME_HEIGHT));
 
@@ -113,6 +113,7 @@ int main(int argc, char **argv)
             {
                 wait_delay = (wait_delay == 0) ? 30 : 0;
             }
+            printf("Avg speed %f\n", histvel.speed_sum / histvel.speed_n);
         }
 
 
@@ -128,6 +129,8 @@ int main(int argc, char **argv)
         {
             printf("Video ended!\n");
             capture.set(CAP_PROP_POS_FRAMES, 270);
+            histvel.speed_sum = 0;
+            histvel.speed_n = 0;
             continue;;
         }
         

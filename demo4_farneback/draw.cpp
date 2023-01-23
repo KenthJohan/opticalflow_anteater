@@ -62,15 +62,15 @@ cv::putText(img,
 }
 
 
-void draw_text_float(cv::Mat img, cv::Point pos, float value)
+void draw_text_float(cv::Mat img, cv::Point pos, cv::Scalar color, char const * fmt, float value)
 {
     char buf[100];
-    snprintf(buf, 100, "%f", value);
+    snprintf(buf, 100, fmt, value);
     cv::putText(img,
             buf,
            pos,
             cv::FONT_HERSHEY_DUPLEX,
             1.0,
-            CV_RGB(118, 185, 0), //font color
+            color,
             2);
 }
