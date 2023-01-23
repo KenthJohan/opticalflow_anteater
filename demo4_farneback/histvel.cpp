@@ -162,7 +162,7 @@ void histvel_progress(histvel_state_t &state)
 #define UPSCALE 6
 
 
-#define NORM(x,y) sqrtf(x*x + y*y)
+#define EUCLIDEAN_NORM(x,y) sqrtf(x*x + y*y)
 
 void histvel_draw(histvel_state_t &state)
 {
@@ -186,9 +186,9 @@ void histvel_draw(histvel_state_t &state)
     draw_direction(big, state.dir[1]*UPSCALE*HVEL_GAIN, cv::Scalar(0, 255, 0));
     draw_direction(big, state.dir[2]*UPSCALE*HVEL_GAIN, cv::Scalar(0, 0, 255));
     draw_circle_center(big, state.ignore_radius*UPSCALE);
-    float mag1 = NORM(state.dir[0].x, state.dir[0].y);
-    float mag2 = NORM(state.dir[1].x, state.dir[1].y);
-    float mag3 = NORM(state.dir[2].x, state.dir[2].y);
+    float mag1 = EUCLIDEAN_NORM(state.dir[0].x, state.dir[0].y);
+    float mag2 = EUCLIDEAN_NORM(state.dir[1].x, state.dir[1].y);
+    float mag3 = EUCLIDEAN_NORM(state.dir[2].x, state.dir[2].y);
     draw_text_float(big, cv::Point(big.cols - 200, 200+40), mag1);
     draw_text_float(big, cv::Point(big.cols - 200, 200+70), mag2);
     draw_text_float(big, cv::Point(big.cols - 200, 200+100), mag3);

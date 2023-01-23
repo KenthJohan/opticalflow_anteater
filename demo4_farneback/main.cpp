@@ -102,14 +102,20 @@ int main(int argc, char **argv)
 
     //VideoWriter videowriter("Out.mp4", capture.get(CAP_PROP_FOURCC), capture.get(CAP_PROP_FPS), Size(capture.get(CAP_PROP_FRAME_WIDTH), capture.get(CAP_PROP_FRAME_HEIGHT)));
 
-
+    int wait_delay = 0;
     while(true)
     {
+
         {
-            int keyboard = waitKey(30);
-            if (keyboard == 'q' || keyboard == 27)
-                break;
+            int keyboard = waitKey(wait_delay);
+            if (keyboard == 'q' || keyboard == 27) {break;}
+            if (keyboard == 'p') 
+            {
+                wait_delay = (wait_delay == 0) ? 30 : 0;
+            }
         }
+
+
 
         frame_index++;
 
