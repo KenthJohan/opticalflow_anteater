@@ -12,6 +12,7 @@
 #include "mest.hpp"
 #include "draw.hpp"
 #include "histvel.hpp"
+#include "histvel_visual.hpp"
 
 
 using namespace cv;
@@ -81,7 +82,9 @@ int main(int argc, char **argv)
 
 
     histvel_state_t histvel;
-    histvel_init(histvel);
+    histvel_visual_t histvel_visual;
+    histvel_state_init(histvel);
+    histvel_visual_init(histvel_visual);
 
 
 
@@ -146,11 +149,11 @@ int main(int argc, char **argv)
         {
             // calculate optical flow
             motionest_progress(motest[i], f1(roi[i]), f2(roi[i]));
-            histvel_add_flow(histvel, motest[i].flow);
+            histvel_state_add_flow(histvel, motest[i].flow);
         }
         
-        histvel_progress(histvel);
-        histvel_draw(histvel);
+        histvel_state_progress(histvel);
+        histvel_visual_draw(histvel_visual, histvel);
 
 
         for(int i = 0; i < MOTEST_COUNT; ++i)
