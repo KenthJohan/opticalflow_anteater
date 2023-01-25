@@ -19,7 +19,7 @@ void draw_direction(cv::Mat m, cv::Point2f dir, const cv::Scalar& color)
 }
 
 
-void show_flow(cv::Mat flow)
+void draw_flow(cv::Mat flow)
 {
     cv::Mat bgr; //Visual
     cv::Mat _hsv[3], hsv, hsv8;

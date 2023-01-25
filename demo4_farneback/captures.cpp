@@ -25,6 +25,7 @@ void captures_init(captures_t &state, std::string filename)
 void captures_progress(captures_t &state)
 {
 	state.capture >> state.frame;
+	state.frame_index++;
     state.f1 = state.f2.clone();
 	cv::cvtColor(state.frame, state.f2, cv::COLOR_BGR2GRAY);
 }

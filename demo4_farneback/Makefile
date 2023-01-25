@@ -24,7 +24,7 @@ else
 endif
 
 
-SRCS := main.cpp mest.cpp draw.cpp histvel.cpp histvel_visual.cpp captures.cpp
+SRCS := main.cpp mest.cpp draw.cpp histvel.cpp histvel_visual.cpp captures.cpp args.cpp userinputs.cpp mest_visual.cpp
 
 
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
