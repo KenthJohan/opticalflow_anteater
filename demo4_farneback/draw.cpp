@@ -15,6 +15,7 @@ void draw_direction(cv::Mat m, cv::Point2f dir, const cv::Scalar& color)
     cv::Point2f o1 = cv::Point2f(m.cols / 2, m.rows / 2);
     cv::Point2f o2 = o1 + dir;
     cv::arrowedLine(m, o1, o2, color, 2);
+    //cv::circle(m, o2, 5, color, -1);
 }
 
 
@@ -46,7 +47,7 @@ void draw_resize(cv::InputArray src, cv::OutputArray out, int scale)
 void draw_circle_center(cv::Mat m, float r)
 {
     cv::Point center = cv::Point(m.cols / 2, m.rows / 2);
-    cv::circle(m, center, r, cv::Scalar(10,10,200), 2);
+    cv::circle(m, center, r, cv::Scalar(200,200,200), 1);
 }
 
 

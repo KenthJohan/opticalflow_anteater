@@ -7,6 +7,8 @@
 #include <opencv2/features2d.hpp>
 #include <assert.h>
 
+
+
 #include "mest.hpp"
 #include "draw.hpp"
 #include "histvel.hpp"
@@ -113,7 +115,7 @@ int main(int argc, char **argv)
             {
                 wait_delay = (wait_delay == 0) ? 30 : 0;
             }
-            printf("Avg speed %f\n", histvel.speed_sum / histvel.speed_n);
+            //printf("Avg speed %f\n", histvel.speed_sum / histvel.speed_n);
         }
 
 
@@ -131,6 +133,7 @@ int main(int argc, char **argv)
             capture.set(CAP_PROP_POS_FRAMES, 270);
             histvel.speed_sum = 0;
             histvel.speed_n = 0;
+            histvel.vels.clear();
             continue;;
         }
         

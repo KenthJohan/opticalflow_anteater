@@ -4,6 +4,8 @@
 #include <opencv2/video/background_segm.hpp>
 
 
+#include <opencv2/plot.hpp>
+
 typedef struct
 {
     cv::Mat histogram;
@@ -20,6 +22,10 @@ typedef struct
 
     float speed_sum;
     float speed_n;
+
+    cv::Ptr<cv::plot::Plot2d> plot;
+    std::vector<double> vels;
+
 } histvel_state_t;
 
 
