@@ -79,11 +79,12 @@ void histvel_state_init(histvel_state_t &state)
 {
     state.histogram = Mat(Size(150, 150), CV_8U);
     state.histogram.setTo(0);
-    state.speed_n = 0;
-    state.speed_sum = 0;
-    state.vels.push_back(0);
 }
 
+void histvel_state_reset(histvel_state_t &state)
+{
+    state.histogram.setTo(0);
+}
 
 
 
@@ -115,6 +116,8 @@ void histvel_state_add_flow(histvel_state_t &state, Mat flow)
 
 
 
+#define EUCLIDEAN_NORM(x,y) sqrtf(x*x + y*y)
+
 void histvel_state_progress(histvel_state_t &state)
 {
     //state.detector->detect(state.histogram, state.keypoints);
@@ -142,7 +145,12 @@ void histvel_state_progress(histvel_state_t &state)
         state.dir[0] = (state.dir[0] * (1.0f - alpha1)) + (dir * alpha1);
         state.dir[1] = (state.dir[1] * (1.0f - alpha2)) + (dir * alpha2);
         state.dir[2] = (state.dir[2] * (1.0f - alpha3)) + (dir * alpha3);
+    }
 
+    {
+        state.mag0 = EUCLIDEAN_NORM(state.dir[0].x, state.dir[0].y);
+        state.mag1 = EUCLIDEAN_NORM(state.dir[1].x, state.dir[1].y);
+        state.mag2 = EUCLIDEAN_NORM(state.dir[2].x, state.dir[2].y);
     }
 
     

@@ -134,9 +134,8 @@ int main(int argc, char **argv)
         {
             printf("Video ended!\n");
             capture.set(CAP_PROP_POS_FRAMES, 270);
-            histvel.speed_sum = 0;
-            histvel.speed_n = 0;
-            histvel.vels.clear();
+            histvel_state_reset(histvel);
+            histvel_visual_reset(histvel_visual);
             continue;;
         }
         
