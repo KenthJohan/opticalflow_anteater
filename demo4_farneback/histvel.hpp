@@ -9,11 +9,7 @@
 typedef struct
 {
     cv::Mat histogram;
-    float flow_factor;
-    cv::Ptr<cv::BackgroundSubtractor> pBackSub;
-    cv::Mat fgMask;
-    std::vector<cv::KeyPoint> keypoints;
-    cv::Ptr<cv::SimpleBlobDetector> detector;
+
     cv::Point2f dir[3];
     
     cv::Point2f mean;
@@ -27,6 +23,7 @@ typedef struct
     std::vector<double> vels;
 
 } histvel_state_t;
+
 
 
 void histvel_init(histvel_state_t &state);

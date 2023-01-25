@@ -79,27 +79,6 @@ void histvel_init(histvel_state_t &state)
 {
     state.histogram = Mat(Size(150, 150), CV_8U);
     state.histogram.setTo(0);
-    state.pBackSub = createBackgroundSubtractorMOG2(3, 10);
-    SimpleBlobDetector::Params params;
-    // Change thresholds
-    params.minThreshold = 50;
-    params.maxThreshold = 255;
-    // Filter by Area.
-    params.filterByArea = true;
-    params.minArea = 5;
-    params.minArea = 20;
-    // Filter by Circularity
-    params.filterByCircularity = false;
-    params.minCircularity = 0.1;
-    // Filter by Convexity
-    params.filterByConvexity = false;
-    params.minConvexity = 0.3;
-    // Filter by Inertia
-    params.filterByInertia = false;
-    params.minInertiaRatio = 0.01;
-    state.detector = SimpleBlobDetector::create(params);
-
-
     state.speed_n = 0;
     state.speed_sum = 0;
 
