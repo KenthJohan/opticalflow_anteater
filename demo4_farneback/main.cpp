@@ -13,6 +13,7 @@
 #include "draw.hpp"
 #include "histvel.hpp"
 #include "histvel_visual.hpp"
+#include "captures.hpp"
 
 
 using namespace cv;
@@ -48,25 +49,22 @@ int main(int argc, char **argv)
         parser.printMessage();
         return 0;
     }
+
     string filename = samples::findFile(parser.get<string>("@image"));
     if (!parser.check())
     {
         parser.printErrors();
-        return 0;
+        return 1;
     }
-    VideoCapture capture(filename);
-    capture.set(CAP_PROP_POS_FRAMES, 220);
-    printf("CAP_PROP_FRAME_WIDTH  : %i\n", (int)capture.get(CAP_PROP_FRAME_WIDTH));
-    printf("CAP_PROP_FRAME_HEIGHT : %i\n", (int)capture.get(CAP_PROP_FRAME_HEIGHT));
 
-    if (!capture.isOpened())
+
+    captures_t captures;
+    captures_init(captures, filename);
+    if (captures.capture.isOpened() == false)
     {
-        //error in opening the video input
-        cerr << "Unable to open file!" << endl;
-        return 0;
+        fprintf(stderr, "Unable to open file!");
+        return 1;
     }
-    // Create some random colors
-
 
 
     motionest_state_t motest[MOTEST_COUNT_MAX];
@@ -82,26 +80,15 @@ int main(int argc, char **argv)
 
 
     histvel_state_t histvel;
-    histvel_visual_t histvel_visual;
     histvel_state_init(histvel);
+
+    histvel_visual_t histvel_visual;
     histvel_visual_init(histvel_visual);
 
-
-
-
-    Mat frame;
-    Mat f1;
-    Mat f2;
-    static int frame_index = 0;
-
-
-    capture >> frame;
-    cvtColor(frame, f1, COLOR_BGR2GRAY);
-    cvtColor(frame, f2, COLOR_BGR2GRAY);
-
+    captures_progress(captures);
     for(int i = 0; i < MOTEST_COUNT; ++i)
     {
-        motionest_init(motest[i], f1(roi[i]));
+        motionest_init(motest[i], captures.f1(roi[i]));
     }
 
 
@@ -123,31 +110,22 @@ int main(int argc, char **argv)
 
 
 
-        frame_index++;
-
-
-
-
-        capture >> frame;
-        //printf("CAP_PROP_POS_FRAMES %i!\n", (int)capture.get(CAP_PROP_POS_FRAMES));
-        if (frame.empty())
+        captures_progress(captures);
+        if (captures.frame.empty())
         {
             printf("Video ended!\n");
-            capture.set(CAP_PROP_POS_FRAMES, 270);
+            captures_reset(captures);
             histvel_state_reset(histvel);
             histvel_visual_reset(histvel_visual);
             continue;;
         }
-        
-        cvtColor(frame, f2, COLOR_BGR2GRAY);
-
 
         
         histvel.histogram.setTo(0);
         for(int i = 0; i < MOTEST_COUNT; ++i)
         {
             // calculate optical flow
-            motionest_progress(motest[i], f1(roi[i]), f2(roi[i]));
+            motionest_progress(motest[i], captures.f1(roi[i]), captures.f2(roi[i]));
             histvel_state_add_flow(histvel, motest[i].flow);
         }
         
@@ -157,19 +135,18 @@ int main(int argc, char **argv)
 
         for(int i = 0; i < MOTEST_COUNT; ++i)
         {
-            draw_direction(frame(roi[i]), motest[i].dir_fir * 50.0f, cv::Scalar(200, 10, 50));
-            rectangle(frame, roi[i], Scalar(0, 0, 255), 4);
+            draw_direction(captures.frame(roi[i]), motest[i].dir_fir * 50.0f, cv::Scalar(200, 10, 50));
+            rectangle(captures.frame, roi[i], Scalar(0, 0, 255), 4);
         }
 
-        imshow("Frame", frame);
+        imshow("Frame", captures.frame);
         show_flow(motest[0].flow);
         
         
         //videowriter.write(img);
 
 
-        // Now update the previous frame and previous points
-        f1 = f2.clone();
+ 
         
         
     }
