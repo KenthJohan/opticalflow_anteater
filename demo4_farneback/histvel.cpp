@@ -116,7 +116,7 @@ void histvel_state_add_flow(histvel_state_t &state, Mat flow)
 
 
 
-#define EUCLIDEAN_NORM(x,y) sqrtf(x*x + y*y)
+#define EUCLIDEAN_NORM(x,y) sqrtf((x)*(x) + (y)*(y))
 
 void histvel_state_progress(histvel_state_t &state)
 {

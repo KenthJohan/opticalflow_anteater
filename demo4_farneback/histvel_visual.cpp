@@ -2,6 +2,8 @@
 #include "histvel.hpp"
 #include "draw.hpp"
 #include <opencv2/plot.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 
 
 

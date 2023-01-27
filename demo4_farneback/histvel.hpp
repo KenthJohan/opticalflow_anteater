@@ -1,7 +1,5 @@
 #pragma once
 #include <opencv2/core.hpp>
-#include <opencv2/features2d.hpp>
-#include <opencv2/video/background_segm.hpp>
 
 
 
@@ -10,19 +8,13 @@
 typedef struct
 {
     cv::Mat histogram;
-
     cv::Point2f dir[3];
-    
     cv::Point2f mean;
     cv::Point2f stddev;
     float ignore_radius;
-
-
     float mag0;
     float mag1;
     float mag2;
-
-
 } histvel_state_t;
 
 
