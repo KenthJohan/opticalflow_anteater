@@ -80,7 +80,8 @@ int main(int argc, char **argv)
     {
         userinputs_progress(userinputs);
 
-        captures_progress(captures);
+        
+	    captures.capture >> captures.frame;
         if (captures.frame.empty())
         {
             printf("Video ended!\n");
@@ -89,6 +90,8 @@ int main(int argc, char **argv)
             histvel_visual_reset(histvel_visual);
             continue;
         }
+        
+        captures_progress(captures);
 
         
         histvel.histogram.setTo(0);

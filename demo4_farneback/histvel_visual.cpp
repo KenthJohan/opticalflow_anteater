@@ -27,7 +27,7 @@ void histvel_visual_reset(histvel_visual_t &visual)
 
 
 
-#define UPSCALE 7
+#define UPSCALE 2
 
 
 
@@ -57,10 +57,10 @@ void histvel_visual_draw(histvel_visual_t &visual, histvel_state_t &state)
 	    //draw_direction(big, state.dir[1]*UPSCALE*HVEL_GAIN, CV_RGB(0, 255, 0));
 	    //draw_direction(big, state.dir[2]*UPSCALE*HVEL_GAIN, CV_RGB(0, 0, 255));
 	    draw_circle_center(visual_histogram, state.ignore_radius*UPSCALE);
-	    draw_text_float(visual_histogram, cv::Point(visual_histogram.cols - 300, 50+10), CV_RGB(255, 255, 255), "ref %7.4f m/s", WELD_SPEED);
-	    draw_text_float(visual_histogram, cv::Point(visual_histogram.cols - 300, 50+40), CV_RGB(255, 0, 0), " f0 %7.4f m/s", state.mag0*THE_FACTOR);
-	    draw_text_float(visual_histogram, cv::Point(visual_histogram.cols - 300, 50+70), CV_RGB(0, 255, 0), " f1 %7.4f m/s", state.mag1*THE_FACTOR);
-	    draw_text_float(visual_histogram, cv::Point(visual_histogram.cols - 300, 50+100), CV_RGB(0, 0, 255), " f2 %7.4f m/s", state.mag2*THE_FACTOR);
+	    draw_text_float(visual_histogram, cv::Point(visual_histogram.cols - UPSCALE*50, UPSCALE*(10+5)), CV_RGB(255, 255, 255), UPSCALE*0.2, "ref %7.4f m/s", WELD_SPEED);
+	    draw_text_float(visual_histogram, cv::Point(visual_histogram.cols - UPSCALE*50, UPSCALE*(10+10)), CV_RGB(255, 0, 0), UPSCALE*0.2, " f0 %7.4f m/s", state.mag0*THE_FACTOR);
+	    draw_text_float(visual_histogram, cv::Point(visual_histogram.cols - UPSCALE*50, UPSCALE*(10+15)), CV_RGB(0, 255, 0), UPSCALE*0.2, " f1 %7.4f m/s", state.mag1*THE_FACTOR);
+	    draw_text_float(visual_histogram, cv::Point(visual_histogram.cols - UPSCALE*50, UPSCALE*(10+20)), CV_RGB(0, 0, 255), UPSCALE*0.2, " f2 %7.4f m/s", state.mag2*THE_FACTOR);
 	    cv::imshow("Velocities Histogram", visual_histogram);
 	}
 
